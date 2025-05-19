@@ -35,11 +35,16 @@ db_searches: Dict[str, List[SearchResponse]] = {} # Initialize as empty
 # In a real app, this would be more secure and likely involve a database.
 VALID_API_TOKENS = {"test_token_123": "user_alpha"} # token: user_id
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token") # Dummy tokenUrl for Swagger UI
+http_bearer_scheme = HTTPBearer()
 
-async def get_current_user(token: str = Depends(oauth2_scheme)) -> str:
-    # The 'token' parameter is the actual token string from "Bearer <token>"
-    # FastAPI (via OAuth2PasswordBearer) handles extracting it from the header.
+async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(http_bearer_scheme)) -> str:
+    if credentials.scheme != "Bearer":
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid authentication scheme. Use 'Bearer <token>'",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    token = credentials.credentials
     user_id = VALID_API_TOKENS.get(token)
     if not user_id:
         raise HTTPException(
