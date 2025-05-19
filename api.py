@@ -1,7 +1,7 @@
 import uuid
 from typing import List, Optional, Dict, Any
-from fastapi import FastAPI, HTTPException, status, Header, Depends
-from fastapi.security import OAuth2PasswordBearer
+from fastapi import FastAPI, HTTPException, status, Depends
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel, Field
 
 # --- Pydantic Models ---
