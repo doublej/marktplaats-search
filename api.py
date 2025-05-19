@@ -1,6 +1,7 @@
 import uuid
 from typing import List, Optional, Dict, Any
-from fastapi import FastAPI, HTTPException, status, Header
+from fastapi import FastAPI, HTTPException, status, Header, Depends
+from fastapi.security import OAuth2PasswordBearer
 from pydantic import BaseModel, Field
 
 # --- Pydantic Models ---
@@ -34,24 +35,17 @@ db_searches: Dict[str, List[SearchResponse]] = {} # Initialize as empty
 # In a real app, this would be more secure and likely involve a database.
 VALID_API_TOKENS = {"test_token_123": "user_alpha"} # token: user_id
 
-async def get_current_user(authorization: Optional[str] = Header(None)) -> str:
-    if authorization is None:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Not authenticated: Authorization header missing",
-        )
-    parts = authorization.split()
-    if len(parts) != 2 or parts[0].lower() != "bearer":
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid authentication scheme. Use 'Bearer <token>'",
-        )
-    token = parts[1]
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token") # Dummy tokenUrl for Swagger UI
+
+async def get_current_user(token: str = Depends(oauth2_scheme)) -> str:
+    # The 'token' parameter is the actual token string from "Bearer <token>"
+    # FastAPI (via OAuth2PasswordBearer) handles extracting it from the header.
     user_id = VALID_API_TOKENS.get(token)
     if not user_id:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid token",
+            detail="Invalid token or token expired",
+            headers={"WWW-Authenticate": "Bearer"},
         )
     return user_id
 
@@ -63,11 +57,11 @@ app = FastAPI(
 )
 
 @app.post("/api/searches", response_model=SearchResponse, status_code=status.HTTP_201_CREATED)
-async def start_new_search(search_request: SearchCreateRequest, authorization: Optional[str] = Header(None)):
+async def start_new_search(search_request: SearchCreateRequest, current_user_id: str = Depends(get_current_user)):
     """
     Initiates a new search process based on the provided query parameters and search interval.
     """
-    user_id = await get_current_user(authorization)
+    user_id = current_user_id
 
     search_id = str(uuid.uuid4())
     new_search_data = search_request.model_dump()
@@ -86,11 +80,11 @@ async def start_new_search(search_request: SearchCreateRequest, authorization: O
     return new_search
 
 @app.get("/api/searches", response_model=List[SearchResponse])
-async def get_all_searches(authorization: Optional[str] = Header(None)):
+async def get_all_searches(current_user_id: str = Depends(get_current_user)):
     """
     Retrieves a list of all searches initiated by the authenticated user.
     """
-    user_id = await get_current_user(authorization)
+    user_id = current_user_id
     
     user_specific_searches = db_searches.get(user_id, [])
     return user_specific_searches
