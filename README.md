@@ -1,185 +1,101 @@
-Here's an extensible framework for handling large, paginated search results with **pluggable success-checkers** and **self-review (query updating)** via an LLM or other logic. The design assumes long-running, interval-based checks (e.g., wait for new results, retry queries, adjust parameters if needed).
+# MarktplaatsSearch API
 
-**Outline:**
+This document describes the API for managing Marktplaats searches. The API allows users to start, monitor, and manage automated searches for listings on Marktplaats.
 
-* `SearchSession` orchestrates fetching results in batches, handling retries, and aggregating results.
-* Success checkers are pluggable (LLM, heuristics, etc.).
-* Self-review hooks can adjust queries after a batch (e.g., LLM says "add -defective" to the query).
-* Uses async for real-world long polls (but could be adapted to threads/sync).
-* Handles huge datasets by streaming results (generator/yield).
+**Authentication:** All API endpoints that manage or retrieve user-specific data require an API token to be passed in the `Authorization` header (e.g., `Authorization: Bearer <your_api_token>`).
 
----
+**Data Persistence:** Search configurations, their status, and collected results are stored in local files on the server (e.g., JSON or SQLite files).
 
-### 1. Extensible Success Checker
+## API Endpoints
 
-```python
-from typing import Callable, List, Dict, Any, Optional
+### 1. Start a New Search
 
-class SearchSuccessChecker:
-    """Interface for checking if a search session should stop."""
-    def check(self, listings: List[Any], query: Dict[str, Any]) -> bool:
-        """Return True if the search should stop, False otherwise."""
-        raise NotImplementedError
-```
+*   **Method:** `POST`
+*   **Path:** `/api/searches`
+*   **Description:** Initiates a new search process based on the provided query parameters and search interval.
+*   **Request Body (JSON):**
+    *   `query` (string, required): The search term (e.g., "Samsung SSD").
+    *   `zip_code` (string, optional): The postal code for location-based searches.
+    *   `distance` (integer, optional): Search radius in meters.
+    *   `price_from` (integer, optional): Minimum price.
+    *   `price_to` (integer, optional): Maximum price.
+    *   `limit` (integer, optional, default: 25): Number of results per page/fetch.
+    *   `sort_by` (string, optional): Sorting criteria (e.g., "LOCATION", "PRICE").
+    *   `sort_order` (string, optional): Sorting order ("ASC", "DESC").
+    *   `interval` (integer, required): The interval in seconds at which the search should be re-executed or checked for new results.
+*   **Response:**
+    *   `201 Created`: On successful creation, returns the ID of the newly created search and its initial status.
+    *   `400 Bad Request`: If required parameters are missing or invalid.
 
-Plug in any checker, e.g., LLM-based:
+### 2. Get All Searches (for current user)
 
-```python
-class LLMChecker(SearchSuccessChecker):
-    def __init__(self, llm_fn: Callable):
-        self.llm_fn = llm_fn
+*   **Method:** `GET`
+*   **Path:** `/api/searches`
+*   **Description:** Retrieves a list of all searches initiated by the authenticated user, including their current status (e.g., active, inactive, completed) and basic configuration.
+*   **Request Parameters:** None.
+*   **Response:**
+    *   `200 OK`: Returns an array of search objects. Each object includes `search_id`, `query`, `status`, `interval`, etc.
 
-    def check(self, listings, query):
-        # Imagine llm_fn returns a boolean (succeeded?) and possible message
-        result = self.llm_fn(listings, query)
-        return result.get('succeeded', False)
-```
+### 3. End a Search
 
----
+*   **Method:** `POST` (or `PUT` if considered an update to state)
+*   **Path:** `/api/searches/{search_id}/end`
+*   **Description:** Stops an active search process. The search is marked as "inactive," polling for new results ceases, but its configuration and any collected results are retained.
+*   **Request Parameters (Path):**
+    *   `search_id` (string, required): The ID of the search to end.
+*   **Response:**
+    *   `200 OK`: If the search was successfully marked as inactive.
+    *   `404 Not Found`: If the `search_id` does not exist.
 
-### 2. Self-Review System (query adjuster)
+### 4. Change a Query
 
-```python
-class SelfReview:
-    """Interface for query refinement/review based on the current state/results."""
-    def review(self, listings: List[Any], query: Dict[str, Any]) -> Optional[Dict[str, Any]]:
-        """Return a new query dict if an update is recommended, or None to keep as is."""
-        raise NotImplementedError
+*   **Method:** `PUT`
+*   **Path:** `/api/searches/{search_id}/query`
+*   **Description:** Modifies the search query parameters (e.g., search term, price range) for an existing search. This can apply to an active search (modifying it live) or a saved/inactive search configuration.
+*   **Request Parameters (Path):**
+    *   `search_id` (string, required): The ID of the search to modify.
+*   **Request Body (JSON):**
+    *   Contains the query parameters to update (e.g., `query`, `price_to`). Only provided fields will be updated.
+*   **Response:**
+    *   `200 OK`: On successful update, returns the updated search configuration.
+    *   `404 Not Found`: If the `search_id` does not exist.
+    *   `400 Bad Request`: If the new query parameters are invalid.
 
-class LLMSelfReview(SelfReview):
-    def __init__(self, llm_fn: Callable):
-        self.llm_fn = llm_fn
+### 5. Change an Interval
 
-    def review(self, listings, query):
-        update = self.llm_fn(listings, query)
-        return update.get('new_query')
-```
+*   **Method:** `PUT`
+*   **Path:** `/api/searches/{search_id}/interval`
+*   **Description:** Modifies the polling interval for an existing search. This can apply to an active search or a saved/inactive search configuration.
+*   **Request Parameters (Path):**
+    *   `search_id` (string, required): The ID of the search to modify.
+*   **Request Body (JSON):**
+    *   `interval` (integer, required): The new interval in seconds.
+*   **Response:**
+    *   `200 OK`: On successful update, returns the updated search configuration.
+    *   `404 Not Found`: If the `search_id` does not exist.
+    *   `400 Bad Request`: If the interval is invalid.
 
----
+### 6. Get List of Results
 
-### 3. Orchestrator: SearchSession
+*   **Method:** `GET`
+*   **Path:** `/api/searches/{search_id}/results`
+*   **Description:** Retrieves a paginated list of results (listings) collected for a specific search.
+*   **Request Parameters (Path):**
+    *   `search_id` (string, required): The ID of the search whose results are to be fetched.
+*   **Request Parameters (Query):**
+    *   `page` (integer, optional, default: 1): The page number for pagination.
+    *   `per_page` (integer, optional, default: 20): Number of results per page.
+*   **Response:**
+    *   `200 OK`: Returns a paginated list of search results. Each result includes an identifier (e.g., original Marktplaats item ID or URL) that can be used to fetch more details.
+    *   `404 Not Found`: If the `search_id` does not exist.
 
-```python
-import asyncio
-import time
+### 7. Get More Details on Individual Results
 
-class SearchSession:
-    def __init__(
-        self,
-        base_query: Dict[str, Any],
-        query_executor: Callable[[Dict[str, Any]], List[Any]],
-        success_checkers: List[SearchSuccessChecker],
-        reviewers: List[SelfReview],
-        poll_interval: float = 10.0,  # seconds
-        max_pages: int = 100,
-        logger=None
-    ):
-        self.base_query = base_query
-        self.query_executor = query_executor
-        self.success_checkers = success_checkers
-        self.reviewers = reviewers
-        self.poll_interval = poll_interval
-        self.max_pages = max_pages
-        self.logger = logger or print
-        self.results = []
-
-    async def run(self):
-        query = self.base_query.copy()
-        page = 0
-        while page < self.max_pages:
-            self.logger(f"Fetching page {page} with query: {query}")
-            batch = self.query_executor({**query, "offset": page * query.get('limit', 20)})
-            self.results.extend(batch)
-
-            # Check for success
-            if any(checker.check(self.results, query) for checker in self.success_checkers):
-                self.logger(f"Search succeeded after {page+1} pages.")
-                break
-
-            # Self-review: should we update the query?
-            for reviewer in self.reviewers:
-                new_query = reviewer.review(self.results, query)
-                if new_query:
-                    self.logger(f"Self-review suggested new query: {new_query}")
-                    query = new_query
-                    page = 0
-                    self.results = []
-                    break
-
-            # If less than a full batch, stop
-            if not batch or len(batch) < query.get('limit', 20):
-                self.logger("No more results, ending search.")
-                break
-
-            page += 1
-            await asyncio.sleep(self.poll_interval)
-        return self.results
-```
-
----
-
-### 4. Usage Example
-
-```python
-# Example LLM stubs (replace with your own API)
-def fake_llm_checker(listings, query):
-    # Succeeds if at least 10 items and a certain keyword present
-    found = any("perfect" in l.title.lower() for l in listings)
-    return {'succeeded': found}
-
-def fake_llm_review(listings, query):
-    # If too many unrelated results, tighten query
-    if len(listings) > 20 and not any("samsung" in l.title.lower() for l in listings):
-        new_query = query.copy()
-        new_query["query"] += " Samsung"
-        return {'new_query': new_query}
-    return {'new_query': None}
-
-from marktplaats.query import SearchQuery
-
-def mp_executor(query_dict):
-    sq = SearchQuery(**query_dict)
-    return sq.get_listings()
-
-# Build search session
-success_checkers = [LLMChecker(fake_llm_checker)]
-reviewers = [LLMSelfReview(fake_llm_review)]
-
-base_query = {
-    "query": "ssd",
-    "zip_code": "3522RA",
-    "distance": 5000,
-    "price_from": 50,
-    "price_to": 350,
-    "limit": 20,
-    "sort_by": "LOCATION",
-    "sort_order": "ASC",
-}
-
-session = SearchSession(
-    base_query=base_query,
-    query_executor=mp_executor,
-    success_checkers=success_checkers,
-    reviewers=reviewers,
-    poll_interval=15.0,
-    max_pages=10
-)
-
-# Run with asyncio
-import asyncio
-asyncio.run(session.run())
-```
-
----
-
-## Notes
-
-* Plug in *as many checkers and reviewers* as you want.
-* Easily extend with more sophisticated LLM calls.
-* Handles huge result sets batchwise, keeps memory footprint moderate.
-* Supports both human and LLM-in-the-loop review flows.
-* Can be integrated with celery, threading, or other long-running frameworks as needed.
-
----
-
-Let me know if you want it split out, adapted for synchronous code, or want a specific LLM integration stub!
+*   **Method:** `GET`
+*   **Path:** `/api/results/{result_id}` (Alternatively, could be `/api/searches/{search_id}/results/{result_id}` if results are strictly namespaced under searches)
+*   **Description:** Retrieves detailed information for an individual search result (listing). The `result_id` is typically an identifier obtained from the "Get List of Results" endpoint (e.g., the original ID from Marktplaats).
+*   **Request Parameters (Path):**
+    *   `result_id` (string, required): The unique identifier of the listing/result.
+*   **Response:**
+    *   `200 OK`: Returns detailed information about the specified result.
+    *   `404 Not Found`: If the `result_id` does not exist or is not accessible.
