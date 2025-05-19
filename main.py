@@ -1,8 +1,9 @@
 import uvicorn
 import asyncio
 import logging
+from contextlib import asynccontextmanager
 
-from api import app # Import the FastAPI app instance from api.py
+from fastapi import FastAPI # Import FastAPI here
 from database import create_db_and_tables, AsyncSessionLocal
 from models import User # Import User model for creating a default user
 from sqlalchemy.future import select # For querying User table
@@ -12,7 +13,7 @@ from scheduler import initialize_scheduler, shutdown_scheduler
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-async def create_default_user_if_not_exists():
+async def _create_default_user_if_not_exists(): # Renamed to indicate internal use
     """Creates a default user and API token if one doesn't exist."""
     default_token = "test_token_123" # Keep this secure in a real app
     default_user_identifier = "user_alpha"
@@ -28,32 +29,47 @@ async def create_default_user_if_not_exists():
         else:
             logger.info(f"Default user '{default_user_identifier}' already exists.")
 
-@app.on_event("startup")
-async def startup_event():
+@asynccontextmanager
+async def lifespan(app_instance: FastAPI):
+    # Startup logic
     logger.info("Application startup: Initializing database and scheduler...")
     await create_db_and_tables()
     logger.info("Database tables checked/created.")
-    await create_default_user_if_not_exists()
+    await _create_default_user_if_not_exists()
     logger.info("Default user checked/created.")
     await initialize_scheduler()
     logger.info("Scheduler initialized and jobs loaded.")
     logger.info("Application startup complete.")
-
-@app.on_event("shutdown")
-async def shutdown_event():
+    
+    yield # Application runs here
+    
+    # Shutdown logic
     logger.info("Application shutdown: Shutting down scheduler...")
     await shutdown_scheduler()
     logger.info("Scheduler shutdown complete.")
-    # Note: SQLAlchemy engine connections are typically managed by the connection pool
-    # and don't require explicit closing here unless specific non-pooled connections were made.
     logger.info("Application shutdown complete.")
+
+# The FastAPI app instance will be created in api.py and imported,
+# or created here if api.py only defines routes/routers.
+# For now, assuming app is still primarily defined in api.py and we pass lifespan to it.
+# If app were defined here, it would be: app = FastAPI(lifespan=lifespan)
+
+# This run_server function will now use the app from api.py,
+# which needs to be initialized with the lifespan manager.
+# We will adjust api.py to accept the lifespan.
 
 def run_server():
     """
     Configures and runs the Uvicorn server.
+    The 'app' instance is now expected to be imported from api.py,
+    initialized with the lifespan manager from this file.
     """
+    # Ensure api.py's app is initialized with this lifespan
+    # This requires a slight modification in how 'app' is defined/imported.
+    # For simplicity, we'll assume api.py imports 'lifespan' from 'main'
+    # and uses it when creating its FastAPI instance.
     uvicorn.run(
-        "main:app", # Points to the app instance in this file (main.py)
+        "api:app", # Points to the app instance in api.py
         host="0.0.0.0",
         port=8000,
         log_level="info",

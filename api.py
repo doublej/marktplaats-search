@@ -119,11 +119,14 @@ async def get_current_user(
         )
     return user
 
+from main import lifespan # Import the lifespan manager
+
 # --- FastAPI Application ---
 app = FastAPI(
     title="MarktplaatsSearch API",
     description="API for managing Marktplaats searches and viewing results.",
     version="0.3.0", # Incremented version
+    lifespan=lifespan # Assign the lifespan manager
 )
 
 # --- Helper to get a search instance for the current user ---

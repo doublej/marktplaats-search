@@ -98,19 +98,20 @@ async def run_single_search(search_id: uuid.UUID):
 def schedule_search_job(search: Search):
     job_id = str(search.id)
     if search.status == SearchStatus.ACTIVE and search.interval > 0:
-        job_kwargs = {
+        job_details = {
             'func': run_single_search,
             'trigger': 'interval',
             'seconds': search.interval,
-            'id': job_id,
             'args': [search.id],
             'next_run_time': datetime.now(timezone.utc) # Run immediately then interval
         }
         if scheduler.get_job(job_id):
-            scheduler.modify_job(job_id, **job_kwargs)
+            # When modifying, job_id is the first arg, other changes in **job_details
+            scheduler.modify_job(job_id, **job_details)
             logger.info(f"SCHEDULER: Modified/Rescheduled search {job_id} to run every {search.interval}s")
         else:
-            scheduler.add_job(**job_kwargs)
+            # When adding, id is part of job_details
+            scheduler.add_job(id=job_id, **job_details)
             logger.info(f"SCHEDULER: Scheduled search {job_id} to run every {search.interval}s")
     elif scheduler.get_job(job_id):
         scheduler.remove_job(job_id)
