@@ -73,8 +73,8 @@ class SearchResponse(SearchQueryBase):
     updated_at: datetime
     
     class Config:
-        orm_mode = True
-        allow_population_by_field_name = True # Allows using 'search_id' in response
+        from_attributes = True
+        populate_by_name = True # Allows using 'search_id' in response
 
 
 class ListingResponse(BaseModel):
@@ -90,8 +90,8 @@ class ListingResponse(BaseModel):
     discovered_at: datetime
 
     class Config:
-        orm_mode = True
-        allow_population_by_field_name = True
+        from_attributes = True
+        populate_by_name = True
 
 # --- Authentication ---
 http_bearer_scheme = HTTPBearer()
