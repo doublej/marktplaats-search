@@ -1,0 +1,666 @@
+INFO:     Will watch for changes in these directories: ['/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch']
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [8047] using StatReload
+/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+INFO:     Started server process [8050]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     127.0.0.1:62056 - "GET /search HTTP/1.1" 307 Temporary Redirect
+INFO:     127.0.0.1:62056 - "GET /search/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62062 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62072 - "POST /search HTTP/1.1" 307 Temporary Redirect
+INFO:     127.0.0.1:62072 - "POST /search/ HTTP/1.1" 200 OK
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/uvicorn/protocols/http/h11_impl.py", line 408, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/uvicorn/middleware/proxy_headers.py", line 84, in __call__
+    return await self.app(scope, receive, send)
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/fastapi/applications.py", line 292, in __call__
+    await super().__call__(scope, receive, send)
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/starlette/applications.py", line 122, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/starlette/middleware/errors.py", line 184, in __call__
+    raise exc
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/starlette/middleware/errors.py", line 162, in __call__
+    await self.app(scope, receive, _send)
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/starlette/middleware/cors.py", line 83, in __call__
+    await self.app(scope, receive, send)
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/starlette/middleware/exceptions.py", line 79, in __call__
+    raise exc
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/starlette/middleware/exceptions.py", line 68, in __call__
+    await self.app(scope, receive, sender)
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/fastapi/middleware/asyncexitstack.py", line 20, in __call__
+    raise e
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/fastapi/middleware/asyncexitstack.py", line 17, in __call__
+    await self.app(scope, receive, send)
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/starlette/routing.py", line 718, in __call__
+    await route.handle(scope, receive, send)
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/starlette/routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/starlette/routing.py", line 69, in app
+    await response(scope, receive, send)
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/starlette/responses.py", line 174, in __call__
+    await self.background()
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/starlette/background.py", line 43, in __call__
+    await task()
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/starlette/background.py", line 26, in __call__
+    await self.func(*self.args, **self.kwargs)
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/app/services/search_service.py", line 266, in run_search
+    price=listing.price.amount if hasattr(listing, 'price') and listing.price else None,
+AttributeError: 'float' object has no attribute 'amount'
+ERROR:app.services.search_service:Error in search task for 24b8c6f1-e4ff-4540-8e08-cfca4b2b6d70: 'float' object has no attribute 'amount'
+INFO:     ('127.0.0.1', 62074) - "WebSocket /ws/24b8c6f1-e4ff-4540-8e08-cfca4b2b6d70" [accepted]
+ERROR:app.api.routes.websocket:WebSocket error: Object of type UUID is not JSON serializable
+INFO:     connection open
+INFO:     127.0.0.1:62145 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62216 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62227 - "GET /health HTTP/1.1" 200 OK
+INFO:     connection closed
+INFO:     127.0.0.1:62407 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62425 - "GET /search HTTP/1.1" 307 Temporary Redirect
+INFO:     127.0.0.1:62425 - "GET /search/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62557 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62576 - "GET /search HTTP/1.1" 307 Temporary Redirect
+INFO:     127.0.0.1:62576 - "GET /search/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62594 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62617 - "GET /search HTTP/1.1" 307 Temporary Redirect
+INFO:     127.0.0.1:62617 - "GET /search/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62626 - "POST /search HTTP/1.1" 307 Temporary Redirect
+INFO:     127.0.0.1:62626 - "POST /search/ HTTP/1.1" 200 OK
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/uvicorn/protocols/http/h11_impl.py", line 408, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/uvicorn/middleware/proxy_headers.py", line 84, in __call__
+    return await self.app(scope, receive, send)
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/fastapi/applications.py", line 292, in __call__
+    await super().__call__(scope, receive, send)
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/starlette/applications.py", line 122, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/starlette/middleware/errors.py", line 184, in __call__
+    raise exc
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/starlette/middleware/errors.py", line 162, in __call__
+    await self.app(scope, receive, _send)
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/starlette/middleware/cors.py", line 83, in __call__
+    await self.app(scope, receive, send)
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/starlette/middleware/exceptions.py", line 79, in __call__
+    raise exc
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/starlette/middleware/exceptions.py", line 68, in __call__
+    await self.app(scope, receive, sender)
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/fastapi/middleware/asyncexitstack.py", line 20, in __call__
+    raise e
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/fastapi/middleware/asyncexitstack.py", line 17, in __call__
+    await self.app(scope, receive, send)
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/starlette/routing.py", line 718, in __call__
+    await route.handle(scope, receive, send)
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/starlette/routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/starlette/routing.py", line 69, in app
+    await response(scope, receive, send)
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/starlette/responses.py", line 174, in __call__
+    await self.background()
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/starlette/background.py", line 43, in __call__
+    await task()
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/starlette/background.py", line 26, in __call__
+    await self.func(*self.args, **self.kwargs)
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/app/services/search_service.py", line 266, in run_search
+    price=listing.price.amount if hasattr(listing, 'price') and listing.price else None,
+AttributeError: 'float' object has no attribute 'amount'
+ERROR:app.services.search_service:Error in search task for d80f5bdc-7608-4c8d-8714-8fd7ec89f898: 'float' object has no attribute 'amount'
+INFO:     ('127.0.0.1', 62628) - "WebSocket /ws/d80f5bdc-7608-4c8d-8714-8fd7ec89f898" [accepted]
+ERROR:app.api.routes.websocket:WebSocket error: Object of type UUID is not JSON serializable
+INFO:     connection open
+INFO:     127.0.0.1:62673 - "POST /search HTTP/1.1" 307 Temporary Redirect
+INFO:     127.0.0.1:62673 - "POST /search/ HTTP/1.1" 200 OK
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/uvicorn/protocols/http/h11_impl.py", line 408, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/uvicorn/middleware/proxy_headers.py", line 84, in __call__
+    return await self.app(scope, receive, send)
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/fastapi/applications.py", line 292, in __call__
+    await super().__call__(scope, receive, send)
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/starlette/applications.py", line 122, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/starlette/middleware/errors.py", line 184, in __call__
+    raise exc
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/starlette/middleware/errors.py", line 162, in __call__
+    await self.app(scope, receive, _send)
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/starlette/middleware/cors.py", line 83, in __call__
+    await self.app(scope, receive, send)
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/starlette/middleware/exceptions.py", line 79, in __call__
+    raise exc
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/starlette/middleware/exceptions.py", line 68, in __call__
+    await self.app(scope, receive, sender)
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/fastapi/middleware/asyncexitstack.py", line 20, in __call__
+    raise e
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/fastapi/middleware/asyncexitstack.py", line 17, in __call__
+    await self.app(scope, receive, send)
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/starlette/routing.py", line 718, in __call__
+    await route.handle(scope, receive, send)
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/starlette/routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/starlette/routing.py", line 69, in app
+    await response(scope, receive, send)
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/starlette/responses.py", line 174, in __call__
+    await self.background()
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/starlette/background.py", line 43, in __call__
+    await task()
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/starlette/background.py", line 26, in __call__
+    await self.func(*self.args, **self.kwargs)
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/app/services/search_service.py", line 266, in run_search
+    price=listing.price.amount if hasattr(listing, 'price') and listing.price else None,
+AttributeError: 'float' object has no attribute 'amount'
+ERROR:app.services.search_service:Error in search task for 0ae085e2-6629-4558-8f46-23078b1d29ea: 'float' object has no attribute 'amount'
+INFO:     ('127.0.0.1', 62675) - "WebSocket /ws/0ae085e2-6629-4558-8f46-23078b1d29ea" [accepted]
+ERROR:app.api.routes.websocket:WebSocket error: Object of type UUID is not JSON serializable
+INFO:     connection open
+INFO:     127.0.0.1:62728 - "GET /api/search HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:62733 - "GET /search HTTP/1.1" 307 Temporary Redirect
+INFO:     127.0.0.1:62737 - "GET /health HTTP/1.1" 200 OK
+INFO:     connection closed
+INFO:     connection closed
+INFO:     127.0.0.1:62807 - "GET /search HTTP/1.1" 307 Temporary Redirect
+INFO:     127.0.0.1:62807 - "GET /search/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62809 - "GET /openapi.json HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62812 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62847 - "GET /search HTTP/1.1" 307 Temporary Redirect
+INFO:     127.0.0.1:62847 - "GET /search/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62849 - "GET /openapi.json HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62852 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62866 - "POST /search HTTP/1.1" 307 Temporary Redirect
+INFO:     127.0.0.1:62866 - "POST /search/ HTTP/1.1" 200 OK
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/uvicorn/protocols/http/h11_impl.py", line 408, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/uvicorn/middleware/proxy_headers.py", line 84, in __call__
+    return await self.app(scope, receive, send)
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/fastapi/applications.py", line 292, in __call__
+    await super().__call__(scope, receive, send)
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/starlette/applications.py", line 122, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/starlette/middleware/errors.py", line 184, in __call__
+    raise exc
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/starlette/middleware/errors.py", line 162, in __call__
+    await self.app(scope, receive, _send)
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/starlette/middleware/cors.py", line 83, in __call__
+    await self.app(scope, receive, send)
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/starlette/middleware/exceptions.py", line 79, in __call__
+    raise exc
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/starlette/middleware/exceptions.py", line 68, in __call__
+    await self.app(scope, receive, sender)
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/fastapi/middleware/asyncexitstack.py", line 20, in __call__
+    raise e
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/fastapi/middleware/asyncexitstack.py", line 17, in __call__
+    await self.app(scope, receive, send)
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/starlette/routing.py", line 718, in __call__
+    await route.handle(scope, receive, send)
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/starlette/routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/starlette/routing.py", line 69, in app
+    await response(scope, receive, send)
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/starlette/responses.py", line 174, in __call__
+    await self.background()
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/starlette/background.py", line 43, in __call__
+    await task()
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/starlette/background.py", line 26, in __call__
+    await self.func(*self.args, **self.kwargs)
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/app/services/search_service.py", line 266, in run_search
+    price=listing.price.amount if hasattr(listing, 'price') and listing.price else None,
+AttributeError: 'float' object has no attribute 'amount'
+ERROR:app.services.search_service:Error in search task for 22af31cc-d214-4e37-a4a7-ba24241a98ce: 'float' object has no attribute 'amount'
+INFO:     ('127.0.0.1', 62868) - "WebSocket /ws/22af31cc-d214-4e37-a4a7-ba24241a98ce" [accepted]
+ERROR:app.api.routes.websocket:WebSocket error: Object of type UUID is not JSON serializable
+INFO:     connection open
+INFO:     127.0.0.1:62947 - "GET /openapi.json HTTP/1.1" 200 OK
+WARNING:  StatReload detected changes in 'client_example.py'. Reloading...
+INFO:     Shutting down
+INFO:     connection closed
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [8050]
+/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+INFO:     Started server process [10176]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  StatReload detected changes in 'marktplaats_gradio_ui.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [10176]
+/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+INFO:     Started server process [10200]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  StatReload detected changes in 'marktplaats_gradio_ui.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [10200]
+/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+INFO:     Started server process [10207]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  StatReload detected changes in 'marktplaats_gradio_ui.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [10207]
+/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+INFO:     Started server process [10214]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  StatReload detected changes in 'marktplaats_gradio_ui.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [10214]
+/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+INFO:     Started server process [10246]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     127.0.0.1:63065 - "GET /search HTTP/1.1" 307 Temporary Redirect
+INFO:     127.0.0.1:63065 - "GET /search/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63070 - "GET /openapi.json HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63072 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63222 - "GET /search HTTP/1.1" 307 Temporary Redirect
+INFO:     127.0.0.1:63222 - "GET /search/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63228 - "GET /search HTTP/1.1" 307 Temporary Redirect
+INFO:     127.0.0.1:63228 - "GET /search/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63237 - "DELETE /search/None HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:63241 - "GET /search/None/results HTTP/1.1" 422 Unprocessable Entity
+WARNING:  StatReload detected changes in 'marktplaats_gradio_ui.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [10246]
+/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+INFO:     Started server process [15543]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     127.0.0.1:64404 - "GET /search HTTP/1.1" 307 Temporary Redirect
+INFO:     127.0.0.1:64404 - "GET /search/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64411 - "GET /openapi.json HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64414 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64429 - "GET /search/None/results HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:64432 - "GET /search HTTP/1.1" 307 Temporary Redirect
+INFO:     127.0.0.1:64432 - "GET /search/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64435 - "GET /search HTTP/1.1" 307 Temporary Redirect
+INFO:     127.0.0.1:64435 - "GET /search/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64437 - "GET /search HTTP/1.1" 307 Temporary Redirect
+INFO:     127.0.0.1:64437 - "GET /search/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64439 - "GET /search HTTP/1.1" 307 Temporary Redirect
+INFO:     127.0.0.1:64439 - "GET /search/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64441 - "GET /search HTTP/1.1" 307 Temporary Redirect
+INFO:     127.0.0.1:64441 - "GET /search/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64443 - "GET /search HTTP/1.1" 307 Temporary Redirect
+INFO:     127.0.0.1:64443 - "GET /search/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64445 - "GET /search HTTP/1.1" 307 Temporary Redirect
+INFO:     127.0.0.1:64445 - "GET /search/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64447 - "GET /search HTTP/1.1" 307 Temporary Redirect
+INFO:     127.0.0.1:64447 - "GET /search/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64450 - "GET /search HTTP/1.1" 307 Temporary Redirect
+INFO:     127.0.0.1:64450 - "GET /search/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64452 - "GET /search HTTP/1.1" 307 Temporary Redirect
+INFO:     127.0.0.1:64452 - "GET /search/ HTTP/1.1" 200 OK
+WARNING:  StatReload detected changes in 'marktplaats_gradio_ui.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [15543]
+/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+INFO:     Started server process [16474]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  StatReload detected changes in 'marktplaats_gradio_ui.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [16474]
+/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+INFO:     Started server process [16490]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     127.0.0.1:64587 - "GET /search HTTP/1.1" 307 Temporary Redirect
+INFO:     127.0.0.1:64587 - "GET /search/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64589 - "GET /search HTTP/1.1" 307 Temporary Redirect
+INFO:     127.0.0.1:64589 - "GET /search/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64591 - "GET /search HTTP/1.1" 307 Temporary Redirect
+INFO:     127.0.0.1:64591 - "GET /search/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64616 - "POST /search HTTP/1.1" 307 Temporary Redirect
+INFO:     127.0.0.1:64616 - "POST /search/ HTTP/1.1" 200 OK
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/uvicorn/protocols/http/h11_impl.py", line 408, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/uvicorn/middleware/proxy_headers.py", line 84, in __call__
+    return await self.app(scope, receive, send)
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/fastapi/applications.py", line 292, in __call__
+    await super().__call__(scope, receive, send)
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/starlette/applications.py", line 122, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/starlette/middleware/errors.py", line 184, in __call__
+    raise exc
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/starlette/middleware/errors.py", line 162, in __call__
+    await self.app(scope, receive, _send)
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/starlette/middleware/cors.py", line 83, in __call__
+    await self.app(scope, receive, send)
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/starlette/middleware/exceptions.py", line 79, in __call__
+    raise exc
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/starlette/middleware/exceptions.py", line 68, in __call__
+    await self.app(scope, receive, sender)
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/fastapi/middleware/asyncexitstack.py", line 20, in __call__
+    raise e
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/fastapi/middleware/asyncexitstack.py", line 17, in __call__
+    await self.app(scope, receive, send)
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/starlette/routing.py", line 718, in __call__
+    await route.handle(scope, receive, send)
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/starlette/routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/starlette/routing.py", line 69, in app
+    await response(scope, receive, send)
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/starlette/responses.py", line 174, in __call__
+    await self.background()
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/starlette/background.py", line 43, in __call__
+    await task()
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/starlette/background.py", line 26, in __call__
+    await self.func(*self.args, **self.kwargs)
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/app/services/search_service.py", line 266, in run_search
+    price=listing.price.amount if hasattr(listing, 'price') and listing.price else None,
+AttributeError: 'float' object has no attribute 'amount'
+ERROR:app.services.search_service:Error in search task for d60e1fa7-3089-4cf8-8430-d550e73a55d4: 'float' object has no attribute 'amount'
+INFO:     ('127.0.0.1', 64618) - "WebSocket /ws/d60e1fa7-3089-4cf8-8430-d550e73a55d4" [accepted]
+ERROR:app.api.routes.websocket:WebSocket error: Object of type UUID is not JSON serializable
+INFO:     connection open
+INFO:     127.0.0.1:64627 - "GET /search/%7B%27choices%27%3A%20%5B%27Select%20a%20search%27%5D%2C%20%27value%27%3A%20%27Select%20a%20search%27%7D/results HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:64644 - "GET /search/%7B%27choices%27%3A%20%5B%27Select%20a%20search%27%5D%2C%20%27value%27%3A%20%27Select%20a%20search%27%7D/results HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:64647 - "GET /search/%7B%27choices%27%3A%20%5B%27Select%20a%20search%27%5D%2C%20%27value%27%3A%20%27Select%20a%20search%27%7D/results HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:64649 - "GET /search/%7B%27choices%27%3A%20%5B%27Select%20a%20search%27%5D%2C%20%27value%27%3A%20%27Select%20a%20search%27%7D/results HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:64651 - "GET /search/%7B%27choices%27%3A%20%5B%27Select%20a%20search%27%5D%2C%20%27value%27%3A%20%27Select%20a%20search%27%7D/results HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:64665 - "GET /search HTTP/1.1" 307 Temporary Redirect
+INFO:     127.0.0.1:64665 - "GET /search/ HTTP/1.1" 200 OK
+WARNING:  StatReload detected changes in 'marktplaats_gradio_ui.py'. Reloading...
+INFO:     Shutting down
+INFO:     connection closed
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [16490]
+/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+INFO:     Started server process [21742]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  StatReload detected changes in 'marktplaats_gradio_ui.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [21742]
+/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+INFO:     Started server process [21769]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  StatReload detected changes in 'marktplaats_gradio_ui.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [21769]
+/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+INFO:     Started server process [21772]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  StatReload detected changes in 'marktplaats_gradio_ui.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [21772]
+/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+INFO:     Started server process [21776]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  StatReload detected changes in 'marktplaats_gradio_ui.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [21776]
+/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+INFO:     Started server process [21787]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  StatReload detected changes in 'marktplaats_gradio_ui.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [21787]
+/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+INFO:     Started server process [21792]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  StatReload detected changes in 'marktplaats_gradio_ui.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [21792]
+/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+INFO:     Started server process [21808]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     127.0.0.1:65249 - "GET /search HTTP/1.1" 307 Temporary Redirect
+INFO:     127.0.0.1:65249 - "GET /search/ HTTP/1.1" 200 OK
+WARNING:  StatReload detected changes in 'marktplaats_gradio_ui.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [21808]
+/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+INFO:     Started server process [23518]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     127.0.0.1:52951 - "GET /search HTTP/1.1" 307 Temporary Redirect
+INFO:     127.0.0.1:52951 - "GET /search/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52953 - "GET /openapi.json HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52960 - "GET /health HTTP/1.1" 200 OK
+WARNING:  StatReload detected changes in 'marktplaats_gradio_ui.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [23518]
+/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+INFO:     Started server process [23736]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  StatReload detected changes in 'marktplaats_gradio_ui.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [23736]
+/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+INFO:     Started server process [23739]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  StatReload detected changes in 'marktplaats_gradio_ui.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [23739]
+/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+INFO:     Started server process [23743]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  StatReload detected changes in 'marktplaats_gradio_ui.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [23743]
+/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+INFO:     Started server process [23746]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  StatReload detected changes in 'marktplaats_gradio_ui.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [23746]
+/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+INFO:     Started server process [24138]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  StatReload detected changes in 'marktplaats_gradio_ui.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [24138]
+/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+INFO:     Started server process [26920]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  StatReload detected changes in 'marktplaats_gradio_ui.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [26920]
+/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+INFO:     Started server process [27709]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  StatReload detected changes in 'marktplaats_gradio_ui.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [27709]
+/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+INFO:     Started server process [27720]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     127.0.0.1:53741 - "GET /search HTTP/1.1" 307 Temporary Redirect
+WARNING:  StatReload detected changes in 'marktplaats_gradio_ui.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [27720]
+/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+INFO:     Started server process [27791]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  StatReload detected changes in 'marktplaats_gradio_ui.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [27791]
+/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+INFO:     Started server process [27805]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  StatReload detected changes in 'marktplaats_gradio_ui.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [27805]
+/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+INFO:     Started server process [27815]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  StatReload detected changes in 'marktplaats_gradio_ui.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [27815]
+/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+INFO:     Started server process [27816]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     127.0.0.1:54056 - "GET /search HTTP/1.1" 307 Temporary Redirect
+INFO:     127.0.0.1:54056 - "GET /search/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54110 - "POST /search HTTP/1.1" 307 Temporary Redirect
+INFO:     127.0.0.1:54110 - "POST /search/ HTTP/1.1" 200 OK
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/uvicorn/protocols/http/h11_impl.py", line 408, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/uvicorn/middleware/proxy_headers.py", line 84, in __call__
+    return await self.app(scope, receive, send)
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/fastapi/applications.py", line 292, in __call__
+    await super().__call__(scope, receive, send)
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/starlette/applications.py", line 122, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/starlette/middleware/errors.py", line 184, in __call__
+    raise exc
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/starlette/middleware/errors.py", line 162, in __call__
+    await self.app(scope, receive, _send)
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/starlette/middleware/cors.py", line 83, in __call__
+    await self.app(scope, receive, send)
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/starlette/middleware/exceptions.py", line 79, in __call__
+    raise exc
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/starlette/middleware/exceptions.py", line 68, in __call__
+    await self.app(scope, receive, sender)
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/fastapi/middleware/asyncexitstack.py", line 20, in __call__
+    raise e
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/fastapi/middleware/asyncexitstack.py", line 17, in __call__
+    await self.app(scope, receive, send)
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/starlette/routing.py", line 718, in __call__
+    await route.handle(scope, receive, send)
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/starlette/routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/starlette/routing.py", line 69, in app
+    await response(scope, receive, send)
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/starlette/responses.py", line 174, in __call__
+    await self.background()
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/starlette/background.py", line 43, in __call__
+    await task()
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/starlette/background.py", line 26, in __call__
+    await self.func(*self.args, **self.kwargs)
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/app/services/search_service.py", line 266, in run_search
+    price=listing.price.amount if hasattr(listing, 'price') and listing.price else None,
+AttributeError: 'float' object has no attribute 'amount'
+ERROR:app.services.search_service:Error in search task for 522a58d0-2f76-479d-836b-7d9967da0563: 'float' object has no attribute 'amount'
+INFO:     ('127.0.0.1', 54112) - "WebSocket /ws/522a58d0-2f76-479d-836b-7d9967da0563" [accepted]
+ERROR:app.api.routes.websocket:WebSocket error: Object of type UUID is not JSON serializable
+INFO:     connection open
+INFO:     127.0.0.1:54130 - "POST /search/%7B%27choices%27%3A%20%5B%27Select%20a%20search%27%5D%2C%20%27value%27%3A%20%27Select%20a%20search%27%7D/run HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:54137 - "DELETE /search/%7B%27choices%27%3A%20%5B%27Select%20a%20search%27%5D%2C%20%27value%27%3A%20%27Select%20a%20search%27%7D HTTP/1.1" 422 Unprocessable Entity
+WARNING:  StatReload detected changes in 'marktplaats_gradio_ui.py'. Reloading...
+INFO:     Shutting down
+INFO:     connection closed
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [27816]
+/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+INFO:     Started server process [29247]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  StatReload detected changes in 'app/schemas/websocket.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [29247]
+ERROR:    Error loading ASGI app. Could not import module "app.main".

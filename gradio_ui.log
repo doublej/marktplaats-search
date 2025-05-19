@@ -1,0 +1,53 @@
+/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+Traceback (most recent call last):
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/gradio/queueing.py", line 536, in process_events
+    response = await route_utils.call_process_api(
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/gradio/route_utils.py", line 322, in call_process_api
+    output = await app.get_blocks().process_api(
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/gradio/blocks.py", line 1935, in process_api
+    result = await self.call_function(
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/gradio/blocks.py", line 1520, in call_function
+    prediction = await anyio.to_thread.run_sync(  # type: ignore
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/anyio/to_thread.py", line 33, in run_sync
+    return await get_asynclib().run_sync_in_worker_thread(
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/anyio/_backends/_asyncio.py", line 877, in run_sync_in_worker_thread
+    return await future
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/anyio/_backends/_asyncio.py", line 807, in run
+    result = context.run(func, *args)
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/gradio/utils.py", line 826, in wrapper
+    response = f(*args, **kwargs)
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/marktplaats_gradio_ui.py", line 476, in <lambda>
+    app.load(lambda: gr.Button.update(every=10), outputs=[refresh_btn])
+AttributeError: type object 'Button' has no attribute 'update'
+Traceback (most recent call last):
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/marktplaats_gradio_ui.py", line 347, in load_searches
+    return get_active_searches_table(), get_search_dropdown()
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/marktplaats_gradio_ui.py", line 319, in get_search_dropdown
+    return gr.Dropdown.update(choices=options, value="Select a search")
+AttributeError: type object 'Dropdown' has no attribute 'update'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/gradio/queueing.py", line 536, in process_events
+    response = await route_utils.call_process_api(
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/gradio/route_utils.py", line 322, in call_process_api
+    output = await app.get_blocks().process_api(
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/gradio/blocks.py", line 1935, in process_api
+    result = await self.call_function(
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/gradio/blocks.py", line 1520, in call_function
+    prediction = await anyio.to_thread.run_sync(  # type: ignore
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/anyio/to_thread.py", line 33, in run_sync
+    return await get_asynclib().run_sync_in_worker_thread(
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/anyio/_backends/_asyncio.py", line 877, in run_sync_in_worker_thread
+    return await future
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/anyio/_backends/_asyncio.py", line 807, in run
+    result = context.run(func, *args)
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/.venv/lib/python3.9/site-packages/gradio/utils.py", line 826, in wrapper
+    response = f(*args, **kwargs)
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/marktplaats_gradio_ui.py", line 351, in load_searches
+    return "Error loading searches", get_search_dropdown()
+  File "/Users/jurrejan/Documents/projects/_python/MarktplaatsSearch/marktplaats_gradio_ui.py", line 319, in get_search_dropdown
+    return gr.Dropdown.update(choices=options, value="Select a search")
+AttributeError: type object 'Dropdown' has no attribute 'update'
