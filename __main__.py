@@ -1,28 +1,25 @@
 import os
-
 import folium
 from marktplaats import SearchQuery, SortBy, SortOrder
 
+args = {
+    "query": "Samsung SSD",
+    "zip_code": "3522RA",
+    "distance": 5000,
+    "price_from": 50,
+    "price_to": 350,
+    "limit": 25,
+    "offset": 0,
+    "sort_by": SortBy.LOCATION,
+    "sort_order": SortOrder.ASC,
+}
 
-search = SearchQuery()
-
-search.query = "Samsung SSD"
-search.zip_code = "3522RA"
-search.distance = 5000
-search.price_from = 50
-search.price_to = 350
-search.limit = 1
-search.offset = 0
-search.sort_by = SortBy.LOCATION
-search.sort_order = SortOrder.ASC
-
+search = SearchQuery(**args)
 listings = search.get_listings()
-max_pages = search.page_count()
-
 map = folium.Map(location=[52.090737, 5.121420], zoom_start=13)
 page = 0
 
-for page in range(1, max_pages):
+for page in x:
 
 
     listings = SearchQuery("fiets",  # Search query
