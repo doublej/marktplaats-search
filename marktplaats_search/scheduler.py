@@ -68,7 +68,7 @@ async def run_single_search(search_id: uuid.UUID):
                     existing_listing = await db.execute(
                         select(Listing).where(
                             Listing.search_id == search_instance.id,
-                            Listing.url == str(listing_data.url)
+                            Listing.url == str(listing_data.url),
                         )
                     )
                     if existing_listing.scalars().first() is None:
@@ -140,7 +140,7 @@ def schedule_search_job(search: Search):
         if search.status == SearchStatus.ACTIVE and search.interval > 0:
             # Create proper trigger instance
             trigger = IntervalTrigger(seconds=search.interval)
-            
+
             job_details = {
                 "func": run_single_search,
                 "trigger": trigger,

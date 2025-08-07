@@ -1,7 +1,17 @@
 import enum
 import uuid
 
-from sqlalchemy import JSON, Boolean, Column, DateTime, ForeignKey, Integer, String, Text, UniqueConstraint
+from sqlalchemy import (
+    JSON,
+    Boolean,
+    Column,
+    DateTime,
+    ForeignKey,
+    Integer,
+    String,
+    Text,
+    UniqueConstraint,
+)
 from sqlalchemy import Enum as SQLAlchemyEnum  # Avoid conflict with standard enum
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID  # Works with SQLite for UUID type
 from sqlalchemy.orm import relationship
@@ -71,16 +81,18 @@ class Listing(Base):
     source_listing_id = Column(String, index=True, nullable=True)  # ID from Marktplaats
     title = Column(String, nullable=True)
     price = Column(String, nullable=True)  # Storing as string for flexibility
-    price_numeric = Column(Integer, nullable=True, index=True)  # Numeric price in cents for sorting/filtering
+    price_numeric = Column(
+        Integer, nullable=True, index=True
+    )  # Numeric price in cents for sorting/filtering
     url = Column(String, nullable=False, index=True)  # URL to the listing (removed unique=True)
     description_snippet = Column(Text, nullable=True)
     image_url = Column(String, nullable=True)
 
     # Additional listing metadata
-    location = Column(String, nullable=True)           # Location/city
-    seller = Column(String, nullable=True)             # Seller name/username
-    views = Column(Integer, nullable=True)             # Number of views
-    condition = Column(String, nullable=True)          # Item condition
+    location = Column(String, nullable=True)  # Location/city
+    seller = Column(String, nullable=True)  # Seller name/username
+    views = Column(Integer, nullable=True)  # Number of views
+    condition = Column(String, nullable=True)  # Item condition
     date_posted = Column(DateTime(timezone=True), nullable=True)  # Original post date
 
     raw_data = Column(JSON, nullable=True)  # Store full raw data from source if needed
@@ -93,6 +105,4 @@ class Listing(Base):
 
     # Composite unique constraint: prevent same URL within same search
     # but allow same URL across different searches
-    __table_args__ = (
-        UniqueConstraint("search_id", "url", name="uq_listing_search_url"),
-    )
+    __table_args__ = (UniqueConstraint("search_id", "url", name="uq_listing_search_url"),)

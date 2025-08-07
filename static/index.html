@@ -871,9 +871,14 @@
                     <aside class="sidebar">
                         <div class="sidebar-header">
                             <h3 class="sidebar-title">Searches</h3>
-                            <button class="btn btn-sm btn-primary" id="create-search-btn" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">
-                                + New
-                            </button>
+                            <div style="display: flex; gap: 0.25rem;">
+                                <button class="btn btn-sm btn-secondary" id="refresh-searches-btn" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;" title="Refresh all searches (clears results)">
+                                    ↻
+                                </button>
+                                <button class="btn btn-sm btn-primary" id="create-search-btn" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">
+                                    + New
+                                </button>
+                            </div>
                         </div>
                         <div class="position-relative">
                             <div class="loading-overlay" id="searches-loading" style="display: none;">
@@ -1131,6 +1136,10 @@
                     this.openSearchModal();
                 });
 
+                document.getElementById('refresh-searches-btn').addEventListener('click', () => {
+                    this.refreshAllSearches();
+                });
+
                 document.getElementById('search-form').addEventListener('submit', (e) => {
                     e.preventDefault();
                     this.saveSearch();
@@ -1312,7 +1321,7 @@
                 } catch (error) {
                     container.innerHTML = `
                         <div class="alert alert-error">
-                            Failed to load searches: ${error.message}
+                            Failed to load searches: ${error.message || error.toString() || 'Unknown error'}
                         </div>
                     `;
                 } finally {
@@ -1507,7 +1516,7 @@
                 } catch (error) {
                     container.innerHTML = `
                         <div class="alert alert-error">
-                            Failed to load results: ${error.message}
+                            Failed to load results: ${error.message || error.toString() || 'Unknown error'}
                         </div>
                     `;
                 }
@@ -1532,15 +1541,15 @@
                 switch(sortType) {
                     case 'price-asc':
                         sorted.sort((a, b) => {
-                            const priceA = this.extractPrice(a.price);
-                            const priceB = this.extractPrice(b.price);
+                            const priceA = a.price_numeric || 999999;
+                            const priceB = b.price_numeric || 999999;
                             return priceA - priceB;
                         });
                         break;
                     case 'price-desc':
                         sorted.sort((a, b) => {
-                            const priceA = this.extractPrice(a.price);
-                            const priceB = this.extractPrice(b.price);
+                            const priceA = a.price_numeric || 0;
+                            const priceB = b.price_numeric || 0;
                             return priceB - priceA;
                         });
                         break;
@@ -1559,14 +1568,6 @@
                 this.renderResultsGrid(filtered);
             }
 
-            extractPrice(priceStr) {
-                if (!priceStr) return 999999;
-                const match = priceStr.match(/[\d,]+/);
-                if (match) {
-                    return parseInt(match[0].replace(/,/g, ''));
-                }
-                return 999999;
-            }
 
             renderResultsGrid(results) {
                 const grid = document.getElementById('results-grid');
@@ -1919,7 +1920,8 @@
                     // Re-select the updated search
                     this.selectSearch(searchId);
                 } catch (error) {
-                    alert(`Failed to update search: ${error.message}`);
+                    const errorMessage = error.message || error.toString() || 'Unknown error';
+                    alert(`Failed to update search: ${errorMessage}`);
                 }
             }
 
@@ -1933,7 +1935,8 @@
                     await this.loadSearches();
                     this.selectSearch(searchId);
                 } catch (error) {
-                    alert(`Failed to activate search: ${error.message}`);
+                    const errorMessage = error.message || error.toString() || 'Unknown error';
+                    alert(`Failed to activate search: ${errorMessage}`);
                 }
             }
 
@@ -2020,7 +2023,7 @@
                                         ${this.escapeHtml(listing.title || 'Untitled')}
                                     </div>
                                     <div class="card-meta">
-                                        ${listing.price ? `€${listing.price}` : 'Price not listed'} •
+                                        ${listing.price || 'Price not listed'} •
                                         Found ${new Date(listing.discovered_at).toLocaleString()}
                                     </div>
                                 </div>
@@ -2036,19 +2039,6 @@
                                     <p>${this.escapeHtml(listing.description_snippet)}</p>
                                 </div>
                             ` : ''}
-
-                            ${listing.url ? `
-                                <div style="margin-bottom: 1rem;">
-                                    <strong>URL:</strong>
-                                    <a href="${listing.url}" target="_blank" style="color: var(--primary-color);">
-                                        ${listing.url}
-                                    </a>
-                                </div>
-                            ` : ''}
-
-                            <div style="margin-bottom: 1rem;">
-                                <strong>Source ID:</strong> ${listing.source_listing_id || 'N/A'}
-                            </div>
 
                             ${listing.url ? `
                                 <a href="${listing.url}" target="_blank" class="btn btn-primary">
@@ -2143,7 +2133,7 @@
                     this.closeSearchModal();
                     this.loadSearches();
                 } catch (error) {
-                    errorEl.textContent = error.message;
+                    errorEl.textContent = error.message || error.toString() || 'Unknown error';
                 } finally {
                     saveBtn.disabled = false;
                     loading.style.display = 'none';
@@ -2184,7 +2174,8 @@
                     const search = await this.apiRequest(`/api/searches/${searchId}`);
                     this.openSearchModal(search);
                 } catch (error) {
-                    alert(`Failed to load search details: ${error.message}`);
+                    const errorMessage = error.message || error.toString() || 'Unknown error';
+                    alert(`Failed to load search details: ${errorMessage}`);
                 }
             }
 
@@ -2199,7 +2190,8 @@
                     });
                     this.loadSearches();
                 } catch (error) {
-                    alert(`Failed to stop search: ${error.message}`);
+                    const errorMessage = error.message || error.toString() || 'Unknown error';
+                    alert(`Failed to stop search: ${errorMessage}`);
                 }
             }
 
@@ -2219,7 +2211,56 @@
                         this.currentSearchId = null;
                     }
                 } catch (error) {
-                    alert(`Failed to delete search: ${error.message}`);
+                    const errorMessage = error.message || error.toString() || 'Unknown error';
+                    alert(`Failed to delete search: ${errorMessage}`);
+                }
+            }
+
+            async refreshAllSearches() {
+                const confirmed = confirm(
+                    "This will delete all current search results and start fresh with the same search configurations.\n\n" +
+                    "Are you sure you want to refresh all searches?\n\n" +
+                    "This action cannot be undone."
+                );
+                
+                if (!confirmed) {
+                    return;
+                }
+                
+                const refreshBtn = document.getElementById('refresh-searches-btn');
+                const originalText = refreshBtn.innerHTML;
+                
+                try {
+                    // Show loading state
+                    refreshBtn.disabled = true;
+                    refreshBtn.innerHTML = '<div class="loading" style="width: 12px; height: 12px;"></div>';
+                    
+                    // Call the refresh endpoint
+                    await this.apiRequest('/api/admin/refresh-searches', {
+                        method: 'POST'
+                    });
+                    
+                    // Reload the searches list
+                    await this.loadSearches();
+                    
+                    // Clear any selected search
+                    this.selectedSearchId = null;
+                    document.getElementById('results-content').innerHTML = `
+                        <div class="empty-state">
+                            <div style="font-size: 1rem; font-weight: 500; margin-bottom: 0.5rem;">Select a search to view results</div>
+                            <p style="font-size: 0.85rem; color: var(--text-secondary);">Choose a search from the sidebar to see its results</p>
+                        </div>
+                    `;
+                    
+                    alert('All searches have been refreshed successfully! Results will start appearing as the searches run.');
+                    
+                } catch (error) {
+                    const errorMessage = error.message || error.toString() || 'Unknown error';
+                    alert(`Failed to refresh searches: ${errorMessage}`);
+                } finally {
+                    // Restore button state
+                    refreshBtn.disabled = false;
+                    refreshBtn.innerHTML = originalText;
                 }
             }
 

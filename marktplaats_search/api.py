@@ -18,6 +18,15 @@ from . import scheduler  # Import the scheduler module
 from .auth import hash_token, validate_token_format
 from .config import settings
 from .database import get_db
+from .listing_management import (
+    cleanup_old_listings,
+    get_cross_search_duplicates,
+    get_listing_stats_for_user,
+    get_new_listings_summary,
+    mark_all_user_listings_as_read,
+    mark_search_listings_as_read,
+    optimize_listing_queries,
+)
 from .models import Listing, Search, SearchStatus, User  # Import your SQLAlchemy models
 
 # --- Pydantic Models ---
@@ -107,6 +116,7 @@ class ListingResponse(BaseModel):
     source_listing_id: str | None = None
     title: str | None = None
     price: str | None = None
+    price_numeric: int | None = None  # Price in cents for sorting/filtering
     url: HttpUrl | None = None
     description_snippet: str | None = None
     image_url: HttpUrl | None = None
@@ -114,9 +124,61 @@ class ListingResponse(BaseModel):
     is_new: bool
     discovered_at: datetime
 
+    # Additional listing metadata
+    location: str | None = None
+    seller: str | None = None
+    views: int | None = None
+    condition: str | None = None
+    date_posted: datetime | None = None
+
     class Config:
         from_attributes = True
         populate_by_name = True
+
+
+class CrossSearchDuplicateResponse(BaseModel):
+    """Response model for cross-search duplicate listings."""
+
+    url: HttpUrl
+    title: str | None = None
+    price: str | None = None
+    search_count: int
+    total_occurrences: int
+    search_queries: list[str]
+    first_seen: datetime
+    last_seen: datetime
+
+
+class ListingStatsResponse(BaseModel):
+    """Response model for listing statistics."""
+
+    total_listings: int
+    new_listings: int
+    cross_search_duplicates: int
+    searches_affected: int
+
+
+class NewListingsSummaryResponse(BaseModel):
+    """Response model for new listings summary per search."""
+
+    search_summaries: dict[str, dict[str, str | int]]  # search_id -> {search_query, new_count}
+    total_new: int
+
+
+class MarkAsReadResponse(BaseModel):
+    """Response model for mark as read operations."""
+
+    marked_count: int
+    message: str
+
+
+class CleanupResponse(BaseModel):
+    """Response model for cleanup operations."""
+
+    deleted_count: int
+    searches_affected: list[str]
+    dry_run: bool
+    message: str
 
 
 # --- Authentication ---
@@ -627,3 +689,244 @@ async def deactivate_account(
     current_user.is_active = False
     await db.commit()
     return None
+
+
+# --- Listing Management Endpoints ---
+
+
+@app.get("/api/listings/stats", response_model=ListingStatsResponse)
+async def get_user_listing_stats(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Get comprehensive listing statistics for the current user.
+    Includes total listings, new listings, cross-search duplicates, etc.
+    """
+    try:
+        stats = await get_listing_stats_for_user(db, current_user.id)
+        return ListingStatsResponse(
+            total_listings=stats.total_listings,
+            new_listings=stats.new_listings,
+            cross_search_duplicates=stats.cross_search_duplicates,
+            searches_affected=stats.searches_affected,
+        )
+    except Exception as e:
+        logger.error(f"Error getting listing stats for user {current_user.id}: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to get listing statistics: {str(e)}",
+        )
+
+
+@app.get("/api/listings/cross-search-duplicates", response_model=list[CrossSearchDuplicateResponse])
+async def get_cross_search_duplicates_endpoint(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+    limit: int = FastAPIQuery(
+        50, ge=1, le=200, description="Maximum number of duplicate groups to return"
+    ),
+):
+    """
+    Get listings that appear across multiple searches.
+    Useful for understanding overlap between different search queries.
+    """
+    try:
+        duplicates = await get_cross_search_duplicates(db, current_user.id, limit)
+        return [CrossSearchDuplicateResponse(**duplicate) for duplicate in duplicates]
+    except Exception as e:
+        logger.error(f"Error getting cross-search duplicates for user {current_user.id}: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to get cross-search duplicates: {str(e)}",
+        )
+
+
+@app.get("/api/listings/new-summary", response_model=NewListingsSummaryResponse)
+async def get_new_listings_summary_endpoint(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Get summary of new listings per search.
+    Shows which searches have new listings and how many.
+    """
+    try:
+        summary = await get_new_listings_summary(db, current_user.id)
+        total_new = sum(search_info["new_count"] for search_info in summary.values())
+
+        return NewListingsSummaryResponse(search_summaries=summary, total_new=total_new)
+    except Exception as e:
+        logger.error(f"Error getting new listings summary for user {current_user.id}: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to get new listings summary: {str(e)}",
+        )
+
+
+@app.post("/api/searches/{search_id}/mark-read", response_model=MarkAsReadResponse)
+async def mark_search_listings_read(
+    search_id: uuid.UUID,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Mark all new listings for a specific search as read.
+    This is per-search operation - only affects listings for this search.
+    """
+    try:
+        marked_count = await mark_search_listings_as_read(db, search_id, current_user.id)
+        return MarkAsReadResponse(
+            marked_count=marked_count,
+            message=f"Marked {marked_count} listings as read for search {search_id}",
+        )
+    except ValueError as ve:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(ve))
+    except Exception as e:
+        logger.error(f"Error marking listings as read for search {search_id}: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to mark listings as read: {str(e)}",
+        )
+
+
+@app.post("/api/listings/mark-all-read", response_model=MarkAsReadResponse)
+async def mark_all_listings_read(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Mark all new listings for all user's searches as read.
+    This affects all searches owned by the current user.
+    """
+    try:
+        marked_count = await mark_all_user_listings_as_read(db, current_user.id)
+        return MarkAsReadResponse(
+            marked_count=marked_count,
+            message=f"Marked {marked_count} listings as read across all searches",
+        )
+    except Exception as e:
+        logger.error(f"Error marking all listings as read for user {current_user.id}: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to mark all listings as read: {str(e)}",
+        )
+
+
+# --- Admin Endpoints ---
+
+
+@app.post("/api/admin/refresh-searches", status_code=status.HTTP_200_OK)
+async def refresh_all_searches_endpoint(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Refresh all searches by deleting their results and restarting them.
+    This preserves the search configurations but clears accumulated results.
+    """
+    try:
+        # Get all user's searches
+        result = await db.execute(select(Search).where(Search.user_id == current_user.id))
+        user_searches = result.scalars().all()
+
+        if not user_searches:
+            return {"message": "No searches found to refresh.", "refreshed_count": 0}
+
+        # Delete all listings for user's searches
+        search_ids = [search.id for search in user_searches]
+        await db.execute(delete(Listing).where(Listing.search_id.in_(search_ids)))
+
+        # Reset search states
+        refreshed_count = 0
+        for search in user_searches:
+            search.last_run_at = None
+            search.last_error = None
+            # Reschedule active searches
+            if search.status == SearchStatus.ACTIVE:
+                try:
+                    scheduler.schedule_search_job(search)
+                except Exception as scheduler_error:
+                    logger.warning(f"Failed to reschedule search {search.id}: {scheduler_error}")
+                    search.last_error = f"Scheduler error: {str(scheduler_error)}"
+            refreshed_count += 1
+
+        await db.commit()
+
+        return {
+            "message": f"Successfully refreshed {refreshed_count} searches.",
+            "refreshed_count": refreshed_count,
+        }
+
+    except Exception as e:
+        logger.error(f"Error refreshing searches for user {current_user.id}: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to refresh searches: {str(e)}",
+        )
+
+
+@app.post("/api/admin/cleanup-listings", response_model=CleanupResponse)
+async def cleanup_old_listings_endpoint(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+    days_old: int = FastAPIQuery(
+        30, ge=1, le=365, description="Delete listings older than this many days"
+    ),
+    keep_new_listings: bool = FastAPIQuery(
+        True, description="If true, never delete listings marked as new"
+    ),
+    dry_run: bool = FastAPIQuery(
+        True, description="If true, only count what would be deleted without deleting"
+    ),
+):
+    """
+    Clean up old listings to manage database size.
+    By default runs in dry-run mode to show what would be deleted.
+    """
+    try:
+        deleted_count, searches_affected = await cleanup_old_listings(
+            db, days_old, keep_new_listings, dry_run
+        )
+
+        action = "Would delete" if dry_run else "Deleted"
+        return CleanupResponse(
+            deleted_count=deleted_count,
+            searches_affected=searches_affected,
+            dry_run=dry_run,
+            message=f"{action} {deleted_count} listings older than {days_old} days from {len(searches_affected)} searches",
+        )
+    except Exception as e:
+        logger.error(f"Error cleaning up listings: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to cleanup listings: {str(e)}",
+        )
+
+
+@app.post("/api/admin/optimize-queries", status_code=status.HTTP_200_OK)
+async def optimize_listing_queries_endpoint(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Optimize database queries by creating missing indexes.
+    This improves performance for listing operations.
+    """
+    try:
+        optimizations = await optimize_listing_queries(db)
+
+        success_count = sum(1 for result in optimizations.values() if result)
+        total_count = len(optimizations)
+
+        return {
+            "message": f"Optimization completed: {success_count}/{total_count} indexes created/verified",
+            "optimizations": optimizations,
+            "success_rate": f"{success_count}/{total_count}",
+        }
+    except Exception as e:
+        logger.error(f"Error optimizing queries: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to optimize queries: {str(e)}",
+        )

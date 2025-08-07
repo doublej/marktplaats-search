@@ -2,6 +2,7 @@ import asyncio
 import contextlib
 import logging
 import re
+from datetime import datetime, timedelta
 from urllib.parse import quote_plus, urlencode
 
 import httpx
@@ -18,10 +19,18 @@ class ListingItem(BaseModel):
     source_listing_id: str
     title: str
     price: str
+    price_numeric: int | None = None  # Price in cents for sorting/filtering
     url: HttpUrl
     description_snippet: str | None = None
     image_url: HttpUrl | None = None
     raw_html: str | None = None
+
+    # Additional listing metadata
+    location: str | None = None
+    seller: str | None = None
+    views: int | None = None
+    condition: str | None = None
+    date_posted: datetime | None = None
 
 
 class MarktplaatsScrapingError(Exception):
@@ -111,24 +120,36 @@ class MarktplaatsScraper:
             return f"m{match.group(1)}"
         return None
 
-    def _clean_price(self, price_text: str) -> str:
-        """Clean and normalize price text."""
+    def _clean_price(self, price_text: str) -> tuple[str, int | None]:
+        """Clean and normalize price text, returning both display text and numeric value."""
         if not price_text:
-            return "Price on request"
+            return "Price on request", None
 
         # Remove extra whitespace and normalize
         price = re.sub(r"\s+", " ", price_text.strip())
 
         # Handle various price formats
         if "vraagprijs" in price.lower() or "v.o.n" in price.lower():
-            return "Price on request"
+            return "Price on request", None
         elif "gratis" in price.lower():
-            return "€ 0"
-        elif "€" not in price and price.replace(".", "").replace(",", "").isdigit():
-            # Add euro sign if missing
-            return f"€ {price}"
+            return "€ 0", 0
 
-        return price
+        # Extract numeric value for sorting/filtering
+        numeric_match = re.search(r"[\d.,]+", price.replace(",", "."))
+        numeric_value = None
+        if numeric_match:
+            try:
+                # Convert to cents for precise integer storage
+                numeric_value = int(float(numeric_match.group().replace(",", ".")) * 100)
+            except ValueError:
+                numeric_value = None
+
+        # Format display text
+        if "€" not in price and price.replace(".", "").replace(",", "").isdigit():
+            # Add euro sign if missing
+            return f"€ {price}", numeric_value
+
+        return price, numeric_value
 
     def _clean_text(self, text: str | None) -> str | None:
         """Clean and normalize text content."""
@@ -295,6 +316,7 @@ class MarktplaatsScraper:
 
         # Find price
         price = "Price on request"
+        price_numeric = None
 
         # Look for price in various ways
         price_patterns = [r"€\s*[\d.,]+(?:\s*,-)?", r"euro\s*[\d.,]+", r"[\d.,]+\s*euro"]
@@ -304,7 +326,7 @@ class MarktplaatsScraper:
         for pattern in price_patterns:
             match = re.search(pattern, all_text, re.I)
             if match:
-                price = self._clean_price(match.group())
+                price, price_numeric = self._clean_price(match.group())
                 break
 
         # Also look for price elements
@@ -315,7 +337,7 @@ class MarktplaatsScraper:
                 or container.find("div", string=re.compile(r"€", re.I))
             )
             if price_elem:
-                price = self._clean_price(price_elem.get_text())
+                price, price_numeric = self._clean_price(price_elem.get_text())
 
         # Find description - look for text that's not title or price
         description = None
@@ -350,15 +372,88 @@ class MarktplaatsScraper:
                     with contextlib.suppress(ValidationError):
                         image_url = HttpUrl(img_src)
 
+        # Extract additional metadata
+        # Extract location
+        location = None
+        all_text = container.get_text()
+        for location_elem in container.find_all(text=True):
+            if location_elem and any(
+                word in location_elem.lower() for word in ["op ", "km", "plaats"]
+            ):
+                location_text = self._clean_text(location_elem.strip())
+                if location_text and len(location_text) < 50:
+                    location = location_text
+                    break
+
+        # Extract seller info
+        seller = None
+        seller_patterns = [r"verkoper", r"aanbieder", r"particulier", r"handel"]
+        for pattern in seller_patterns:
+            seller_match = re.search(f"{pattern}[:\\s]*([^\\n\\r,]+)", all_text, re.I)
+            if seller_match:
+                seller = self._clean_text(seller_match.group(1))[:50]
+                break
+
+        # Extract views
+        views = None
+        views_match = re.search(r"(\d+)\s*(?:keer\s*)?bekeken", all_text, re.I)
+        if views_match:
+            try:
+                views = int(views_match.group(1))
+            except ValueError:
+                views = None
+
+        # Extract condition
+        condition = None
+        condition_patterns = [
+            r"nieuw",
+            r"gebruikt",
+            r"zo goed als nieuw",
+            r"redelijke staat",
+            r"matige staat",
+        ]
+        for pattern in condition_patterns:
+            if re.search(pattern, all_text, re.I):
+                condition = pattern.title()
+                break
+
+        # Extract post date - look for date patterns
+        date_posted = None
+        date_patterns = [
+            r"(\d{1,2})\s*(jan|feb|mrt|apr|mei|jun|jul|aug|sep|okt|nov|dec)\s*(\d{4})",
+            r"(\d{1,2})[/-](\d{1,2})[/-](\d{4})",
+            r"gisteren|vandaag|(?:\d+\s*(?:uur|dag|week)(?:en)?\s*geleden)",
+        ]
+        for pattern in date_patterns:
+            date_match = re.search(pattern, all_text, re.I)
+            if date_match:
+                # For now, just store the matched text - proper parsing can be added later
+                date_text = date_match.group(0)
+                # Convert basic patterns to datetime if possible
+                if "vandaag" in date_text.lower():
+                    date_posted = datetime.now().replace(hour=12, minute=0, second=0, microsecond=0)
+                elif "gisteren" in date_text.lower():
+                    date_posted = (datetime.now() - timedelta(days=1)).replace(
+                        hour=12, minute=0, second=0, microsecond=0
+                    )
+                break
+
         try:
             return ListingItem(
                 source_listing_id=listing_id,
                 title=title,
                 price=price,
+                price_numeric=price_numeric,
                 url=HttpUrl(url),
                 description_snippet=description,
                 image_url=image_url,
                 raw_html=str(container),
+                # Additional metadata
+                location=location,
+                seller=seller,
+                views=views,
+                condition=condition,
+                date_posted=date_posted,
             )
         except ValidationError as e:
             logger.debug(f"Validation error for listing {listing_id}: {e}")
