@@ -404,7 +404,7 @@ async def get_listing_details_endpoint( # Renamed
 # Mount static files for additional assets if needed
 # This allows serving CSS, JS, images, etc. from a static directory
 import os
-project_root = os.path.dirname(__file__)
+project_root = os.path.dirname(os.path.dirname(__file__))
 
 @app.get("/")
 async def serve_index():
