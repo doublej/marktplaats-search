@@ -150,7 +150,7 @@ async def get_current_user(
     
     # Check token expiry if configured
     if settings.token_expiry_days:
-        from auth import is_token_expired
+        from .auth import is_token_expired
         if is_token_expired(user.token_created_at, settings.token_expiry_days):
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -463,7 +463,7 @@ async def register_user(
     - Original token cannot be retrieved after creation
     - Each user gets a unique, cryptographically secure token
     """
-    from auth import generate_secure_token, generate_user_identifier, hash_token
+    from .auth import generate_secure_token, generate_user_identifier, hash_token
     
     # Generate or use provided username
     if user_request.user_identifier:
@@ -554,7 +554,7 @@ async def rotate_api_token(
     - The new token is only shown once
     - Old token becomes invalid immediately
     """
-    from auth import generate_secure_token, hash_token
+    from .auth import generate_secure_token, hash_token
     
     # Refresh user to ensure we have the current state
     await db.refresh(current_user)
