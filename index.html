@@ -1,0 +1,1427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MarktplaatsSearch Dashboard</title>
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --primary-hover: #1d4ed8;
+            --secondary-color: #64748b;
+            --success-color: #059669;
+            --warning-color: #d97706;
+            --error-color: #dc2626;
+            --background: #ffffff;
+            --surface: #f8fafc;
+            --surface-elevated: #ffffff;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --border: #e2e8f0;
+            --border-hover: #cbd5e1;
+            --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+
+        [data-theme="dark"] {
+            --primary-color: #3b82f6;
+            --primary-hover: #2563eb;
+            --secondary-color: #94a3b8;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --error-color: #ef4444;
+            --background: #0f172a;
+            --surface: #1e293b;
+            --surface-elevated: #334155;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --border: #334155;
+            --border-hover: #475569;
+            --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.3);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.3), 0 4px 6px -4px rgb(0 0 0 / 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background-color: var(--background);
+            color: var(--text-primary);
+            line-height: 1.6;
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        /* Header */
+        .header {
+            background-color: var(--surface-elevated);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 0;
+            box-shadow: var(--shadow);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .theme-toggle {
+            background: none;
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            padding: 0.5rem;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .theme-toggle:hover {
+            border-color: var(--border-hover);
+            background-color: var(--surface);
+        }
+
+        .auth-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: var(--error-color);
+        }
+
+        .status-indicator.authenticated {
+            background-color: var(--success-color);
+        }
+
+        /* Main Content */
+        .main {
+            padding: 2rem 0;
+            min-height: calc(100vh - 80px);
+        }
+
+        .section {
+            background-color: var(--surface-elevated);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            background-color: var(--background);
+            color: var(--text-primary);
+            font-size: 0.875rem;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgb(59 130 246 / 0.1);
+        }
+
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .form-error {
+            color: var(--error-color);
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-secondary {
+            background-color: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background-color: var(--surface-elevated);
+            border-color: var(--border-hover);
+        }
+
+        .btn-danger {
+            background-color: var(--error-color);
+            color: white;
+        }
+
+        .btn-danger:hover:not(:disabled) {
+            background-color: #b91c1c;
+        }
+
+        .btn-sm {
+            padding: 0.5rem 0.75rem;
+            font-size: 0.8125rem;
+        }
+
+        /* Tables */
+        .table-container {
+            overflow-x: auto;
+            border-radius: 0.5rem;
+            border: 1px solid var(--border);
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: var(--surface-elevated);
+        }
+
+        .table th,
+        .table td {
+            text-align: left;
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .table th {
+            background-color: var(--surface);
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .table tbody tr:hover {
+            background-color: var(--surface);
+        }
+
+        .table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Cards */
+        .card {
+            background-color: var(--surface-elevated);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            transition: box-shadow 0.2s ease;
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow-lg);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.75rem;
+        }
+
+        .card-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .card-meta {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        /* Status badges */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .status-badge.active {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: var(--success-color);
+        }
+
+        .status-badge.inactive {
+            background-color: rgba(100, 116, 139, 0.1);
+            color: var(--secondary-color);
+        }
+
+        .status-badge.error {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: var(--error-color);
+        }
+
+        /* Modal */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.2s ease;
+        }
+
+        .modal.open {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background-color: var(--surface-elevated);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-lg);
+            transform: scale(0.95);
+            transition: transform 0.2s ease;
+        }
+
+        .modal.open .modal-content {
+            transform: scale(1);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-secondary);
+            padding: 0.25rem;
+        }
+
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .pagination-info {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        /* Loading states */
+        .loading {
+            display: inline-block;
+            width: 1rem;
+            height: 1rem;
+            border: 2px solid transparent;
+            border-top: 2px solid currentColor;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: inherit;
+        }
+
+        [data-theme="dark"] .loading-overlay {
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+
+        /* Alerts */
+        .alert {
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+        }
+
+        .alert-success {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: var(--success-color);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .alert-error {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: var(--error-color);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        .alert-warning {
+            background-color: rgba(245, 158, 11, 0.1);
+            color: var(--warning-color);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 0.5rem;
+            }
+
+            .section {
+                padding: 1rem;
+                margin-bottom: 1rem;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .table-container {
+                font-size: 0.875rem;
+            }
+
+            .table th,
+            .table td {
+                padding: 0.5rem;
+            }
+
+            .modal-content {
+                width: 95%;
+                padding: 1rem;
+            }
+        }
+
+        /* Hide sections when not authenticated */
+        .auth-required {
+            display: none;
+        }
+
+        .authenticated .auth-required {
+            display: block;
+        }
+
+        .position-relative {
+            position: relative;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--text-secondary);
+        }
+
+        .empty-state-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .grid {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .grid-cols-1 {
+            grid-template-columns: repeat(1, minmax(0, 1fr));
+        }
+
+        @media (min-width: 768px) {
+            .md\:grid-cols-2 {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .lg\:grid-cols-3 {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+        }
+    </style>
+</head>
+<body data-theme="light">
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <h1 class="logo">MarktplaatsSearch</h1>
+                <div class="header-actions">
+                    <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+                        <span id="theme-icon">🌙</span>
+                    </button>
+                    <div class="auth-status">
+                        <div class="status-indicator" id="auth-indicator"></div>
+                        <span id="auth-status-text">Not authenticated</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="container">
+            <!-- Authentication Section -->
+            <section class="section" id="auth-section">
+                <div class="section-header">
+                    <h2 class="section-title">Authentication</h2>
+                </div>
+                <form id="auth-form">
+                    <div class="form-group">
+                        <label for="api-token" class="form-label">API Token</label>
+                        <input 
+                            type="password" 
+                            id="api-token" 
+                            class="form-input" 
+                            placeholder="Enter your API token"
+                            required
+                        >
+                        <div class="form-error" id="auth-error"></div>
+                    </div>
+                    <button type="submit" class="btn btn-primary" id="auth-submit">
+                        <span class="loading" id="auth-loading" style="display: none;"></span>
+                        Authenticate
+                    </button>
+                </form>
+            </section>
+
+            <!-- Dashboard sections - hidden until authenticated -->
+            <div class="authenticated">
+                <!-- Search Management -->
+                <section class="section auth-required">
+                    <div class="section-header">
+                        <h2 class="section-title">Search Management</h2>
+                        <button class="btn btn-primary" id="create-search-btn">
+                            Create New Search
+                        </button>
+                    </div>
+                    <div class="position-relative">
+                        <div class="loading-overlay" id="searches-loading" style="display: none;">
+                            <div class="loading"></div>
+                        </div>
+                        <div id="searches-container">
+                            <div class="empty-state">
+                                <div class="empty-state-title">No searches found</div>
+                                <p>Create your first search to get started monitoring Marktplaats listings.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Results Viewer -->
+                <section class="section auth-required" id="results-section" style="display: none;">
+                    <div class="section-header">
+                        <h2 class="section-title">Search Results</h2>
+                        <div>
+                            <label>
+                                <input type="checkbox" id="show-new-only"> Show new only
+                            </label>
+                            <button class="btn btn-secondary btn-sm" id="close-results">
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                    <div class="position-relative">
+                        <div class="loading-overlay" id="results-loading" style="display: none;">
+                            <div class="loading"></div>
+                        </div>
+                        <div id="results-container">
+                            <div class="empty-state">
+                                <div class="empty-state-title">No results found</div>
+                                <p>This search hasn't found any listings yet.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="pagination" id="results-pagination" style="display: none;">
+                        <button class="btn btn-secondary btn-sm" id="prev-results">Previous</button>
+                        <span class="pagination-info" id="results-page-info"></span>
+                        <button class="btn btn-secondary btn-sm" id="next-results">Next</button>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <!-- Create/Edit Search Modal -->
+    <div class="modal" id="search-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="search-modal-title">Create New Search</h3>
+                <button class="modal-close" id="search-modal-close">&times;</button>
+            </div>
+            <form id="search-form">
+                <div class="form-group">
+                    <label for="search-query" class="form-label">Search Query *</label>
+                    <input 
+                        type="text" 
+                        id="search-query" 
+                        class="form-input" 
+                        placeholder="e.g., Samsung SSD"
+                        required
+                    >
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="search-zip-code" class="form-label">Postal Code</label>
+                        <input 
+                            type="text" 
+                            id="search-zip-code" 
+                            class="form-input" 
+                            placeholder="e.g., 1234AB"
+                            pattern="[0-9]{4}[A-Z]{2}"
+                        >
+                    </div>
+                    <div class="form-group">
+                        <label for="search-distance" class="form-label">Distance (km)</label>
+                        <input 
+                            type="number" 
+                            id="search-distance" 
+                            class="form-input" 
+                            min="1"
+                            placeholder="e.g., 25"
+                        >
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="search-price-from" class="form-label">Min Price (€)</label>
+                        <input 
+                            type="number" 
+                            id="search-price-from" 
+                            class="form-input" 
+                            min="0"
+                            placeholder="e.g., 50"
+                        >
+                    </div>
+                    <div class="form-group">
+                        <label for="search-price-to" class="form-label">Max Price (€)</label>
+                        <input 
+                            type="number" 
+                            id="search-price-to" 
+                            class="form-input" 
+                            min="0"
+                            placeholder="e.g., 500"
+                        >
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="search-limit" class="form-label">Results per fetch</label>
+                        <input 
+                            type="number" 
+                            id="search-limit" 
+                            class="form-input" 
+                            min="1" 
+                            max="100"
+                            value="25"
+                        >
+                    </div>
+                    <div class="form-group">
+                        <label for="search-interval" class="form-label">Interval (minutes) *</label>
+                        <input 
+                            type="number" 
+                            id="search-interval" 
+                            class="form-input" 
+                            min="1" 
+                            max="1440"
+                            value="60"
+                            required
+                        >
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="search-sort-by" class="form-label">Sort by</label>
+                        <select id="search-sort-by" class="form-select">
+                            <option value="">Default</option>
+                            <option value="date">Date</option>
+                            <option value="price">Price</option>
+                            <option value="distance">Distance</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="search-sort-order" class="form-label">Sort order</label>
+                        <select id="search-sort-order" class="form-select">
+                            <option value="">Default</option>
+                            <option value="asc">Ascending</option>
+                            <option value="desc">Descending</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-error" id="search-form-error"></div>
+
+                <div style="display: flex; gap: 0.5rem; justify-content: flex-end; margin-top: 1.5rem;">
+                    <button type="button" class="btn btn-secondary" id="cancel-search">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="save-search">
+                        <span class="loading" id="search-save-loading" style="display: none;"></span>
+                        <span id="save-search-text">Create Search</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Listing Details Modal -->
+    <div class="modal" id="listing-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Listing Details</h3>
+                <button class="modal-close" id="listing-modal-close">&times;</button>
+            </div>
+            <div id="listing-details">
+                <div class="loading-overlay">
+                    <div class="loading"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class MarktplaatsSearchApp {
+            constructor() {
+                this.apiToken = localStorage.getItem('mp_api_token') || '';
+                this.baseUrl = window.location.origin;
+                this.currentSearchId = null;
+                this.currentResultsPage = 0;
+                this.resultsLimit = 20;
+                this.editingSearch = null;
+
+                this.init();
+            }
+
+            init() {
+                this.setupEventListeners();
+                this.initTheme();
+                
+                if (this.apiToken) {
+                    this.authenticate(this.apiToken);
+                }
+            }
+
+            setupEventListeners() {
+                // Authentication
+                document.getElementById('auth-form').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    const token = document.getElementById('api-token').value;
+                    this.authenticate(token);
+                });
+
+                // Theme toggle
+                document.getElementById('theme-toggle').addEventListener('click', () => {
+                    this.toggleTheme();
+                });
+
+                // Search management
+                document.getElementById('create-search-btn').addEventListener('click', () => {
+                    this.openSearchModal();
+                });
+
+                document.getElementById('search-form').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.saveSearch();
+                });
+
+                document.getElementById('cancel-search').addEventListener('click', () => {
+                    this.closeSearchModal();
+                });
+
+                document.getElementById('search-modal-close').addEventListener('click', () => {
+                    this.closeSearchModal();
+                });
+
+                // Results
+                document.getElementById('show-new-only').addEventListener('change', () => {
+                    this.currentResultsPage = 0;
+                    this.loadResults();
+                });
+
+                document.getElementById('close-results').addEventListener('click', () => {
+                    this.closeResults();
+                });
+
+                document.getElementById('prev-results').addEventListener('click', () => {
+                    if (this.currentResultsPage > 0) {
+                        this.currentResultsPage--;
+                        this.loadResults();
+                    }
+                });
+
+                document.getElementById('next-results').addEventListener('click', () => {
+                    this.currentResultsPage++;
+                    this.loadResults();
+                });
+
+                // Listing modal
+                document.getElementById('listing-modal-close').addEventListener('click', () => {
+                    this.closeListingModal();
+                });
+
+                // Close modals on background click
+                document.getElementById('search-modal').addEventListener('click', (e) => {
+                    if (e.target === e.currentTarget) {
+                        this.closeSearchModal();
+                    }
+                });
+
+                document.getElementById('listing-modal').addEventListener('click', (e) => {
+                    if (e.target === e.currentTarget) {
+                        this.closeListingModal();
+                    }
+                });
+            }
+
+            initTheme() {
+                const savedTheme = localStorage.getItem('mp_theme') || 'light';
+                this.setTheme(savedTheme);
+            }
+
+            toggleTheme() {
+                const currentTheme = document.body.getAttribute('data-theme');
+                const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+                this.setTheme(newTheme);
+            }
+
+            setTheme(theme) {
+                document.body.setAttribute('data-theme', theme);
+                localStorage.setItem('mp_theme', theme);
+                
+                const icon = document.getElementById('theme-icon');
+                icon.textContent = theme === 'light' ? '🌙' : '☀️';
+            }
+
+            async authenticate(token) {
+                const submitBtn = document.getElementById('auth-submit');
+                const loading = document.getElementById('auth-loading');
+                const errorEl = document.getElementById('auth-error');
+
+                submitBtn.disabled = true;
+                loading.style.display = 'inline-block';
+                errorEl.textContent = '';
+
+                try {
+                    const response = await fetch(`${this.baseUrl}/api/searches?limit=1`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        }
+                    });
+
+                    if (response.ok) {
+                        this.apiToken = token;
+                        localStorage.setItem('mp_api_token', token);
+                        this.setAuthenticatedState(true);
+                        document.getElementById('api-token').value = '';
+                        this.loadSearches();
+                    } else {
+                        throw new Error('Invalid token');
+                    }
+                } catch (error) {
+                    errorEl.textContent = 'Authentication failed. Please check your token.';
+                    this.setAuthenticatedState(false);
+                } finally {
+                    submitBtn.disabled = false;
+                    loading.style.display = 'none';
+                }
+            }
+
+            setAuthenticatedState(isAuthenticated) {
+                const indicator = document.getElementById('auth-indicator');
+                const statusText = document.getElementById('auth-status-text');
+                const authSection = document.getElementById('auth-section');
+                
+                if (isAuthenticated) {
+                    document.body.classList.add('authenticated');
+                    indicator.classList.add('authenticated');
+                    statusText.textContent = 'Authenticated';
+                    authSection.style.display = 'none';
+                } else {
+                    document.body.classList.remove('authenticated');
+                    indicator.classList.remove('authenticated');
+                    statusText.textContent = 'Not authenticated';
+                    authSection.style.display = 'block';
+                }
+            }
+
+            async apiRequest(endpoint, options = {}) {
+                const url = `${this.baseUrl}${endpoint}`;
+                const defaultOptions = {
+                    headers: {
+                        'Authorization': `Bearer ${this.apiToken}`,
+                        'Content-Type': 'application/json'
+                    }
+                };
+
+                const response = await fetch(url, {
+                    ...defaultOptions,
+                    ...options,
+                    headers: {
+                        ...defaultOptions.headers,
+                        ...options.headers
+                    }
+                });
+
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        this.setAuthenticatedState(false);
+                        localStorage.removeItem('mp_api_token');
+                        this.apiToken = '';
+                        throw new Error('Authentication expired');
+                    }
+                    
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(errorData.detail || `HTTP ${response.status}`);
+                }
+
+                return response.json();
+            }
+
+            async loadSearches() {
+                const loading = document.getElementById('searches-loading');
+                const container = document.getElementById('searches-container');
+
+                loading.style.display = 'flex';
+
+                try {
+                    const searches = await this.apiRequest('/api/searches');
+                    this.renderSearches(searches);
+                } catch (error) {
+                    container.innerHTML = `
+                        <div class="alert alert-error">
+                            Failed to load searches: ${error.message}
+                        </div>
+                    `;
+                } finally {
+                    loading.style.display = 'none';
+                }
+            }
+
+            renderSearches(searches) {
+                const container = document.getElementById('searches-container');
+
+                if (searches.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-title">No searches found</div>
+                            <p>Create your first search to get started monitoring Marktplaats listings.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = `
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+                        ${searches.map(search => this.renderSearchCard(search)).join('')}
+                    </div>
+                `;
+            }
+
+            renderSearchCard(search) {
+                const statusClass = search.status.toLowerCase();
+                const lastRun = search.last_run_at ? 
+                    new Date(search.last_run_at).toLocaleString() : 'Never';
+                
+                return `
+                    <div class="card">
+                        <div class="card-header">
+                            <div>
+                                <div class="card-title">${this.escapeHtml(search.query)}</div>
+                                <div class="card-meta">
+                                    Created ${new Date(search.created_at).toLocaleDateString()}
+                                </div>
+                            </div>
+                            <div class="status-badge ${statusClass}">
+                                ${search.status}
+                            </div>
+                        </div>
+                        
+                        <div class="card-meta" style="margin-bottom: 0.75rem;">
+                            ${search.zip_code ? `📍 ${search.zip_code}${search.distance ? ` (${search.distance}km)` : ''}` : ''}
+                            ${search.price_from || search.price_to ? `💰 €${search.price_from || 0} - €${search.price_to || '∞'}` : ''}
+                            <br>
+                            ⏱️ Every ${Math.round(search.interval / 60)} min | Last: ${lastRun}
+                        </div>
+
+                        ${search.last_error ? `
+                            <div class="alert alert-error" style="font-size: 0.75rem; padding: 0.5rem;">
+                                ${this.escapeHtml(search.last_error)}
+                            </div>
+                        ` : ''}
+
+                        <div class="card-actions">
+                            <button class="btn btn-secondary btn-sm" onclick="app.viewResults('${search.id}')">
+                                View Results
+                            </button>
+                            <button class="btn btn-secondary btn-sm" onclick="app.editSearch('${search.id}')">
+                                Edit
+                            </button>
+                            ${search.status === 'active' ? `
+                                <button class="btn btn-danger btn-sm" onclick="app.stopSearch('${search.id}')">
+                                    Stop
+                                </button>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            }
+
+            async viewResults(searchId) {
+                this.currentSearchId = searchId;
+                this.currentResultsPage = 0;
+                
+                document.getElementById('results-section').style.display = 'block';
+                document.getElementById('results-section').scrollIntoView({ behavior: 'smooth' });
+                
+                await this.loadResults();
+            }
+
+            async loadResults() {
+                if (!this.currentSearchId) return;
+
+                const loading = document.getElementById('results-loading');
+                const container = document.getElementById('results-container');
+                const pagination = document.getElementById('results-pagination');
+
+                loading.style.display = 'flex';
+
+                try {
+                    const showNewOnly = document.getElementById('show-new-only').checked;
+                    const skip = this.currentResultsPage * this.resultsLimit;
+                    
+                    const url = `/api/searches/${this.currentSearchId}/results?skip=${skip}&limit=${this.resultsLimit}${showNewOnly ? '&show_new_only=true' : ''}`;
+                    const results = await this.apiRequest(url);
+                    
+                    this.renderResults(results);
+                    this.updateResultsPagination(results.length);
+                } catch (error) {
+                    container.innerHTML = `
+                        <div class="alert alert-error">
+                            Failed to load results: ${error.message}
+                        </div>
+                    `;
+                    pagination.style.display = 'none';
+                } finally {
+                    loading.style.display = 'none';
+                }
+            }
+
+            renderResults(results) {
+                const container = document.getElementById('results-container');
+
+                if (results.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-title">No results found</div>
+                            <p>This search hasn't found any listings yet.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = `
+                    <div class="grid grid-cols-1">
+                        ${results.map(result => this.renderResultCard(result)).join('')}
+                    </div>
+                `;
+            }
+
+            renderResultCard(result) {
+                return `
+                    <div class="card ${result.is_new ? 'border-blue-500' : ''}" style="${result.is_new ? 'border-color: var(--primary-color); border-width: 2px;' : ''}">
+                        <div class="card-header">
+                            <div>
+                                <div class="card-title">
+                                    ${this.escapeHtml(result.title || 'Untitled')}
+                                    ${result.is_new ? '<span style="color: var(--primary-color); font-weight: bold;">NEW</span>' : ''}
+                                </div>
+                                <div class="card-meta">
+                                    ${result.price ? `€${result.price}` : 'Price not listed'} • 
+                                    Found ${new Date(result.discovered_at).toLocaleDateString()}
+                                </div>
+                            </div>
+                            ${result.image_url ? `
+                                <img src="${result.image_url}" alt="Listing image" 
+                                     style="width: 80px; height: 80px; object-fit: cover; border-radius: 0.375rem;">
+                            ` : ''}
+                        </div>
+                        
+                        ${result.description_snippet ? `
+                            <p style="margin-bottom: 0.75rem; color: var(--text-secondary);">
+                                ${this.escapeHtml(result.description_snippet)}
+                            </p>
+                        ` : ''}
+
+                        <div class="card-actions">
+                            <button class="btn btn-secondary btn-sm" onclick="app.viewListing('${result.id}')">
+                                View Details
+                            </button>
+                            ${result.url ? `
+                                <a href="${result.url}" target="_blank" class="btn btn-primary btn-sm">
+                                    View on Marktplaats
+                                </a>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            }
+
+            updateResultsPagination(resultCount) {
+                const pagination = document.getElementById('results-pagination');
+                const pageInfo = document.getElementById('results-page-info');
+                const prevBtn = document.getElementById('prev-results');
+                const nextBtn = document.getElementById('next-results');
+
+                if (this.currentResultsPage === 0 && resultCount < this.resultsLimit) {
+                    pagination.style.display = 'none';
+                    return;
+                }
+
+                pagination.style.display = 'flex';
+                
+                const start = this.currentResultsPage * this.resultsLimit + 1;
+                const end = start + resultCount - 1;
+                pageInfo.textContent = `Showing ${start}-${end}`;
+
+                prevBtn.disabled = this.currentResultsPage === 0;
+                nextBtn.disabled = resultCount < this.resultsLimit;
+            }
+
+            async viewListing(listingId) {
+                const modal = document.getElementById('listing-modal');
+                const details = document.getElementById('listing-details');
+
+                modal.classList.add('open');
+
+                try {
+                    const listing = await this.apiRequest(`/api/results/${listingId}?mark_as_read=true`);
+                    
+                    details.innerHTML = `
+                        <div class="card">
+                            <div class="card-header">
+                                <div>
+                                    <div class="card-title" style="font-size: 1.25rem;">
+                                        ${this.escapeHtml(listing.title || 'Untitled')}
+                                    </div>
+                                    <div class="card-meta">
+                                        ${listing.price ? `€${listing.price}` : 'Price not listed'} • 
+                                        Found ${new Date(listing.discovered_at).toLocaleString()}
+                                    </div>
+                                </div>
+                                ${listing.image_url ? `
+                                    <img src="${listing.image_url}" alt="Listing image" 
+                                         style="width: 150px; height: 150px; object-fit: cover; border-radius: 0.5rem;">
+                                ` : ''}
+                            </div>
+                            
+                            ${listing.description_snippet ? `
+                                <div style="margin-bottom: 1rem;">
+                                    <strong>Description:</strong>
+                                    <p>${this.escapeHtml(listing.description_snippet)}</p>
+                                </div>
+                            ` : ''}
+
+                            ${listing.url ? `
+                                <div style="margin-bottom: 1rem;">
+                                    <strong>URL:</strong>
+                                    <a href="${listing.url}" target="_blank" style="color: var(--primary-color);">
+                                        ${listing.url}
+                                    </a>
+                                </div>
+                            ` : ''}
+
+                            <div style="margin-bottom: 1rem;">
+                                <strong>Source ID:</strong> ${listing.source_listing_id || 'N/A'}
+                            </div>
+
+                            ${listing.url ? `
+                                <a href="${listing.url}" target="_blank" class="btn btn-primary">
+                                    View on Marktplaats
+                                </a>
+                            ` : ''}
+                        </div>
+                    `;
+                } catch (error) {
+                    details.innerHTML = `
+                        <div class="alert alert-error">
+                            Failed to load listing details: ${error.message}
+                        </div>
+                    `;
+                }
+            }
+
+            closeListingModal() {
+                document.getElementById('listing-modal').classList.remove('open');
+            }
+
+            closeResults() {
+                document.getElementById('results-section').style.display = 'none';
+                this.currentSearchId = null;
+            }
+
+            openSearchModal(search = null) {
+                this.editingSearch = search;
+                const modal = document.getElementById('search-modal');
+                const title = document.getElementById('search-modal-title');
+                const saveBtn = document.getElementById('save-search-text');
+                const form = document.getElementById('search-form');
+
+                if (search) {
+                    title.textContent = 'Edit Search';
+                    saveBtn.textContent = 'Update Search';
+                    this.populateSearchForm(search);
+                } else {
+                    title.textContent = 'Create New Search';
+                    saveBtn.textContent = 'Create Search';
+                    form.reset();
+                    document.getElementById('search-limit').value = '25';
+                    document.getElementById('search-interval').value = '60';
+                }
+
+                modal.classList.add('open');
+            }
+
+            closeSearchModal() {
+                document.getElementById('search-modal').classList.remove('open');
+                this.editingSearch = null;
+                document.getElementById('search-form-error').textContent = '';
+            }
+
+            populateSearchForm(search) {
+                document.getElementById('search-query').value = search.query || '';
+                document.getElementById('search-zip-code').value = search.zip_code || '';
+                document.getElementById('search-distance').value = search.distance || '';
+                document.getElementById('search-price-from').value = search.price_from || '';
+                document.getElementById('search-price-to').value = search.price_to || '';
+                document.getElementById('search-limit').value = search.limit || 25;
+                document.getElementById('search-interval').value = Math.round((search.interval || 3600) / 60);
+                document.getElementById('search-sort-by').value = search.sort_by || '';
+                document.getElementById('search-sort-order').value = search.sort_order || '';
+            }
+
+            async saveSearch() {
+                const saveBtn = document.getElementById('save-search');
+                const loading = document.getElementById('search-save-loading');
+                const errorEl = document.getElementById('search-form-error');
+
+                saveBtn.disabled = true;
+                loading.style.display = 'inline-block';
+                errorEl.textContent = '';
+
+                try {
+                    const formData = this.getSearchFormData();
+                    
+                    if (this.editingSearch) {
+                        await this.apiRequest(`/api/searches/${this.editingSearch.id}`, {
+                            method: 'PUT',
+                            body: JSON.stringify(formData)
+                        });
+                    } else {
+                        await this.apiRequest('/api/searches', {
+                            method: 'POST',
+                            body: JSON.stringify(formData)
+                        });
+                    }
+
+                    this.closeSearchModal();
+                    this.loadSearches();
+                } catch (error) {
+                    errorEl.textContent = error.message;
+                } finally {
+                    saveBtn.disabled = false;
+                    loading.style.display = 'none';
+                }
+            }
+
+            getSearchFormData() {
+                const data = {
+                    query: document.getElementById('search-query').value,
+                    interval: parseInt(document.getElementById('search-interval').value) * 60,
+                    limit: parseInt(document.getElementById('search-limit').value) || 25
+                };
+
+                // Optional fields
+                const zipCode = document.getElementById('search-zip-code').value;
+                if (zipCode) data.zip_code = zipCode;
+
+                const distance = parseInt(document.getElementById('search-distance').value);
+                if (distance) data.distance = distance * 1000; // Convert km to meters
+
+                const priceFrom = parseInt(document.getElementById('search-price-from').value);
+                if (priceFrom) data.price_from = priceFrom;
+
+                const priceTo = parseInt(document.getElementById('search-price-to').value);
+                if (priceTo) data.price_to = priceTo;
+
+                const sortBy = document.getElementById('search-sort-by').value;
+                if (sortBy) data.sort_by = sortBy;
+
+                const sortOrder = document.getElementById('search-sort-order').value;
+                if (sortOrder) data.sort_order = sortOrder;
+
+                return data;
+            }
+
+            async editSearch(searchId) {
+                try {
+                    const search = await this.apiRequest(`/api/searches/${searchId}`);
+                    this.openSearchModal(search);
+                } catch (error) {
+                    alert(`Failed to load search details: ${error.message}`);
+                }
+            }
+
+            async stopSearch(searchId) {
+                if (!confirm('Are you sure you want to stop this search?')) {
+                    return;
+                }
+
+                try {
+                    await this.apiRequest(`/api/searches/${searchId}/end`, {
+                        method: 'POST'
+                    });
+                    this.loadSearches();
+                } catch (error) {
+                    alert(`Failed to stop search: ${error.message}`);
+                }
+            }
+
+            escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+        }
+
+        // Initialize the application
+        const app = new MarktplaatsSearchApp();
+    </script>
+</body>
+</html>

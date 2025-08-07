@@ -10,7 +10,7 @@ from sqlalchemy.orm import selectinload
 
 from database import AsyncSessionLocal # Use the session factory directly for background tasks
 from models import Search, SearchStatus, Listing
-from marktplaats_client import fetch_listings, MockListingItem
+from marktplaats_client import fetch_listings, ListingItem
 
 logger = logging.getLogger(__name__)
 scheduler = AsyncIOScheduler(timezone="UTC")
@@ -41,7 +41,7 @@ async def run_single_search(search_id: uuid.UUID):
                 # Job should be removed/paused by API logic that changes status
                 return
 
-            new_listings_data: List[MockListingItem] = await fetch_listings(
+            new_listings_data: List[ListingItem] = await fetch_listings(
                 query=search_instance.query,
                 zip_code=search_instance.zip_code,
                 distance=search_instance.distance,
