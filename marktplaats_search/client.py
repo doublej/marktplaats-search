@@ -135,6 +135,49 @@ class MarktplaatsScraper:
             return None
         return re.sub(r"\s+", " ", text.strip())
 
+    def _clean_description(self, text: str | None) -> str | None:
+        """Clean and normalize description text, removing price and metadata pollution."""
+        if not text:
+            return None
+
+        # Start with basic text cleaning
+        cleaned = self._clean_text(text)
+        if not cleaned:
+            return None
+
+        # Remove price patterns that commonly appear in descriptions
+        cleaned = re.sub(r"€\s*[\d.,]+\s*,?\s*", "", cleaned)  # Remove Euro prices
+        cleaned = re.sub(r"\$\s*[\d.,]+\s*,?\s*", "", cleaned)  # Remove Dollar prices
+        cleaned = re.sub(r"[\d,]+\s*€\s*,?\s*", "", cleaned)  # Remove reversed Euro format
+        cleaned = re.sub(
+            r"€\s*[\d.,]+[^a-zA-Z]*", "", cleaned
+        )  # Remove Euro prices with trailing chars
+
+        # Remove common metadata patterns
+        cleaned = re.sub(r"\s*details\s*", "", cleaned, flags=re.I)  # Remove "details" text
+        cleaned = re.sub(r"🇳🇱\s*", "", cleaned)  # Remove Netherlands flag emoji
+        cleaned = re.sub(
+            r"\s*(Gebruikt|Nieuw|Zo goed als nieuw)\s*", "", cleaned, flags=re.I
+        )  # Remove condition
+        cleaned = re.sub(
+            r"\s*(Ophalen|Verzenden|Ophalen of Verzenden)\s*$", "", cleaned, flags=re.I
+        )  # Remove pickup/shipping at end
+        cleaned = re.sub(r"\s*Alle\s*$", "", cleaned, flags=re.I)  # Remove trailing "Alle"
+
+        # Remove duplicate exclamation marks and normalize punctuation
+        cleaned = re.sub(r"!+", "!", cleaned)  # Multiple ! to single !
+        cleaned = re.sub(r"€+", "", cleaned)  # Remove stray € symbols
+        cleaned = re.sub(r"\s*!\s*$", "", cleaned)  # Remove trailing !
+
+        # Clean up whitespace and return
+        cleaned = re.sub(r"\s+", " ", cleaned).strip()
+
+        # Return None if cleaned text is too short or mostly punctuation
+        if len(cleaned) < 10 or len(re.sub(r"[^a-zA-Z0-9\s]", "", cleaned)) < 5:
+            return None
+
+        return cleaned
+
     def _parse_listings(self, html: str) -> list[ListingItem]:
         """Parse listings from HTML content."""
         soup = BeautifulSoup(html, "lxml")
@@ -271,7 +314,7 @@ class MarktplaatsScraper:
 
         for candidate in desc_candidates:
             if candidate:
-                desc_text = self._clean_text(candidate.get_text())
+                desc_text = self._clean_description(candidate.get_text())
                 if desc_text and desc_text != title and len(desc_text) > 10:
                     description = desc_text[:200]  # Limit length
                     break
