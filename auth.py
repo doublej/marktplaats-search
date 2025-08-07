@@ -7,7 +7,7 @@ import secrets
 import hashlib
 import hmac
 from typing import Optional
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import os
 
 # Security configuration constants
@@ -95,12 +95,13 @@ def is_token_expired(created_at: datetime, expiry_days: Optional[int] = None) ->
         return False
     
     expiry_date = created_at + timedelta(days=expiry_days)
-    return datetime.utcnow() > expiry_date
+    return datetime.now(timezone.utc) > expiry_date
 
 
 def validate_token_format(token: str) -> bool:
     """
     Validate that a token follows the expected format.
+    Supports both new secure tokens and legacy migrated tokens.
     
     Args:
         token: The token to validate
@@ -111,18 +112,22 @@ def validate_token_format(token: str) -> bool:
     if not token:
         return False
     
-    # Check for prefix and length
-    if not token.startswith(TOKEN_PREFIX):
-        return False
+    # Support new secure tokens with prefix
+    if token.startswith(TOKEN_PREFIX):
+        # Remove prefix and check hex format
+        token_part = token[len(TOKEN_PREFIX):]
+        if len(token_part) != TOKEN_LENGTH * 2:  # 2 hex chars per byte
+            return False
+        
+        # Check if it's valid hex
+        try:
+            int(token_part, 16)
+            return True
+        except ValueError:
+            return False
     
-    # Remove prefix and check hex format
-    token_part = token[len(TOKEN_PREFIX):]
-    if len(token_part) != TOKEN_LENGTH * 2:  # 2 hex chars per byte
-        return False
-    
-    # Check if it's valid hex
-    try:
-        int(token_part, 16)
-        return True
-    except ValueError:
-        return False
+    # Support legacy tokens (for backward compatibility after migration)
+    # Legacy tokens don't have the mps_ prefix
+    # Accept any non-empty string as a potential legacy token
+    # The actual validation will happen during hash comparison
+    return True

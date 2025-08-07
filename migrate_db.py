@@ -59,7 +59,7 @@ async def migrate_users():
         if has_api_token and not has_api_token_hash:
             logger.info("Migrating from plaintext tokens to hashed tokens...")
             
-            # Step 1: Add new columns
+            # Step 1: Add new columns (SQLite doesn't support non-constant defaults in ALTER)
             logger.info("Adding new columns...")
             await conn.execute(text(
                 "ALTER TABLE users ADD COLUMN api_token_hash VARCHAR"
@@ -68,10 +68,15 @@ async def migrate_users():
                 "ALTER TABLE users ADD COLUMN is_active BOOLEAN DEFAULT 1"
             ))
             await conn.execute(text(
-                "ALTER TABLE users ADD COLUMN token_created_at DATETIME DEFAULT CURRENT_TIMESTAMP"
+                "ALTER TABLE users ADD COLUMN token_created_at DATETIME"
             ))
             await conn.execute(text(
                 "ALTER TABLE users ADD COLUMN last_activity DATETIME"
+            ))
+            
+            # Set default values for existing rows
+            await conn.execute(text(
+                "UPDATE users SET token_created_at = created_at WHERE token_created_at IS NULL"
             ))
             
             # Step 2: Get all existing users

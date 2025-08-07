@@ -7,7 +7,7 @@ Provides commands for creating, listing, and managing users.
 import asyncio
 import argparse
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 import getpass
 
@@ -43,7 +43,7 @@ async def create_user(username: Optional[str] = None) -> tuple[str, str]:
             user_identifier=username,
             api_token_hash=token_hash,
             is_active=True,
-            token_created_at=datetime.utcnow()
+            token_created_at=datetime.now(timezone.utc)
         )
         
         db.add(user)
@@ -109,7 +109,7 @@ async def reset_token(username: str) -> str:
         new_token_hash = hash_token(new_token)
         
         user.api_token_hash = new_token_hash
-        user.token_created_at = datetime.utcnow()
+        user.token_created_at = datetime.now(timezone.utc)
         
         await db.commit()
         
@@ -133,7 +133,7 @@ async def show_stats():
         
         # Users with recent activity (last 7 days)
         from datetime import timedelta
-        recent_date = datetime.utcnow() - timedelta(days=7)
+        recent_date = datetime.now(timezone.utc) - timedelta(days=7)
         recent_result = await db.execute(
             select(func.count(User.id)).where(User.last_activity > recent_date)
         )

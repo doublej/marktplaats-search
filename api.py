@@ -1,6 +1,6 @@
 import uuid
 from typing import List, Optional, Any
-from datetime import datetime
+from datetime import datetime, timezone
 
 from fastapi import FastAPI, HTTPException, status, Depends, Query as FastAPIQuery
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
@@ -155,7 +155,7 @@ async def get_current_user(
             )
     
     # Update last activity
-    user.last_activity = datetime.utcnow()
+    user.last_activity = datetime.now(timezone.utc)
     await db.commit()
     
     return user
@@ -457,7 +457,7 @@ async def register_user(
         user_identifier=user_identifier,
         api_token_hash=token_hash,
         is_active=True,
-        token_created_at=datetime.utcnow()
+        token_created_at=datetime.now(timezone.utc)
     )
     
     db.add(new_user)
@@ -517,7 +517,7 @@ async def rotate_api_token(
     
     # Update user with new token
     current_user.api_token_hash = new_token_hash
-    current_user.token_created_at = datetime.utcnow()
+    current_user.token_created_at = datetime.now(timezone.utc)
     
     await db.commit()
     
