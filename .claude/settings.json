@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "echo '🔍 Running pre-change quality checks...' && ruff format . && ruff check . --fix"
+            "command": "echo 'Running pre-change quality checks...' && ruff format . && ruff check . --fix"
           }
         ]
       },
@@ -15,7 +15,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "echo '⚡ About to run bash command, checking project state...'"
+            "command": "echo 'About to run bash command, checking project state...'"
           }
         ]
       }
@@ -26,7 +26,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "echo '✅ Code modified, running post-change checks...' && mypy . --ignore-missing-imports || echo '⚠️ Type checking issues found'"
+            "command": "echo 'Code modified, running post-change checks...' && mypy . --ignore-missing-imports || echo 'Type checking issues found'"
           }
         ]
       }
@@ -37,7 +37,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "if [ -d .git ] && ! git diff --quiet; then echo '📝 Creating commit before Claude Code changes...' && git add -A && git commit -m 'Save progress before Claude Code changes\n\n🤖 Generated with Claude Code\n\nCo-Authored-By: Claude <noreply@anthropic.com>' || true; fi"
+            "command": "if [ -d .git ] && ! git diff --quiet; then echo 'Creating commit before Claude Code changes...' && git add -A && git commit -m 'Save progress before Claude Code changes\n\nGenerated with Claude Code\n\nCo-Authored-By: Claude <noreply@anthropic.com>' || true; fi"
           }
         ]
       }
@@ -48,11 +48,11 @@
         "hooks": [
           {
             "type": "command",
-            "command": "if [ -d .git ] && ! git diff --quiet; then echo '📝 Creating commit after Claude Code changes...' && git add -A && git commit -m 'Implement changes with Claude Code\n\n🤖 Generated with Claude Code\n\nCo-Authored-By: Claude <noreply@anthropic.com>' || true; fi"
+            "command": "if [ -d .git ] && ! git diff --quiet; then echo 'Creating commit after Claude Code changes...' && git add -A && git commit -m 'Implement changes with Claude Code\n\nGenerated with Claude Code\n\nCo-Authored-By: Claude <noreply@anthropic.com>' || true; fi"
           },
           {
             "type": "command",
-            "command": "if [ -f CHANGELIST.md ]; then changelist_age=$((1754601018 - $(stat -f %m CHANGELIST.md 2>/dev/null || stat -c %Y CHANGELIST.md 2>/dev/null || echo 0))); if [ $changelist_age -gt 1800 ]; then echo '💡 Consider updating CHANGELIST.md with recent changes'; fi; fi"
+            "command": "if [ -f CHANGELIST.md ]; then changelist_age=$((1754601018 - $(stat -f %m CHANGELIST.md 2>/dev/null || stat -c %Y CHANGELIST.md 2>/dev/null || echo 0))); if [ $changelist_age -gt 1800 ]; then echo 'Consider updating CHANGELIST.md with recent changes'; fi; fi"
           }
         ]
       }
@@ -63,7 +63,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "echo '🚀 Claude Code session started in MarktplaatsSearch' && echo '📋 Project uses ai-dev gitignore profile' && if [ -f CLAUDE.md ]; then echo '📖 See CLAUDE.md for project-specific instructions'; fi"
+            "command": "echo 'Claude Code session started in MarktplaatsSearch' && echo 'Project uses ai-dev gitignore profile' && if [ -f CLAUDE.md ]; then echo 'See CLAUDE.md for project-specific instructions'; fi"
           }
         ]
       }

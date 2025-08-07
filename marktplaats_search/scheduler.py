@@ -3,6 +3,7 @@ import uuid
 from datetime import UTC, datetime
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from apscheduler.triggers.interval import IntervalTrigger
 from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload
 
@@ -63,27 +64,41 @@ async def run_single_search(search_id: uuid.UUID):
             new_listings_to_add = []
             for listing_data in new_listings_data:
                 try:
-                    # Check if listing already exists by URL
+                    # Check if listing already exists FOR THIS SEARCH (per-search duplicate detection)
                     existing_listing = await db.execute(
-                        select(Listing).where(Listing.url == str(listing_data.url))
+                        select(Listing).where(
+                            Listing.search_id == search_instance.id,
+                            Listing.url == str(listing_data.url)
+                        )
                     )
                     if existing_listing.scalars().first() is None:
-                        # Listing doesn't exist, create new one
+                        # Listing doesn't exist for this search, create new one
                         new_db_listing = Listing(
                             search_id=search_instance.id,
                             source_listing_id=listing_data.source_listing_id,
                             title=listing_data.title,
                             price=listing_data.price,
+                            price_numeric=listing_data.price_numeric,
                             url=str(listing_data.url),
                             description_snippet=listing_data.description_snippet,
                             image_url=str(listing_data.image_url)
                             if listing_data.image_url
                             else None,
                             raw_html=listing_data.raw_html,
-                            is_new=True,
+                            is_new=True,  # Always new for this specific search
+                            # Additional listing metadata
+                            location=listing_data.location,
+                            seller=listing_data.seller,
+                            views=listing_data.views,
+                            condition=listing_data.condition,
+                            date_posted=listing_data.date_posted,
                         )
                         new_listings_to_add.append(new_db_listing)
                         added_count += 1
+                    else:
+                        logger.debug(
+                            f"SCHEDULER: Listing {listing_data.url} already exists for search {search_instance.id}"
+                        )
 
                 except Exception as listing_error:
                     # Log individual listing errors but continue with others
@@ -123,10 +138,12 @@ def schedule_search_job(search: Search):
 
     try:
         if search.status == SearchStatus.ACTIVE and search.interval > 0:
+            # Create proper trigger instance
+            trigger = IntervalTrigger(seconds=search.interval)
+            
             job_details = {
                 "func": run_single_search,
-                "trigger": "interval",
-                "seconds": search.interval,
+                "trigger": trigger,
                 "args": [search.id],
                 "next_run_time": datetime.now(UTC),  # Run immediately then interval
             }

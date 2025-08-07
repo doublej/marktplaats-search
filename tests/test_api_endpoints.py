@@ -4,6 +4,7 @@ Tests all authentication, search management, and result endpoints.
 """
 
 import asyncio
+import contextlib
 from typing import Any
 
 import httpx
@@ -32,10 +33,8 @@ class APITester:
         # Cleanup: delete any created searches
         if self.token:
             for search_id in self.created_searches:
-                try:
+                with contextlib.suppress(BaseException):
                     await self.delete_search(search_id)
-                except:
-                    pass
 
         await self.client.aclose()
 
@@ -322,7 +321,9 @@ if __name__ == "__main__":
     print("=" * 50)
     print(f"✅ Passed: {results['passed']}")
     print(f"❌ Failed: {results['failed']}")
-    print(f"📈 Success Rate: {results['passed']/(results['passed']+results['failed'])*100:.1f}%")
+    print(
+        f"📈 Success Rate: {results['passed'] / (results['passed'] + results['failed']) * 100:.1f}%"
+    )
 
     if results["errors"]:
         print("\n🚨 ERRORS:")

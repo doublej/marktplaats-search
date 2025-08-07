@@ -803,11 +803,11 @@
                 grid-template-columns: 1fr;
                 gap: 1rem;
             }
-            
+
             .sidebar {
                 max-height: 200px;
             }
-            
+
             .form-grid {
                 grid-template-columns: 1fr;
             }
@@ -848,10 +848,10 @@
                 <form id="auth-form">
                     <div class="form-group">
                         <label for="api-token" class="form-label">API Token</label>
-                        <input 
-                            type="password" 
-                            id="api-token" 
-                            class="form-input" 
+                        <input
+                            type="password"
+                            id="api-token"
+                            class="form-input"
                             placeholder="Enter your API token"
                             required
                         >
@@ -893,7 +893,7 @@
                             <button class="tab active" onclick="app.switchTab('results')">Results</button>
                             <button class="tab" onclick="app.switchTab('details')">Search Details</button>
                         </div>
-                        
+
                         <!-- Results Tab -->
                         <div id="results-tab" class="tab-panel active">
                             <div class="tab-content" id="results-content">
@@ -903,7 +903,7 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <!-- Details Tab -->
                         <div id="details-tab" class="tab-panel">
                             <div class="tab-content" id="search-details-content">
@@ -960,10 +960,10 @@
             <form id="search-form">
                 <div class="form-group">
                     <label for="search-query" class="form-label">Search Query *</label>
-                    <input 
-                        type="text" 
-                        id="search-query" 
-                        class="form-input" 
+                    <input
+                        type="text"
+                        id="search-query"
+                        class="form-input"
                         placeholder="e.g., Samsung SSD"
                         required
                     >
@@ -972,20 +972,20 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label for="search-zip-code" class="form-label">Postal Code</label>
-                        <input 
-                            type="text" 
-                            id="search-zip-code" 
-                            class="form-input" 
+                        <input
+                            type="text"
+                            id="search-zip-code"
+                            class="form-input"
                             placeholder="e.g., 1234AB"
                             pattern="[0-9]{4}[A-Z]{2}"
                         >
                     </div>
                     <div class="form-group">
                         <label for="search-distance" class="form-label">Distance (km)</label>
-                        <input 
-                            type="number" 
-                            id="search-distance" 
-                            class="form-input" 
+                        <input
+                            type="number"
+                            id="search-distance"
+                            class="form-input"
                             min="1"
                             placeholder="e.g., 25"
                         >
@@ -995,20 +995,20 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label for="search-price-from" class="form-label">Min Price (€)</label>
-                        <input 
-                            type="number" 
-                            id="search-price-from" 
-                            class="form-input" 
+                        <input
+                            type="number"
+                            id="search-price-from"
+                            class="form-input"
                             min="0"
                             placeholder="e.g., 50"
                         >
                     </div>
                     <div class="form-group">
                         <label for="search-price-to" class="form-label">Max Price (€)</label>
-                        <input 
-                            type="number" 
-                            id="search-price-to" 
-                            class="form-input" 
+                        <input
+                            type="number"
+                            id="search-price-to"
+                            class="form-input"
                             min="0"
                             placeholder="e.g., 500"
                         >
@@ -1018,22 +1018,22 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label for="search-limit" class="form-label">Results per fetch</label>
-                        <input 
-                            type="number" 
-                            id="search-limit" 
-                            class="form-input" 
-                            min="1" 
+                        <input
+                            type="number"
+                            id="search-limit"
+                            class="form-input"
+                            min="1"
                             max="100"
                             value="25"
                         >
                     </div>
                     <div class="form-group">
                         <label for="search-interval" class="form-label">Interval (minutes) *</label>
-                        <input 
-                            type="number" 
-                            id="search-interval" 
-                            class="form-input" 
-                            min="1" 
+                        <input
+                            type="number"
+                            id="search-interval"
+                            class="form-input"
+                            min="1"
                             max="1440"
                             value="60"
                             required
@@ -1107,7 +1107,7 @@
             init() {
                 this.setupEventListeners();
                 this.initTheme();
-                
+
                 if (this.apiToken) {
                     this.authenticate(this.apiToken);
                 }
@@ -1199,7 +1199,7 @@
             setTheme(theme) {
                 document.body.setAttribute('data-theme', theme);
                 localStorage.setItem('mp_theme', theme);
-                
+
                 const icon = document.getElementById('theme-icon');
                 icon.textContent = theme === 'light' ? '🌙' : '☀️';
             }
@@ -1243,7 +1243,7 @@
                 const indicator = document.getElementById('auth-indicator');
                 const statusText = document.getElementById('auth-status-text');
                 const authSection = document.getElementById('auth-section');
-                
+
                 if (isAuthenticated) {
                     document.body.classList.add('authenticated');
                     indicator.classList.add('authenticated');
@@ -1282,7 +1282,7 @@
                         this.apiToken = '';
                         throw new Error('Authentication expired');
                     }
-                    
+
                     const errorData = await response.json().catch(() => ({}));
                     throw new Error(errorData.detail || `HTTP ${response.status}`);
                 }
@@ -1291,12 +1291,12 @@
                 if (response.status === 204 || response.headers.get('content-length') === '0') {
                     return null;
                 }
-                
+
                 const contentType = response.headers.get('content-type');
                 if (contentType && contentType.includes('application/json')) {
                     return response.json();
                 }
-                
+
                 return null;
             }
 
@@ -1337,7 +1337,7 @@
                 }
 
                 container.innerHTML = searches.map((search, index) => this.renderSearchListItem(search, index)).join('');
-                
+
                 // Select first search by default if none selected
                 if (!this.selectedSearchId && searches.length > 0) {
                     this.selectSearch(searches[0].search_id);
@@ -1346,9 +1346,9 @@
 
             renderSearchCard(search) {
                 const statusClass = search.status.toLowerCase();
-                const lastRun = search.last_run_at ? 
+                const lastRun = search.last_run_at ?
                     new Date(search.last_run_at).toLocaleString() : 'Never';
-                
+
                 return `
                     <div class="card">
                         <div class="card-header">
@@ -1362,12 +1362,12 @@
                                 ${search.status}
                             </div>
                         </div>
-                        
+
                         <div class="card-meta" style="margin-bottom: 0.75rem;">
-                            ${search.zip_code ? `📍 ${search.zip_code}${search.distance ? ` (${search.distance}km)` : ''}` : ''}
-                            ${search.price_from || search.price_to ? `💰 €${search.price_from || 0} - €${search.price_to || '∞'}` : ''}
+                            ${search.zip_code ? `Location: ${search.zip_code}${search.distance ? ` (${search.distance}km)` : ''}` : ''}
+                            ${search.price_from || search.price_to ? `Price: €${search.price_from || 0} - €${search.price_to || '∞'}` : ''}
                             <br>
-                            ⏱️ Every ${Math.round(search.interval / 60)} min | Last: ${lastRun}
+                            Every ${Math.round(search.interval / 60)} min | Last: ${lastRun}
                         </div>
 
                         ${search.last_error ? `
@@ -1377,18 +1377,18 @@
                         ` : ''}
 
                         <div class="card-actions">
-                            <button class="btn btn-secondary btn-sm" onclick="app.viewResults('${search.search_id}')">
+                            <button class="btn btn-primary btn-sm" onclick="app.viewResults('${search.search_id}')">
                                 View Results
                             </button>
-                            <button class="btn btn-secondary btn-sm" onclick="app.editSearch('${search.search_id}')">
+                            <button class="btn btn-primary btn-sm" onclick="app.editSearch('${search.search_id}')">
                                 Edit
                             </button>
                             ${search.status === 'active' ? `
-                                <button class="btn btn-danger btn-sm" onclick="app.stopSearch('${search.search_id}')">
+                                <button class="btn btn-primary btn-sm" onclick="app.stopSearch('${search.search_id}')">
                                     Stop
                                 </button>
                             ` : ''}
-                            <button class="btn btn-danger btn-sm" onclick="app.deleteSearch('${search.search_id}')" style="background-color: #dc3545;">
+                            <button class="btn btn-danger btn-sm" onclick="app.deleteSearch('${search.search_id}')">
                                 Delete
                             </button>
                         </div>
@@ -1399,7 +1399,7 @@
             renderSearchListItem(search, index) {
                 const statusClass = search.status.toLowerCase();
                 const isActive = this.selectedSearchId === search.search_id;
-                
+
                 return `
                     <div class="search-item ${isActive ? 'active' : ''}" onclick="app.selectSearch('${search.search_id}')">
                         <div class="search-item-title">${this.escapeHtml(search.query)}</div>
@@ -1413,13 +1413,13 @@
 
             selectSearch(searchId) {
                 this.selectedSearchId = searchId;
-                
+
                 // Update active state in search list
                 document.querySelectorAll('.search-item').forEach(item => {
                     item.classList.remove('active');
                 });
                 document.querySelector(`[onclick="app.selectSearch('${searchId}')"]`)?.classList.add('active');
-                
+
                 // Find search
                 const search = this.searches.find(s => s.search_id === searchId);
                 if (search) {
@@ -1431,28 +1431,28 @@
                     this.switchTab('results');
                 }
             }
-            
+
             switchTab(tabName) {
                 // Update tab buttons
                 document.querySelectorAll('.tab').forEach(tab => {
                     tab.classList.remove('active');
                 });
                 document.querySelector(`.tab:nth-child(${tabName === 'results' ? '1' : '2'})`).classList.add('active');
-                
+
                 // Update tab panels
                 document.querySelectorAll('.tab-panel').forEach(panel => {
                     panel.classList.remove('active');
                 });
                 document.getElementById(`${tabName}-tab`).classList.add('active');
             }
-            
+
             async loadResultsForSearch(searchId) {
                 const container = document.getElementById('results-content');
                 container.innerHTML = '<div class="loading">Loading results...</div>';
-                
+
                 try {
                     const results = await this.apiRequest(`/api/searches/${searchId}/results`);
-                    
+
                     if (results.length === 0) {
                         container.innerHTML = `
                             <div class="empty-state">
@@ -1462,7 +1462,7 @@
                         `;
                         return;
                     }
-                    
+
                     const newCount = results.filter(r => r.is_new).length;
                     const currentSearch = this.searches.find(s => s.search_id === searchId);
                     container.innerHTML = `
@@ -1474,12 +1474,12 @@
                                 </h3>
                                 ${currentSearch ? `
                                     <div style="margin-top: 0.25rem;">
-                                        <a href="${this.buildMarktplaatsUrl(currentSearch)}" 
-                                           target="_blank" 
+                                        <a href="${this.buildMarktplaatsUrl(currentSearch)}"
+                                           target="_blank"
                                            rel="noopener noreferrer"
                                            style="font-size: 0.75rem; color: var(--primary-color); text-decoration: none;"
                                            title="Compare results on Marktplaats.nl">
-                                            🔗 Compare on Marktplaats.nl
+                                            Compare on MP
                                         </a>
                                     </div>
                                 ` : ''}
@@ -1502,7 +1502,7 @@
                             ${results.map(result => this.renderResultCard(result)).join('')}
                         </div>
                     `;
-                    
+
                     this.currentResults = results;
                 } catch (error) {
                     container.innerHTML = `
@@ -1512,23 +1512,23 @@
                     `;
                 }
             }
-            
+
             filterResults() {
                 const showNewOnly = document.getElementById('show-new-only').checked;
                 const grid = document.getElementById('results-grid');
-                
-                const filtered = showNewOnly 
+
+                const filtered = showNewOnly
                     ? this.currentResults.filter(r => r.is_new)
                     : this.currentResults;
-                    
+
                 this.renderResultsGrid(filtered);
             }
-            
+
             sortResults(sortType) {
                 if (!this.currentResults) return;
-                
+
                 let sorted = [...this.currentResults];
-                
+
                 switch(sortType) {
                     case 'price-asc':
                         sorted.sort((a, b) => {
@@ -1553,12 +1553,12 @@
                     default:
                         sorted = this.currentResults;
                 }
-                
+
                 const showNewOnly = document.getElementById('show-new-only')?.checked;
                 const filtered = showNewOnly ? sorted.filter(r => r.is_new) : sorted;
                 this.renderResultsGrid(filtered);
             }
-            
+
             extractPrice(priceStr) {
                 if (!priceStr) return 999999;
                 const match = priceStr.match(/[\d,]+/);
@@ -1567,27 +1567,27 @@
                 }
                 return 999999;
             }
-            
+
             renderResultsGrid(results) {
                 const grid = document.getElementById('results-grid');
                 if (!grid) return;
-                
+
                 // Use requestAnimationFrame for smooth rendering
                 requestAnimationFrame(() => {
                     grid.innerHTML = results.map(result => this.renderResultCard(result)).join('');
                 });
             }
-            
+
             renderResultCard(result) {
                 const isNew = result.is_new;
-                
+
                 // Clean and extract data only once
                 const title = this.escapeHtml(result.title || 'No title');
                 const price = this.escapeHtml(result.price || 'Contact for price');
                 const description = result.description ? this.escapeHtml(result.description) : '';
                 const location = result.location ? this.escapeHtml(result.location) : '';
                 const datePosted = result.date_posted || result.found_at;
-                
+
                 return `
                     <article class="result-card ${isNew ? 'new-item' : ''}" style="
                         border: 1px solid ${isNew ? 'var(--success-color)' : 'var(--border)'};
@@ -1628,7 +1628,7 @@
                                         ">NEW</span>
                                     ` : ''}
                                 </header>
-                                
+
                                 <!-- Price and metadata -->
                                 <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem; flex-wrap: wrap;">
                                     <strong style="color: var(--primary-color); font-size: 1.1rem;">
@@ -1636,7 +1636,7 @@
                                     </strong>
                                     ${location ? `
                                         <span style="color: var(--text-secondary); font-size: 0.75rem;">
-                                            📍 ${location}
+                                            ${location}
                                         </span>
                                     ` : ''}
                                     ${datePosted ? `
@@ -1645,7 +1645,7 @@
                                         </time>
                                     ` : ''}
                                 </div>
-                                
+
                                 <!-- Description -->
                                 ${description ? `
                                     <p style="
@@ -1662,20 +1662,20 @@
                                         ${description}
                                     </p>
                                 ` : ''}
-                                
+
                                 <!-- Footer with metadata and actions -->
                                 <footer style="display: flex; justify-content: space-between; align-items: center;">
                                     <div style="display: flex; gap: 0.75rem; font-size: 0.7rem; color: var(--text-secondary);">
-                                        ${result.seller ? `<span>👤 ${this.escapeHtml(result.seller)}</span>` : ''}
-                                        ${result.views ? `<span>👁 ${result.views}</span>` : ''}
-                                        ${result.condition ? `<span>📦 ${this.escapeHtml(result.condition)}</span>` : ''}
+                                        ${result.seller ? `<span>Seller: ${this.escapeHtml(result.seller)}</span>` : ''}
+                                        ${result.views ? `<span>Views: ${result.views}</span>` : ''}
+                                        ${result.condition ? `<span>Condition: ${this.escapeHtml(result.condition)}</span>` : ''}
                                     </div>
                                     <div style="display: flex; gap: 0.5rem;">
-                                        <button onclick="app.viewListing('${result.id}')" 
+                                        <button onclick="app.viewListing('${result.id}')"
                                                style="
                                                    background: transparent;
-                                                   border: 1px solid var(--secondary-color);
-                                                   color: var(--secondary-color);
+                                                   border: 1px solid var(--primary-color);
+                                                   color: var(--primary-color);
                                                    font-size: 0.75rem;
                                                    font-weight: 500;
                                                    padding: 0.25rem 0.5rem;
@@ -1683,12 +1683,12 @@
                                                    cursor: pointer;
                                                    transition: all 0.2s;
                                                "
-                                               onmouseover="this.style.background='var(--secondary-color)'; this.style.color='white';"
-                                               onmouseout="this.style.background='transparent'; this.style.color='var(--secondary-color)';">
-                                            details
+                                               onmouseover="this.style.background='var(--primary-color)'; this.style.color='white';"
+                                               onmouseout="this.style.background='transparent'; this.style.color='var(--primary-color)';">
+                                            View Results
                                         </button>
-                                        <a href="${result.url}" 
-                                           target="_blank" 
+                                        <a href="${result.url}"
+                                           target="_blank"
                                            rel="noopener noreferrer"
                                            style="
                                                color: var(--primary-color);
@@ -1703,17 +1703,17 @@
                                            onmouseover="this.style.background='var(--primary-color)'; this.style.color='white';"
                                            onmouseout="this.style.background='transparent'; this.style.color='var(--primary-color)';"
                                            onclick="event.stopPropagation();">
-                                            View →
+                                            Compare on MP
                                         </a>
                                     </div>
                                 </footer>
                             </div>
-                            
+
                             <!-- Image thumbnail -->
                             ${result.image_url ? `
                                 <figure style="margin: 0;">
-                                    <img src="${result.image_url}" 
-                                         alt="${title}" 
+                                    <img src="${result.image_url}"
+                                         alt="${title}"
                                          loading="lazy"
                                          style="
                                              width: 80px;
@@ -1729,14 +1729,14 @@
                     </article>
                 `;
             }
-            
+
             buildMarktplaatsUrl(search) {
                 const baseUrl = "https://www.marktplaats.nl/q/";
                 const encodedQuery = encodeURIComponent(search.query.toLowerCase());
                 let url = baseUrl + encodedQuery + "/";
-                
+
                 const params = new URLSearchParams();
-                
+
                 if (search.zip_code) {
                     params.set("postcode", search.zip_code);
                 }
@@ -1758,12 +1758,12 @@
                 } else if (search.sort_by === "date") {
                     params.set("sortBy", "DATE");
                 }
-                
+
                 const paramString = params.toString();
                 if (paramString) {
                     url += "?" + paramString;
                 }
-                
+
                 return url;
             }
 
@@ -1772,7 +1772,7 @@
                 const date = new Date(dateString);
                 const now = new Date();
                 const seconds = Math.floor((now - date) / 1000);
-                
+
                 if (seconds < 60) return 'just now';
                 if (seconds < 3600) return Math.floor(seconds / 60) + 'm ago';
                 if (seconds < 86400) return Math.floor(seconds / 3600) + 'h ago';
@@ -1782,7 +1782,7 @@
 
             renderSearchDetails(search) {
                 const container = document.getElementById('search-details-content');
-                
+
                 if (!search) {
                     container.innerHTML = `
                         <div class="empty-state">
@@ -1793,7 +1793,7 @@
                     return;
                 }
 
-                const lastRun = search.last_run_at ? 
+                const lastRun = search.last_run_at ?
                     new Date(search.last_run_at).toLocaleString() : 'Never';
 
                 container.innerHTML = `
@@ -1801,17 +1801,17 @@
                         <h3 style="margin: 0; font-size: 1.1rem;">${this.escapeHtml(search.query)}</h3>
                         <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
                             <button class="btn btn-primary btn-sm" onclick="app.switchTab('results')">View Results</button>
-                            <a href="${this.buildMarktplaatsUrl(search)}" 
-                               target="_blank" 
+                            <a href="${this.buildMarktplaatsUrl(search)}"
+                               target="_blank"
                                rel="noopener noreferrer"
-                               class="btn btn-secondary btn-sm"
+                               class="btn btn-primary btn-sm"
                                title="Compare on Marktplaats.nl">
-                                🔗 Compare on MP
+                                Compare on MP
                             </a>
                             ${search.status === 'active' ? `
-                                <button class="btn btn-warning btn-sm" onclick="app.stopSearch('${search.search_id}')">Stop</button>
+                                <button class="btn btn-primary btn-sm" onclick="app.stopSearch('${search.search_id}')">Stop</button>
                             ` : `
-                                <button class="btn btn-success btn-sm" onclick="app.activateSearch('${search.search_id}')">Activate</button>
+                                <button class="btn btn-primary btn-sm" onclick="app.activateSearch('${search.search_id}')">Activate</button>
                             `}
                             <button class="btn btn-danger btn-sm" onclick="app.deleteSearch('${search.search_id}')">Delete</button>
                         </div>
@@ -1892,10 +1892,10 @@
 
             async saveSearchDetails(event, searchId) {
                 event.preventDefault();
-                
+
                 const formData = new FormData(event.target);
                 const updateData = {};
-                
+
                 // Build update object
                 for (const [key, value] of formData.entries()) {
                     if (value !== '') {
@@ -1906,16 +1906,16 @@
                         }
                     }
                 }
-                
+
                 try {
                     await this.apiRequest(`/api/searches/${searchId}`, {
                         method: 'PUT',
                         body: JSON.stringify(updateData)
                     });
-                    
+
                     // Reload searches to update the UI
                     await this.loadSearches();
-                    
+
                     // Re-select the updated search
                     this.selectSearch(searchId);
                 } catch (error) {
@@ -1929,7 +1929,7 @@
                         method: 'PUT',
                         body: JSON.stringify({ status: 'active' })
                     });
-                    
+
                     await this.loadSearches();
                     this.selectSearch(searchId);
                 } catch (error) {
@@ -1949,7 +1949,7 @@
                 const loading = document.getElementById('results-loading');
                 const container = document.getElementById('results-container');
                 const pagination = document.getElementById('results-pagination');
-                
+
                 if (!container) {
                     // If old container doesn't exist, use new method
                     return this.loadResultsForSearch(this.currentSearchId);
@@ -1960,10 +1960,10 @@
                 try {
                     const showNewOnly = document.getElementById('show-new-only')?.checked || false;
                     const skip = this.currentResultsPage * this.resultsLimit;
-                    
+
                     const url = `/api/searches/${this.currentSearchId}/results?skip=${skip}&limit=${this.resultsLimit}${showNewOnly ? '&show_new_only=true' : ''}`;
                     const results = await this.apiRequest(url);
-                    
+
                     // Use new rendering system
                     this.currentResults = results;
                     this.renderResultsGrid(results);
@@ -1994,7 +1994,7 @@
                 }
 
                 pagination.style.display = 'flex';
-                
+
                 const start = this.currentResultsPage * this.resultsLimit + 1;
                 const end = start + resultCount - 1;
                 pageInfo.textContent = `Showing ${start}-${end}`;
@@ -2011,7 +2011,7 @@
 
                 try {
                     const listing = await this.apiRequest(`/api/results/${listingId}?mark_as_read=true`);
-                    
+
                     details.innerHTML = `
                         <div class="card">
                             <div class="card-header">
@@ -2020,16 +2020,16 @@
                                         ${this.escapeHtml(listing.title || 'Untitled')}
                                     </div>
                                     <div class="card-meta">
-                                        ${listing.price ? `€${listing.price}` : 'Price not listed'} • 
+                                        ${listing.price ? `€${listing.price}` : 'Price not listed'} •
                                         Found ${new Date(listing.discovered_at).toLocaleString()}
                                     </div>
                                 </div>
                                 ${listing.image_url ? `
-                                    <img src="${listing.image_url}" alt="Listing image" 
+                                    <img src="${listing.image_url}" alt="Listing image"
                                          style="width: 150px; height: 150px; object-fit: cover; border-radius: 0.5rem;">
                                 ` : ''}
                             </div>
-                            
+
                             ${listing.description_snippet ? `
                                 <div style="margin-bottom: 1rem;">
                                     <strong>Description:</strong>
@@ -2127,7 +2127,7 @@
 
                 try {
                     const formData = this.getSearchFormData();
-                    
+
                     if (this.editingSearch) {
                         await this.apiRequest(`/api/searches/${this.editingSearch.search_id}`, {
                             method: 'PUT',

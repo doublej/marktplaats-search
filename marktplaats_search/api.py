@@ -41,9 +41,13 @@ class SearchQueryBase(BaseModel):
 
     @validator("price_to")
     def price_to_must_be_greater_than_price_from(cls, v, values, **kwargs):
-        if v is not None and "price_from" in values and values["price_from"] is not None:
-            if v < values["price_from"]:
-                raise ValueError("price_to must be greater than or equal to price_from")
+        if (
+            v is not None
+            and "price_from" in values
+            and values["price_from"] is not None
+            and v < values["price_from"]
+        ):
+            raise ValueError("price_to must be greater than or equal to price_from")
         return v
 
 
@@ -78,9 +82,8 @@ class SearchUpdateRequest(BaseModel):
         # This is more robustly handled at the service/DB layer or by ensuring
         # price_from is always provided if price_to is.
         # For now, we'll keep it simple.
-        if v is not None and values.get("price_from") is not None:
-            if v < values["price_from"]:
-                raise ValueError("price_to must be greater than or equal to price_from")
+        if v is not None and values.get("price_from") is not None and v < values["price_from"]:
+            raise ValueError("price_to must be greater than or equal to price_from")
         return v
 
 
@@ -297,16 +300,13 @@ async def update_search_endpoint(  # Renamed
 
     # If price_to is updated, ensure it's valid with current price_from
     if (
-        "price_to" in update_data
-        and search_instance.price_from is not None
-        or "price_from" in update_data
-        and search_instance.price_to is not None
-    ):
-        if search_instance.price_to < search_instance.price_from:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="price_to cannot be less than price_from",
-            )
+        ("price_to" in update_data and search_instance.price_from is not None)
+        or ("price_from" in update_data and search_instance.price_to is not None)
+    ) and (search_instance.price_to < search_instance.price_from):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="price_to cannot be less than price_from",
+        )
 
     await db.commit()
     await db.refresh(search_instance)
@@ -395,7 +395,7 @@ async def get_search_results_endpoint(  # Renamed
         .limit(limit)
     )
     if show_new_only:
-        query_obj = query_obj.where(Listing.is_new == True)
+        query_obj = query_obj.where(Listing.is_new.is_(True))
 
     result = await db.execute(query_obj)
     listings = result.scalars().all()

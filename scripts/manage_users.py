@@ -120,7 +120,9 @@ async def show_stats():
         total_users = total_result.scalar()
 
         # Active users
-        active_result = await db.execute(select(func.count(User.id)).where(User.is_active == True))
+        active_result = await db.execute(
+            select(func.count(User.id)).where(User.is_active.is_(True))
+        )
         active_users = active_result.scalar()
 
         # Users with recent activity (last 7 days)

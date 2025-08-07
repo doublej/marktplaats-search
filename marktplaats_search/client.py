@@ -1,4 +1,5 @@
 import asyncio
+import contextlib
 import logging
 import re
 from urllib.parse import quote_plus, urlencode
@@ -146,30 +147,44 @@ class MarktplaatsScraper:
             return None
 
         # Remove price patterns that commonly appear in descriptions
-        cleaned = re.sub(r"€\s*[\d.,]+\s*,?\s*", "", cleaned)  # Remove Euro prices
-        cleaned = re.sub(r"\$\s*[\d.,]+\s*,?\s*", "", cleaned)  # Remove Dollar prices
-        cleaned = re.sub(r"[\d,]+\s*€\s*,?\s*", "", cleaned)  # Remove reversed Euro format
-        cleaned = re.sub(
-            r"€\s*[\d.,]+[^a-zA-Z]*", "", cleaned
-        )  # Remove Euro prices with trailing chars
+        cleaned = re.sub(r"€\s*[\d.,]+(?:\s*,\d+)?\s*", "", cleaned)  # Remove Euro prices
+        cleaned = re.sub(r"\$\s*[\d.,]+\s*", "", cleaned)  # Remove Dollar prices
+        cleaned = re.sub(r"[\d,]+\s*€\s*", "", cleaned)  # Remove reversed Euro format
 
-        # Remove common metadata patterns
+        # Remove metadata patterns more aggressively
         cleaned = re.sub(r"\s*details\s*", "", cleaned, flags=re.I)  # Remove "details" text
         cleaned = re.sub(r"🇳🇱\s*", "", cleaned)  # Remove Netherlands flag emoji
-        cleaned = re.sub(
-            r"\s*(Gebruikt|Nieuw|Zo goed als nieuw)\s*", "", cleaned, flags=re.I
-        )  # Remove condition
-        cleaned = re.sub(
-            r"\s*(Ophalen|Verzenden|Ophalen of Verzenden)\s*$", "", cleaned, flags=re.I
-        )  # Remove pickup/shipping at end
-        cleaned = re.sub(r"\s*Alle\s*$", "", cleaned, flags=re.I)  # Remove trailing "Alle"
 
-        # Remove duplicate exclamation marks and normalize punctuation
+        # Remove condition and shipping info - more comprehensive patterns
+        cleaned = re.sub(
+            r"\s*(Gebruikt|Nieuw|Zo goed als nieuw|Used|New|Like new)\s*", "", cleaned, flags=re.I
+        )
+        cleaned = re.sub(
+            r"\s*(Ophalen|Verzenden|Ophalen of Verzenden|Pickup|Shipping)\s*",
+            "",
+            cleaned,
+            flags=re.I,
+        )
+
+        # Remove title repetition - often the description starts with title + price
+        # Split on common patterns and take meaningful content
+        parts = re.split(r"€[\d.,]+(?:,\d+)?details", cleaned, maxsplit=1, flags=re.I)
+        if len(parts) > 1:
+            cleaned = parts[1].strip()
+
+        # Remove standalone price mentions that remain
+        cleaned = re.sub(r"€[\d.,]+(?:,\d+)?", "", cleaned)
+
+        # Remove common trailing elements
+        cleaned = re.sub(r"\s*(Alle|All)\s*$", "", cleaned, flags=re.I)
+        cleaned = re.sub(r"\s*\|\s*$", "", cleaned)  # Remove trailing pipe
+
+        # Clean up punctuation
         cleaned = re.sub(r"!+", "!", cleaned)  # Multiple ! to single !
-        cleaned = re.sub(r"€+", "", cleaned)  # Remove stray € symbols
         cleaned = re.sub(r"\s*!\s*$", "", cleaned)  # Remove trailing !
+        cleaned = re.sub(r",\s*$", "", cleaned)  # Remove trailing comma
 
-        # Clean up whitespace and return
+        # Clean up whitespace
         cleaned = re.sub(r"\s+", " ", cleaned).strip()
 
         # Return None if cleaned text is too short or mostly punctuation
@@ -235,10 +250,7 @@ class MarktplaatsScraper:
             return None
 
         href = link_elem.get("href", "")
-        if href.startswith("/"):
-            url = self.BASE_URL + href
-        else:
-            url = href
+        url = self.BASE_URL + href if href.startswith("/") else href
 
         # Extract listing ID
         listing_id = self._extract_listing_id(url)
@@ -335,10 +347,8 @@ class MarktplaatsScraper:
                     img_src = None
 
                 if img_src:
-                    try:
+                    with contextlib.suppress(ValidationError):
                         image_url = HttpUrl(img_src)
-                    except ValidationError:
-                        pass
 
         try:
             return ListingItem(
@@ -430,7 +440,7 @@ async def fetch_listings(
 
     except httpx.HTTPError as e:
         logger.error(f"HTTP error while fetching listings: {e}")
-        raise MarktplaatsScrapingError(f"Network error: {e}")
+        raise MarktplaatsScrapingError(f"Network error: {e}") from e
     except Exception as e:
         logger.error(f"Unexpected error while fetching listings: {e}")
-        raise MarktplaatsScrapingError(f"Scraping failed: {e}")
+        raise MarktplaatsScrapingError(f"Scraping failed: {e}") from e
