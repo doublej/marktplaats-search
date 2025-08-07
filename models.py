@@ -15,7 +15,10 @@ class User(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     user_identifier = Column(String, unique=True, index=True, nullable=False)
-    api_token = Column(String, unique=True, index=True, nullable=False)
+    api_token_hash = Column(String, unique=True, index=True, nullable=False)  # Store hash instead of plaintext
+    is_active = Column(Boolean, default=True, nullable=False)  # Account status
+    token_created_at = Column(DateTime(timezone=True), server_default=func.now())  # Track token age
+    last_activity = Column(DateTime(timezone=True), nullable=True)  # Track last API usage
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     searches = relationship("Search", back_populates="owner", cascade="all, delete-orphan")
