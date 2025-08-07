@@ -154,9 +154,8 @@ async def get_current_user(
                 headers={"WWW-Authenticate": "Bearer"},
             )
     
-    # Update last activity
+    # Update last activity (but don't commit here - let the endpoint handle it)
     user.last_activity = datetime.now(timezone.utc)
-    await db.commit()
     
     return user
 
@@ -471,11 +470,15 @@ async def register_user(
 
 @app.get("/api/auth/me", response_model=UserInfoResponse)
 async def get_current_user_info(
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
 ):
     """
     Get information about the currently authenticated user.
     """
+    # Refresh the user object to ensure we have all attributes loaded
+    await db.refresh(current_user)
+    
     response = UserInfoResponse(
         id=current_user.id,
         user_identifier=current_user.user_identifier,
@@ -511,6 +514,9 @@ async def rotate_api_token(
     """
     from auth import generate_secure_token, hash_token
     
+    # Refresh user to ensure we have the current state
+    await db.refresh(current_user)
+    
     # Generate new token
     new_token = generate_secure_token()
     new_token_hash = hash_token(new_token)
@@ -519,10 +525,13 @@ async def rotate_api_token(
     current_user.api_token_hash = new_token_hash
     current_user.token_created_at = datetime.now(timezone.utc)
     
+    # Store username before committing
+    username = current_user.user_identifier
+    
     await db.commit()
     
     return UserCreateResponse(
-        user_identifier=current_user.user_identifier,
+        user_identifier=username,
         api_token=new_token,
         message="Token rotated successfully. Save your new API token securely."
     )

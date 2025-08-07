@@ -1,0 +1,374 @@
+warning: `VIRTUAL_ENV=/Users/jurrejan/Documents/projects/_python/to_organize/MarktplaatsSearch/.venv` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+INFO:     Will watch for changes in these directories: ['/Users/jurrejan/Documents/development/python/MarktplaatsSearch']
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [48467] using WatchFiles
+INFO:     Started server process [48469]
+INFO:     Waiting for application startup.
+INFO:main:Application startup: Initializing database and scheduler...
+INFO:main:Database tables checked/created.
+INFO:main:Default user creation disabled (secure mode)
+INFO:main:Default user checked/created.
+INFO:scheduler:SCHEDULER: Initializing and loading active searches...
+INFO:apscheduler.scheduler:Adding job tentatively -- it will be properly scheduled when the scheduler starts
+INFO:scheduler:SCHEDULER: Scheduled search 86e07d95-7fec-4ca3-b168-b8a8499a9cf7 to run every 120s
+INFO:apscheduler.scheduler:Added job "run_single_search" to job store "default"
+INFO:apscheduler.scheduler:Scheduler started
+INFO:scheduler:SCHEDULER: Started.
+INFO:main:Scheduler initialized and jobs loaded.
+INFO:main:Application startup complete.
+INFO:     Application startup complete.
+INFO:apscheduler.executors.default:Running job "run_single_search (trigger: interval[0:02:00], next run at: 2025-08-07 13:45:02 UTC)" (scheduled at 2025-08-07 13:43:02.062009+00:00)
+INFO:scheduler:SCHEDULER: Running search 86e07d95-7fec-4ca3-b168-b8a8499a9cf7 at 2025-08-07 13:43:02.063557+00:00
+INFO:marktplaats_client:Fetching listings: query='fiets', zip='3434GS', distance=9990km, price=0-200, limit=25
+INFO:marktplaats_client:Requesting URL: https://www.marktplaats.nl/q/fiets/?postcode=3434GS&distanceMeters=9990000&PriceCentsTo=20000
+INFO:httpx:HTTP Request: GET https://www.marktplaats.nl/q/fiets/?postcode=3434GS&distanceMeters=9990000&PriceCentsTo=20000 "HTTP/1.1 200 OK"
+INFO:marktplaats_client:Found 35 potential listing containers
+INFO:marktplaats_client:Successfully scraped 13 listings for query 'fiets'
+INFO:apscheduler.executors.default:Job "run_single_search (trigger: interval[0:02:00], next run at: 2025-08-07 13:45:02 UTC)" executed successfully
+INFO:watchfiles.main:2 changes detected
+INFO:     127.0.0.1:64541 - "GET /api/auth/me HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:64573 - "GET /api/auth/me HTTP/1.1" 500 Internal Server Error
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "/Users/jurrejan/Documents/development/python/MarktplaatsSearch/.venv/lib/python3.12/site-packages/uvicorn/protocols/http/httptools_impl.py", line 409, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jurrejan/Documents/development/python/MarktplaatsSearch/.venv/lib/python3.12/site-packages/uvicorn/middleware/proxy_headers.py", line 60, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jurrejan/Documents/development/python/MarktplaatsSearch/.venv/lib/python3.12/site-packages/fastapi/applications.py", line 1054, in __call__
+    await super().__call__(scope, receive, send)
+  File "/Users/jurrejan/Documents/development/python/MarktplaatsSearch/.venv/lib/python3.12/site-packages/starlette/applications.py", line 112, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/jurrejan/Documents/development/python/MarktplaatsSearch/.venv/lib/python3.12/site-packages/starlette/middleware/errors.py", line 187, in __call__
+    raise exc
+  File "/Users/jurrejan/Documents/development/python/MarktplaatsSearch/.venv/lib/python3.12/site-packages/starlette/middleware/errors.py", line 165, in __call__
+    await self.app(scope, receive, _send)
+  File "/Users/jurrejan/Documents/development/python/MarktplaatsSearch/.venv/lib/python3.12/site-packages/starlette/middleware/cors.py", line 85, in __call__
+    await self.app(scope, receive, send)
+  File "/Users/jurrejan/Documents/development/python/MarktplaatsSearch/.venv/lib/python3.12/site-packages/starlette/middleware/exceptions.py", line 62, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/Users/jurrejan/Documents/development/python/MarktplaatsSearch/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/Users/jurrejan/Documents/development/python/MarktplaatsSearch/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/Users/jurrejan/Documents/development/python/MarktplaatsSearch/.venv/lib/python3.12/site-packages/starlette/routing.py", line 714, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/jurrejan/Documents/development/python/MarktplaatsSearch/.venv/lib/python3.12/site-packages/starlette/routing.py", line 734, in app
+    await route.handle(scope, receive, send)
+  File "/Users/jurrejan/Documents/development/python/MarktplaatsSearch/.venv/lib/python3.12/site-packages/starlette/routing.py", line 288, in handle
+    await self.app(scope, receive, send)
+  File "/Users/jurrejan/Documents/development/python/MarktplaatsSearch/.venv/lib/python3.12/site-packages/starlette/routing.py", line 76, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/Users/jurrejan/Documents/development/python/MarktplaatsSearch/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/Users/jurrejan/Documents/development/python/MarktplaatsSearch/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/Users/jurrejan/Documents/development/python/MarktplaatsSearch/.venv/lib/python3.12/site-packages/starlette/routing.py", line 73, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "/Users/jurrejan/Documents/development/python/MarktplaatsSearch/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 301, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jurrejan/Documents/development/python/MarktplaatsSearch/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 212, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jurrejan/Documents/development/python/MarktplaatsSearch/api.py", line 480, in get_current_user_info
+    id=current_user.id,
+       ^^^^^^^^^^^^^^^
+  File "/Users/jurrejan/Documents/development/python/MarktplaatsSearch/.venv/lib/python3.12/site-packages/sqlalchemy/orm/attributes.py", line 566, in __get__
+    return self.impl.get(state, dict_)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jurrejan/Documents/development/python/MarktplaatsSearch/.venv/lib/python3.12/site-packages/sqlalchemy/orm/attributes.py", line 1086, in get
+    value = self._fire_loader_callables(state, key, passive)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jurrejan/Documents/development/python/MarktplaatsSearch/.venv/lib/python3.12/site-packages/sqlalchemy/orm/attributes.py", line 1116, in _fire_loader_callables
+    return state._load_expired(state, passive)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jurrejan/Documents/development/python/MarktplaatsSearch/.venv/lib/python3.12/site-packages/sqlalchemy/orm/state.py", line 803, in _load_expired
+    self.manager.expired_attribute_loader(self, toload, passive)
+  File "/Users/jurrejan/Documents/development/python/MarktplaatsSearch/.venv/lib/python3.12/site-packages/sqlalchemy/orm/loading.py", line 1670, in load_scalar_attributes
+    result = load_on_ident(
+             ^^^^^^^^^^^^^^
+  File "/Users/jurrejan/Documents/development/python/MarktplaatsSearch/.venv/lib/python3.12/site-packages/sqlalchemy/orm/loading.py", line 509, in load_on_ident
+    return load_on_pk_identity(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jurrejan/Documents/development/python/MarktplaatsSearch/.venv/lib/python3.12/site-packages/sqlalchemy/orm/loading.py", line 694, in load_on_pk_identity
+    session.execute(
+  File "/Users/jurrejan/Documents/development/python/MarktplaatsSearch/.venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 2365, in execute
+    return self._execute_internal(
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jurrejan/Documents/development/python/MarktplaatsSearch/.venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 2251, in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jurrejan/Documents/development/python/MarktplaatsSearch/.venv/lib/python3.12/site-packages/sqlalchemy/orm/context.py", line 306, in orm_execute_statement
+    result = conn.execute(
+             ^^^^^^^^^^^^^
+  File "/Users/jurrejan/Documents/development/python/MarktplaatsSearch/.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1415, in execute
+    return meth(
+           ^^^^^
+  File "/Users/jurrejan/Documents/development/python/MarktplaatsSearch/.venv/lib/python3.12/site-packages/sqlalchemy/sql/elements.py", line 523, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jurrejan/Documents/development/python/MarktplaatsSearch/.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1637, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jurrejan/Documents/development/python/MarktplaatsSearch/.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1842, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jurrejan/Documents/development/python/MarktplaatsSearch/.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1982, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/Users/jurrejan/Documents/development/python/MarktplaatsSearch/.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 2354, in _handle_dbapi_exception
+    raise exc_info[1].with_traceback(exc_info[2])
+  File "/Users/jurrejan/Documents/development/python/MarktplaatsSearch/.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1963, in _exec_single_context
+    self.dialect.do_execute(
+  File "/Users/jurrejan/Documents/development/python/MarktplaatsSearch/.venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py", line 943, in do_execute
+    cursor.execute(statement, parameters)
+  File "/Users/jurrejan/Documents/development/python/MarktplaatsSearch/.venv/lib/python3.12/site-packages/sqlalchemy/dialects/sqlite/aiosqlite.py", line 149, in execute
+    self._adapt_connection._handle_exception(error)
+  File "/Users/jurrejan/Documents/development/python/MarktplaatsSearch/.venv/lib/python3.12/site-packages/sqlalchemy/dialects/sqlite/aiosqlite.py", line 300, in _handle_exception
+    raise error
+  File "/Users/jurrejan/Documents/development/python/MarktplaatsSearch/.venv/lib/python3.12/site-packages/sqlalchemy/dialects/sqlite/aiosqlite.py", line 126, in execute
+    _cursor = self.await_(self._connection.cursor())
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jurrejan/Documents/development/python/MarktplaatsSearch/.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py", line 123, in await_only
+    raise exc.MissingGreenlet(
+sqlalchemy.exc.MissingGreenlet: greenlet_spawn has not been called; can't call await_only() here. Was IO attempted in an unexpected place? (Background on this error at: https://sqlalche.me/e/20/xd2s)
+INFO:watchfiles.main:2 changes detected
+INFO:watchfiles.main:3 changes detected
+WARNING:  WatchFiles detected changes in 'api.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:main:Application shutdown: Shutting down scheduler...
+INFO:scheduler:SCHEDULER: Shutdown.
+INFO:main:Scheduler shutdown complete.
+INFO:main:Application shutdown complete.
+INFO:apscheduler.scheduler:Scheduler has been shut down
+INFO:     Application shutdown complete.
+INFO:     Finished server process [48469]
+INFO:watchfiles.main:1 change detected
+INFO:     Started server process [48660]
+INFO:     Waiting for application startup.
+INFO:main:Application startup: Initializing database and scheduler...
+INFO:main:Database tables checked/created.
+INFO:main:Default user creation disabled (secure mode)
+INFO:main:Default user checked/created.
+INFO:scheduler:SCHEDULER: Initializing and loading active searches...
+INFO:apscheduler.scheduler:Adding job tentatively -- it will be properly scheduled when the scheduler starts
+INFO:scheduler:SCHEDULER: Scheduled search 86e07d95-7fec-4ca3-b168-b8a8499a9cf7 to run every 120s
+INFO:apscheduler.scheduler:Added job "run_single_search" to job store "default"
+INFO:apscheduler.scheduler:Scheduler started
+INFO:scheduler:SCHEDULER: Started.
+INFO:main:Scheduler initialized and jobs loaded.
+INFO:main:Application startup complete.
+INFO:     Application startup complete.
+INFO:apscheduler.executors.default:Running job "run_single_search (trigger: interval[0:02:00], next run at: 2025-08-07 13:45:30 UTC)" (scheduled at 2025-08-07 13:43:30.483707+00:00)
+INFO:scheduler:SCHEDULER: Running search 86e07d95-7fec-4ca3-b168-b8a8499a9cf7 at 2025-08-07 13:43:30.484924+00:00
+INFO:marktplaats_client:Fetching listings: query='fiets', zip='3434GS', distance=9990km, price=0-200, limit=25
+INFO:marktplaats_client:Requesting URL: https://www.marktplaats.nl/q/fiets/?postcode=3434GS&distanceMeters=9990000&PriceCentsTo=20000
+INFO:watchfiles.main:3 changes detected
+INFO:httpx:HTTP Request: GET https://www.marktplaats.nl/q/fiets/?postcode=3434GS&distanceMeters=9990000&PriceCentsTo=20000 "HTTP/1.1 200 OK"
+INFO:marktplaats_client:Found 35 potential listing containers
+INFO:marktplaats_client:Successfully scraped 13 listings for query 'fiets'
+INFO:apscheduler.executors.default:Job "run_single_search (trigger: interval[0:02:00], next run at: 2025-08-07 13:45:30 UTC)" executed successfully
+INFO:watchfiles.main:2 changes detected
+INFO:     127.0.0.1:64634 - "GET /api/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64666 - "POST /api/auth/register HTTP/1.1" 201 Created
+INFO:watchfiles.main:2 changes detected
+INFO:     127.0.0.1:64698 - "POST /api/auth/rotate-token HTTP/1.1" 500 Internal Server Error
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "/Users/jurrejan/Documents/development/python/MarktplaatsSearch/.venv/lib/python3.12/site-packages/uvicorn/protocols/http/httptools_impl.py", line 409, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jurrejan/Documents/development/python/MarktplaatsSearch/.venv/lib/python3.12/site-packages/uvicorn/middleware/proxy_headers.py", line 60, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jurrejan/Documents/development/python/MarktplaatsSearch/.venv/lib/python3.12/site-packages/fastapi/applications.py", line 1054, in __call__
+    await super().__call__(scope, receive, send)
+  File "/Users/jurrejan/Documents/development/python/MarktplaatsSearch/.venv/lib/python3.12/site-packages/starlette/applications.py", line 112, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/jurrejan/Documents/development/python/MarktplaatsSearch/.venv/lib/python3.12/site-packages/starlette/middleware/errors.py", line 187, in __call__
+    raise exc
+  File "/Users/jurrejan/Documents/development/python/MarktplaatsSearch/.venv/lib/python3.12/site-packages/starlette/middleware/errors.py", line 165, in __call__
+    await self.app(scope, receive, _send)
+  File "/Users/jurrejan/Documents/development/python/MarktplaatsSearch/.venv/lib/python3.12/site-packages/starlette/middleware/cors.py", line 85, in __call__
+    await self.app(scope, receive, send)
+  File "/Users/jurrejan/Documents/development/python/MarktplaatsSearch/.venv/lib/python3.12/site-packages/starlette/middleware/exceptions.py", line 62, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/Users/jurrejan/Documents/development/python/MarktplaatsSearch/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/Users/jurrejan/Documents/development/python/MarktplaatsSearch/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/Users/jurrejan/Documents/development/python/MarktplaatsSearch/.venv/lib/python3.12/site-packages/starlette/routing.py", line 714, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/jurrejan/Documents/development/python/MarktplaatsSearch/.venv/lib/python3.12/site-packages/starlette/routing.py", line 734, in app
+    await route.handle(scope, receive, send)
+  File "/Users/jurrejan/Documents/development/python/MarktplaatsSearch/.venv/lib/python3.12/site-packages/starlette/routing.py", line 288, in handle
+    await self.app(scope, receive, send)
+  File "/Users/jurrejan/Documents/development/python/MarktplaatsSearch/.venv/lib/python3.12/site-packages/starlette/routing.py", line 76, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/Users/jurrejan/Documents/development/python/MarktplaatsSearch/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/Users/jurrejan/Documents/development/python/MarktplaatsSearch/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/Users/jurrejan/Documents/development/python/MarktplaatsSearch/.venv/lib/python3.12/site-packages/starlette/routing.py", line 73, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "/Users/jurrejan/Documents/development/python/MarktplaatsSearch/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 301, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jurrejan/Documents/development/python/MarktplaatsSearch/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 212, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jurrejan/Documents/development/python/MarktplaatsSearch/api.py", line 524, in rotate_api_token
+    user_identifier=current_user.user_identifier,
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jurrejan/Documents/development/python/MarktplaatsSearch/.venv/lib/python3.12/site-packages/sqlalchemy/orm/attributes.py", line 566, in __get__
+    return self.impl.get(state, dict_)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jurrejan/Documents/development/python/MarktplaatsSearch/.venv/lib/python3.12/site-packages/sqlalchemy/orm/attributes.py", line 1086, in get
+    value = self._fire_loader_callables(state, key, passive)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jurrejan/Documents/development/python/MarktplaatsSearch/.venv/lib/python3.12/site-packages/sqlalchemy/orm/attributes.py", line 1116, in _fire_loader_callables
+    return state._load_expired(state, passive)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jurrejan/Documents/development/python/MarktplaatsSearch/.venv/lib/python3.12/site-packages/sqlalchemy/orm/state.py", line 803, in _load_expired
+    self.manager.expired_attribute_loader(self, toload, passive)
+  File "/Users/jurrejan/Documents/development/python/MarktplaatsSearch/.venv/lib/python3.12/site-packages/sqlalchemy/orm/loading.py", line 1670, in load_scalar_attributes
+    result = load_on_ident(
+             ^^^^^^^^^^^^^^
+  File "/Users/jurrejan/Documents/development/python/MarktplaatsSearch/.venv/lib/python3.12/site-packages/sqlalchemy/orm/loading.py", line 509, in load_on_ident
+    return load_on_pk_identity(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jurrejan/Documents/development/python/MarktplaatsSearch/.venv/lib/python3.12/site-packages/sqlalchemy/orm/loading.py", line 694, in load_on_pk_identity
+    session.execute(
+  File "/Users/jurrejan/Documents/development/python/MarktplaatsSearch/.venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 2365, in execute
+    return self._execute_internal(
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jurrejan/Documents/development/python/MarktplaatsSearch/.venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 2251, in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jurrejan/Documents/development/python/MarktplaatsSearch/.venv/lib/python3.12/site-packages/sqlalchemy/orm/context.py", line 306, in orm_execute_statement
+    result = conn.execute(
+             ^^^^^^^^^^^^^
+  File "/Users/jurrejan/Documents/development/python/MarktplaatsSearch/.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1415, in execute
+    return meth(
+           ^^^^^
+  File "/Users/jurrejan/Documents/development/python/MarktplaatsSearch/.venv/lib/python3.12/site-packages/sqlalchemy/sql/elements.py", line 523, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jurrejan/Documents/development/python/MarktplaatsSearch/.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1637, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jurrejan/Documents/development/python/MarktplaatsSearch/.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1842, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jurrejan/Documents/development/python/MarktplaatsSearch/.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1982, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/Users/jurrejan/Documents/development/python/MarktplaatsSearch/.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 2354, in _handle_dbapi_exception
+    raise exc_info[1].with_traceback(exc_info[2])
+  File "/Users/jurrejan/Documents/development/python/MarktplaatsSearch/.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1963, in _exec_single_context
+    self.dialect.do_execute(
+  File "/Users/jurrejan/Documents/development/python/MarktplaatsSearch/.venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py", line 943, in do_execute
+    cursor.execute(statement, parameters)
+  File "/Users/jurrejan/Documents/development/python/MarktplaatsSearch/.venv/lib/python3.12/site-packages/sqlalchemy/dialects/sqlite/aiosqlite.py", line 149, in execute
+    self._adapt_connection._handle_exception(error)
+  File "/Users/jurrejan/Documents/development/python/MarktplaatsSearch/.venv/lib/python3.12/site-packages/sqlalchemy/dialects/sqlite/aiosqlite.py", line 300, in _handle_exception
+    raise error
+  File "/Users/jurrejan/Documents/development/python/MarktplaatsSearch/.venv/lib/python3.12/site-packages/sqlalchemy/dialects/sqlite/aiosqlite.py", line 126, in execute
+    _cursor = self.await_(self._connection.cursor())
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jurrejan/Documents/development/python/MarktplaatsSearch/.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py", line 123, in await_only
+    raise exc.MissingGreenlet(
+sqlalchemy.exc.MissingGreenlet: greenlet_spawn has not been called; can't call await_only() here. Was IO attempted in an unexpected place? (Background on this error at: https://sqlalche.me/e/20/xd2s)
+INFO:watchfiles.main:2 changes detected
+INFO:watchfiles.main:3 changes detected
+WARNING:  WatchFiles detected changes in 'api.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:main:Application shutdown: Shutting down scheduler...
+INFO:scheduler:SCHEDULER: Shutdown.
+INFO:main:Scheduler shutdown complete.
+INFO:main:Application shutdown complete.
+INFO:apscheduler.scheduler:Scheduler has been shut down
+INFO:     Application shutdown complete.
+INFO:     Finished server process [48660]
+INFO:watchfiles.main:1 change detected
+INFO:     Started server process [48899]
+INFO:     Waiting for application startup.
+INFO:main:Application startup: Initializing database and scheduler...
+INFO:main:Database tables checked/created.
+INFO:main:Default user creation disabled (secure mode)
+INFO:main:Default user checked/created.
+INFO:scheduler:SCHEDULER: Initializing and loading active searches...
+INFO:apscheduler.scheduler:Adding job tentatively -- it will be properly scheduled when the scheduler starts
+INFO:scheduler:SCHEDULER: Scheduled search 86e07d95-7fec-4ca3-b168-b8a8499a9cf7 to run every 120s
+INFO:apscheduler.scheduler:Added job "run_single_search" to job store "default"
+INFO:apscheduler.scheduler:Scheduler started
+INFO:scheduler:SCHEDULER: Started.
+INFO:main:Scheduler initialized and jobs loaded.
+INFO:main:Application startup complete.
+INFO:     Application startup complete.
+INFO:apscheduler.executors.default:Running job "run_single_search (trigger: interval[0:02:00], next run at: 2025-08-07 13:46:07 UTC)" (scheduled at 2025-08-07 13:44:07.508315+00:00)
+INFO:scheduler:SCHEDULER: Running search 86e07d95-7fec-4ca3-b168-b8a8499a9cf7 at 2025-08-07 13:44:07.509592+00:00
+INFO:marktplaats_client:Fetching listings: query='fiets', zip='3434GS', distance=9990km, price=0-200, limit=25
+INFO:marktplaats_client:Requesting URL: https://www.marktplaats.nl/q/fiets/?postcode=3434GS&distanceMeters=9990000&PriceCentsTo=20000
+INFO:watchfiles.main:3 changes detected
+INFO:httpx:HTTP Request: GET https://www.marktplaats.nl/q/fiets/?postcode=3434GS&distanceMeters=9990000&PriceCentsTo=20000 "HTTP/1.1 200 OK"
+INFO:marktplaats_client:Found 35 potential listing containers
+INFO:marktplaats_client:Successfully scraped 13 listings for query 'fiets'
+INFO:apscheduler.executors.default:Job "run_single_search (trigger: interval[0:02:00], next run at: 2025-08-07 13:46:07 UTC)" executed successfully
+INFO:watchfiles.main:2 changes detected
+INFO:watchfiles.main:3 changes detected
+WARNING:  WatchFiles detected changes in 'api.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:main:Application shutdown: Shutting down scheduler...
+INFO:scheduler:SCHEDULER: Shutdown.
+INFO:main:Scheduler shutdown complete.
+INFO:main:Application shutdown complete.
+INFO:apscheduler.scheduler:Scheduler has been shut down
+INFO:     Application shutdown complete.
+INFO:     Finished server process [48899]
+INFO:watchfiles.main:1 change detected
+INFO:     Started server process [48952]
+INFO:     Waiting for application startup.
+INFO:main:Application startup: Initializing database and scheduler...
+INFO:main:Database tables checked/created.
+INFO:main:Default user creation disabled (secure mode)
+INFO:main:Default user checked/created.
+INFO:scheduler:SCHEDULER: Initializing and loading active searches...
+INFO:apscheduler.scheduler:Adding job tentatively -- it will be properly scheduled when the scheduler starts
+INFO:scheduler:SCHEDULER: Scheduled search 86e07d95-7fec-4ca3-b168-b8a8499a9cf7 to run every 120s
+INFO:apscheduler.scheduler:Added job "run_single_search" to job store "default"
+INFO:apscheduler.scheduler:Scheduler started
+INFO:scheduler:SCHEDULER: Started.
+INFO:main:Scheduler initialized and jobs loaded.
+INFO:main:Application startup complete.
+INFO:     Application startup complete.
+INFO:apscheduler.executors.default:Running job "run_single_search (trigger: interval[0:02:00], next run at: 2025-08-07 13:46:21 UTC)" (scheduled at 2025-08-07 13:44:21.431122+00:00)
+INFO:scheduler:SCHEDULER: Running search 86e07d95-7fec-4ca3-b168-b8a8499a9cf7 at 2025-08-07 13:44:21.432204+00:00
+INFO:marktplaats_client:Fetching listings: query='fiets', zip='3434GS', distance=9990km, price=0-200, limit=25
+INFO:marktplaats_client:Requesting URL: https://www.marktplaats.nl/q/fiets/?postcode=3434GS&distanceMeters=9990000&PriceCentsTo=20000
+INFO:watchfiles.main:3 changes detected
+INFO:httpx:HTTP Request: GET https://www.marktplaats.nl/q/fiets/?postcode=3434GS&distanceMeters=9990000&PriceCentsTo=20000 "HTTP/1.1 200 OK"
+INFO:marktplaats_client:Found 35 potential listing containers
+INFO:marktplaats_client:Successfully scraped 13 listings for query 'fiets'
+INFO:apscheduler.executors.default:Job "run_single_search (trigger: interval[0:02:00], next run at: 2025-08-07 13:46:21 UTC)" executed successfully
+INFO:watchfiles.main:2 changes detected
+INFO:     127.0.0.1:64785 - "GET /api/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64811 - "POST /api/auth/rotate-token HTTP/1.1" 401 Unauthorized
+INFO:watchfiles.main:3 changes detected
+INFO:     127.0.0.1:64889 - "POST /api/auth/rotate-token HTTP/1.1" 200 OK
+INFO:watchfiles.main:2 changes detected
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:main:Application shutdown: Shutting down scheduler...
+INFO:scheduler:SCHEDULER: Shutdown.
+INFO:main:Scheduler shutdown complete.
+INFO:main:Application shutdown complete.
+INFO:apscheduler.scheduler:Scheduler has been shut down
+INFO:     Application shutdown complete.
+INFO:     Finished server process [48952]
+INFO:     Stopping reloader process [48467]
