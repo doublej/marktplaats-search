@@ -14,10 +14,14 @@ import getpass
 from sqlalchemy.future import select
 from sqlalchemy import func
 
-from database import AsyncSessionLocal
-from models import User
-from auth import generate_secure_token, hash_token, generate_user_identifier
-from config import settings
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from marktplaats_search.database import AsyncSessionLocal
+from marktplaats_search.models import User
+from marktplaats_search.auth import generate_secure_token, hash_token, generate_user_identifier
+from marktplaats_search.config import settings
 
 
 async def create_user(username: Optional[str] = None) -> tuple[str, str]:

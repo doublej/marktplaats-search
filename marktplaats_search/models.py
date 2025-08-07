@@ -8,7 +8,7 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID # Works with SQLite for UUID type
 from sqlalchemy.sql import func
 
-from database import Base
+from .database import Base
 
 class User(Base):
     __tablename__ = "users"

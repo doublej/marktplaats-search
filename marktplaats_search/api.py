@@ -1,4 +1,7 @@
 import uuid
+import logging
+import sys
+import os
 from typing import List, Optional, Any
 from datetime import datetime, timezone
 
@@ -10,13 +13,14 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field, HttpUrl, validator
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
+from sqlalchemy import delete
 from sqlalchemy.orm import selectinload
 
-from database import get_db
-from models import User, Search, Listing, SearchStatus # Import your SQLAlchemy models
-import scheduler # Import the scheduler module
-from auth import hash_token, verify_token, validate_token_format
-from config import settings
+from .database import get_db
+from .models import User, Search, Listing, SearchStatus # Import your SQLAlchemy models
+from . import scheduler # Import the scheduler module
+from .auth import hash_token, verify_token, validate_token_format
+from .config import settings
 from datetime import datetime
 
 # --- Pydantic Models ---
@@ -159,7 +163,11 @@ async def get_current_user(
     
     return user
 
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from main import lifespan # Import the lifespan manager
+
+# Set up logging
+logger = logging.getLogger(__name__)
 
 # --- FastAPI Application ---
 app = FastAPI(
@@ -275,7 +283,15 @@ async def update_search_endpoint( # Renamed
     await db.commit()
     await db.refresh(search_instance)
     
-    scheduler.schedule_search_job(search_instance) # Reschedule with new params/status
+    try:
+        scheduler.schedule_search_job(search_instance) # Reschedule with new params/status
+    except Exception as scheduler_error:
+        # Log the error but don't fail the API call since the database update succeeded
+        logger.error(f"Failed to reschedule search job for {search_id}: {scheduler_error}")
+        # Optionally set an error message on the search instance
+        search_instance.last_error = f"Scheduler error: {str(scheduler_error)}"
+        await db.commit()
+    
     return search_instance
 
 @app.post("/api/searches/{search_id}/end", response_model=SearchResponse)
@@ -298,6 +314,32 @@ async def end_search_endpoint( # Renamed
     
     scheduler.schedule_search_job(search_instance) # This will remove it from scheduler
     return search_instance
+
+@app.delete("/api/searches/{search_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_search_endpoint(
+    search_id: uuid.UUID,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Permanently deletes a search and all its associated listings.
+    This action cannot be undone.
+    """
+    search_instance = await get_search_or_404(search_id, current_user.id, db)
+    
+    # Remove from scheduler first
+    scheduler.remove_search_job(search_instance)
+    
+    # Delete associated listings first (due to foreign key constraint)
+    await db.execute(
+        delete(Listing).where(Listing.search_id == search_id)
+    )
+    
+    # Delete the search
+    await db.delete(search_instance)
+    await db.commit()
+    
+    return
 
 @app.get("/api/searches/{search_id}/results", response_model=List[ListingResponse])
 async def get_search_results_endpoint( # Renamed
@@ -369,7 +411,7 @@ async def serve_index():
     """
     Serves the main web UI at the root path.
     """
-    index_path = os.path.join(project_root, "index.html")
+    index_path = os.path.join(project_root, "static", "index.html")
     return FileResponse(index_path)
 
 

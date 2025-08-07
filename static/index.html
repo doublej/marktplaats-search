@@ -56,7 +56,7 @@
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             padding: 0 1rem;
         }
@@ -150,7 +150,7 @@
 
         /* Forms */
         .form-group {
-            margin-bottom: 1rem;
+            margin-bottom: 1.25rem;
         }
 
         .form-row {
@@ -243,6 +243,24 @@
 
         .btn-danger:hover:not(:disabled) {
             background-color: #b91c1c;
+        }
+
+        .btn-success {
+            background-color: #10b981;
+            color: white;
+        }
+
+        .btn-success:hover:not(:disabled) {
+            background-color: #059669;
+        }
+
+        .btn-warning {
+            background-color: #f59e0b;
+            color: white;
+        }
+
+        .btn-warning:hover:not(:disabled) {
+            background-color: #d97706;
         }
 
         .btn-sm {
@@ -485,7 +503,7 @@
         /* Responsive design */
         @media (max-width: 768px) {
             .container {
-                padding: 0 0.5rem;
+                padding: 0 0.75rem;
             }
 
             .section {
@@ -558,6 +576,243 @@
             }
         }
 
+        /* Main Layout */
+        .main-layout {
+            display: grid;
+            grid-template-columns: 220px 1fr;
+            gap: 1.5rem;
+            min-height: calc(100vh - 200px);
+        }
+
+        /* Sidebar with searches */
+        .sidebar {
+            background: var(--surface-elevated);
+            border-radius: 8px;
+            padding: 1rem;
+            box-shadow: var(--shadow);
+            height: fit-content;
+            max-height: calc(100vh - 200px);
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .sidebar-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* Main content area with tabs */
+        .main-content {
+            background: var(--surface-elevated);
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border);
+            background: var(--surface);
+        }
+
+        .tab {
+            padding: 0.75rem 1.5rem;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .tab:hover {
+            color: var(--text-primary);
+            background: var(--surface-elevated);
+        }
+
+        .tab.active {
+            color: var(--primary-color);
+            background: var(--surface-elevated);
+        }
+
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--primary-color);
+        }
+
+        .tab-content {
+            padding: 1.5rem;
+            min-height: 400px;
+        }
+
+        .tab-panel {
+            display: none;
+        }
+
+        .tab-panel.active {
+            display: block;
+        }
+
+        .search-item {
+            padding: 0.6rem;
+            border-radius: 6px;
+            margin-bottom: 0.4rem;
+            cursor: pointer;
+            transition: all 0.15s;
+            background: var(--background);
+            border: 1px solid transparent;
+        }
+
+        .search-item:hover {
+            background: var(--surface);
+            border-color: var(--border);
+        }
+
+        .search-item.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .search-item.active .search-meta {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .search-item-title {
+            font-weight: 500;
+            font-size: 0.8rem;
+            margin-bottom: 0.2rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .search-meta {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .search-item .status-badge {
+            padding: 0.15rem 0.35rem;
+            border-radius: 3px;
+            font-size: 0.65rem;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+
+        .status-active {
+            background: #10b981;
+            color: white;
+        }
+
+        .status-inactive {
+            background: #6b7280;
+            color: white;
+        }
+
+        .details-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 1rem;
+        }
+
+        .details-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: 0;
+            word-break: break-word;
+        }
+
+        .details-actions {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        .form-grid-full {
+            grid-column: 1 / -1;
+        }
+
+        .detail-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .search-info {
+            background: var(--card-bg);
+            padding: 1rem;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 1rem;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .info-value {
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        @media (max-width: 768px) {
+            .main-layout {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .sidebar {
+                max-height: 200px;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
         @media (min-width: 1024px) {
             .lg\:grid-cols-3 {
                 grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -611,28 +866,57 @@
 
             <!-- Dashboard sections - hidden until authenticated -->
             <div class="authenticated">
-                <!-- Search Management -->
-                <section class="section auth-required">
-                    <div class="section-header">
-                        <h2 class="section-title">Search Management</h2>
-                        <button class="btn btn-primary" id="create-search-btn">
-                            Create New Search
-                        </button>
-                    </div>
-                    <div class="position-relative">
-                        <div class="loading-overlay" id="searches-loading" style="display: none;">
-                            <div class="loading"></div>
+                <div class="main-layout">
+                    <!-- Sidebar with search list -->
+                    <aside class="sidebar">
+                        <div class="sidebar-header">
+                            <h3 class="sidebar-title">Searches</h3>
+                            <button class="btn btn-sm btn-primary" id="create-search-btn" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">
+                                + New
+                            </button>
                         </div>
-                        <div id="searches-container">
-                            <div class="empty-state">
-                                <div class="empty-state-title">No searches found</div>
-                                <p>Create your first search to get started monitoring Marktplaats listings.</p>
+                        <div class="position-relative">
+                            <div class="loading-overlay" id="searches-loading" style="display: none;">
+                                <div class="loading"></div>
+                            </div>
+                            <div id="searches-container">
+                                <div class="empty-state" style="padding: 1rem; text-align: center;">
+                                    <div style="font-size: 0.8rem; color: var(--text-secondary);">No searches yet</div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </section>
+                    </aside>
 
-                <!-- Results Viewer -->
+                    <!-- Main content with tabs -->
+                    <main class="main-content">
+                        <div class="tabs">
+                            <button class="tab active" onclick="app.switchTab('results')">Results</button>
+                            <button class="tab" onclick="app.switchTab('details')">Search Details</button>
+                        </div>
+                        
+                        <!-- Results Tab -->
+                        <div id="results-tab" class="tab-panel active">
+                            <div class="tab-content" id="results-content">
+                                <div class="empty-state">
+                                    <div style="font-size: 1rem; font-weight: 500; margin-bottom: 0.5rem;">Select a search to view results</div>
+                                    <p style="font-size: 0.85rem; color: var(--text-secondary);">Choose a search from the sidebar to see its results</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Details Tab -->
+                        <div id="details-tab" class="tab-panel">
+                            <div class="tab-content" id="search-details-content">
+                                <div class="empty-state">
+                                    <div style="font-size: 1rem; font-weight: 500; margin-bottom: 0.5rem;">Select a search to view details</div>
+                                    <p style="font-size: 0.85rem; color: var(--text-secondary);">Choose a search from the sidebar to edit its configuration</p>
+                                </div>
+                            </div>
+                        </div>
+                    </main>
+                </div>
+
+                <!-- Hidden Results Section for compatibility -->
                 <section class="section auth-required" id="results-section" style="display: none;">
                     <div class="section-header">
                         <h2 class="section-title">Search Results</h2>
@@ -812,6 +1096,8 @@
                 this.baseUrl = window.location.origin;
                 this.currentSearchId = null;
                 this.currentResultsPage = 0;
+                this.selectedSearchId = null;
+                this.searches = [];
                 this.resultsLimit = 20;
                 this.editingSearch = null;
 
@@ -1001,7 +1287,17 @@
                     throw new Error(errorData.detail || `HTTP ${response.status}`);
                 }
 
-                return response.json();
+                // Handle empty responses (like 204 No Content for DELETE)
+                if (response.status === 204 || response.headers.get('content-length') === '0') {
+                    return null;
+                }
+                
+                const contentType = response.headers.get('content-type');
+                if (contentType && contentType.includes('application/json')) {
+                    return response.json();
+                }
+                
+                return null;
             }
 
             async loadSearches() {
@@ -1026,22 +1322,26 @@
 
             renderSearches(searches) {
                 const container = document.getElementById('searches-container');
+                this.searches = searches; // Store searches for selection
 
                 if (searches.length === 0) {
                     container.innerHTML = `
                         <div class="empty-state">
                             <div class="empty-state-title">No searches found</div>
-                            <p>Create your first search to get started monitoring Marktplaats listings.</p>
+                            <p>Create your first search to get started.</p>
                         </div>
                     `;
+                    // Also clear the details panel
+                    this.renderSearchDetails(null);
                     return;
                 }
 
-                container.innerHTML = `
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-                        ${searches.map(search => this.renderSearchCard(search)).join('')}
-                    </div>
-                `;
+                container.innerHTML = searches.map((search, index) => this.renderSearchListItem(search, index)).join('');
+                
+                // Select first search by default if none selected
+                if (!this.selectedSearchId && searches.length > 0) {
+                    this.selectSearch(searches[0].search_id);
+                }
             }
 
             renderSearchCard(search) {
@@ -1077,49 +1377,522 @@
                         ` : ''}
 
                         <div class="card-actions">
-                            <button class="btn btn-secondary btn-sm" onclick="app.viewResults('${search.id}')">
+                            <button class="btn btn-secondary btn-sm" onclick="app.viewResults('${search.search_id}')">
                                 View Results
                             </button>
-                            <button class="btn btn-secondary btn-sm" onclick="app.editSearch('${search.id}')">
+                            <button class="btn btn-secondary btn-sm" onclick="app.editSearch('${search.search_id}')">
                                 Edit
                             </button>
                             ${search.status === 'active' ? `
-                                <button class="btn btn-danger btn-sm" onclick="app.stopSearch('${search.id}')">
+                                <button class="btn btn-danger btn-sm" onclick="app.stopSearch('${search.search_id}')">
                                     Stop
                                 </button>
                             ` : ''}
+                            <button class="btn btn-danger btn-sm" onclick="app.deleteSearch('${search.search_id}')" style="background-color: #dc3545;">
+                                Delete
+                            </button>
                         </div>
                     </div>
                 `;
             }
 
+            renderSearchListItem(search, index) {
+                const statusClass = search.status.toLowerCase();
+                const isActive = this.selectedSearchId === search.search_id;
+                
+                return `
+                    <div class="search-item ${isActive ? 'active' : ''}" onclick="app.selectSearch('${search.search_id}')">
+                        <div class="search-item-title">${this.escapeHtml(search.query)}</div>
+                        <div class="search-meta">
+                            <span>${search.zip_code || 'All locations'}</span>
+                            <span class="status-badge status-${statusClass}">${search.status}</span>
+                        </div>
+                    </div>
+                `;
+            }
+
+            selectSearch(searchId) {
+                this.selectedSearchId = searchId;
+                
+                // Update active state in search list
+                document.querySelectorAll('.search-item').forEach(item => {
+                    item.classList.remove('active');
+                });
+                document.querySelector(`[onclick="app.selectSearch('${searchId}')"]`)?.classList.add('active');
+                
+                // Find search
+                const search = this.searches.find(s => s.search_id === searchId);
+                if (search) {
+                    // Load results in the results tab
+                    this.loadResultsForSearch(searchId);
+                    // Update details tab
+                    this.renderSearchDetails(search);
+                    // Switch to results tab
+                    this.switchTab('results');
+                }
+            }
+            
+            switchTab(tabName) {
+                // Update tab buttons
+                document.querySelectorAll('.tab').forEach(tab => {
+                    tab.classList.remove('active');
+                });
+                document.querySelector(`.tab:nth-child(${tabName === 'results' ? '1' : '2'})`).classList.add('active');
+                
+                // Update tab panels
+                document.querySelectorAll('.tab-panel').forEach(panel => {
+                    panel.classList.remove('active');
+                });
+                document.getElementById(`${tabName}-tab`).classList.add('active');
+            }
+            
+            async loadResultsForSearch(searchId) {
+                const container = document.getElementById('results-content');
+                container.innerHTML = '<div class="loading">Loading results...</div>';
+                
+                try {
+                    const results = await this.apiRequest(`/api/searches/${searchId}/results`);
+                    
+                    if (results.length === 0) {
+                        container.innerHTML = `
+                            <div class="empty-state">
+                                <div style="font-size: 1rem; font-weight: 500; margin-bottom: 0.5rem;">No results yet</div>
+                                <p style="font-size: 0.85rem; color: var(--text-secondary);">Results will appear here after the search runs</p>
+                            </div>
+                        `;
+                        return;
+                    }
+                    
+                    const newCount = results.filter(r => r.is_new).length;
+                    container.innerHTML = `
+                        <div class="results-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding-bottom: 0.75rem; border-bottom: 1px solid var(--border);">
+                            <div>
+                                <h3 style="margin: 0; font-size: 1rem; font-weight: 600;">
+                                    ${results.length} Results
+                                    ${newCount > 0 ? `<span style="color: var(--success-color); font-size: 0.85rem; margin-left: 0.5rem;">(${newCount} new)</span>` : ''}
+                                </h3>
+                            </div>
+                            <div style="display: flex; gap: 1rem; align-items: center;">
+                                <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; cursor: pointer;">
+                                    <input type="checkbox" id="show-new-only" onchange="app.filterResults()" style="cursor: pointer;">
+                                    <span>New only</span>
+                                </label>
+                                <select onchange="app.sortResults(this.value)" style="padding: 0.25rem 0.5rem; font-size: 0.8rem; border: 1px solid var(--border); border-radius: 4px; background: var(--surface);">
+                                    <option value="">Sort by</option>
+                                    <option value="price-asc">Price ↑</option>
+                                    <option value="price-desc">Price ↓</option>
+                                    <option value="date-new">Newest</option>
+                                    <option value="date-old">Oldest</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="results-grid" id="results-grid" style="max-height: calc(100vh - 300px); overflow-y: auto; padding-right: 0.5rem;">
+                            ${results.map(result => this.renderResultCard(result)).join('')}
+                        </div>
+                    `;
+                    
+                    this.currentResults = results;
+                } catch (error) {
+                    container.innerHTML = `
+                        <div class="alert alert-error">
+                            Failed to load results: ${error.message}
+                        </div>
+                    `;
+                }
+            }
+            
+            filterResults() {
+                const showNewOnly = document.getElementById('show-new-only').checked;
+                const grid = document.getElementById('results-grid');
+                
+                const filtered = showNewOnly 
+                    ? this.currentResults.filter(r => r.is_new)
+                    : this.currentResults;
+                    
+                this.renderResultsGrid(filtered);
+            }
+            
+            sortResults(sortType) {
+                if (!this.currentResults) return;
+                
+                let sorted = [...this.currentResults];
+                
+                switch(sortType) {
+                    case 'price-asc':
+                        sorted.sort((a, b) => {
+                            const priceA = this.extractPrice(a.price);
+                            const priceB = this.extractPrice(b.price);
+                            return priceA - priceB;
+                        });
+                        break;
+                    case 'price-desc':
+                        sorted.sort((a, b) => {
+                            const priceA = this.extractPrice(a.price);
+                            const priceB = this.extractPrice(b.price);
+                            return priceB - priceA;
+                        });
+                        break;
+                    case 'date-new':
+                        sorted.sort((a, b) => new Date(b.date_posted || 0) - new Date(a.date_posted || 0));
+                        break;
+                    case 'date-old':
+                        sorted.sort((a, b) => new Date(a.date_posted || 0) - new Date(b.date_posted || 0));
+                        break;
+                    default:
+                        sorted = this.currentResults;
+                }
+                
+                const showNewOnly = document.getElementById('show-new-only')?.checked;
+                const filtered = showNewOnly ? sorted.filter(r => r.is_new) : sorted;
+                this.renderResultsGrid(filtered);
+            }
+            
+            extractPrice(priceStr) {
+                if (!priceStr) return 999999;
+                const match = priceStr.match(/[\d,]+/);
+                if (match) {
+                    return parseInt(match[0].replace(/,/g, ''));
+                }
+                return 999999;
+            }
+            
+            renderResultsGrid(results) {
+                const grid = document.getElementById('results-grid');
+                if (!grid) return;
+                
+                // Use requestAnimationFrame for smooth rendering
+                requestAnimationFrame(() => {
+                    grid.innerHTML = results.map(result => this.renderResultCard(result)).join('');
+                });
+            }
+            
+            renderResultCard(result) {
+                const isNew = result.is_new;
+                
+                // Clean and extract data only once
+                const title = this.escapeHtml(result.title || 'No title');
+                const price = this.escapeHtml(result.price || 'Contact for price');
+                const description = result.description ? this.escapeHtml(result.description) : '';
+                const location = result.location ? this.escapeHtml(result.location) : '';
+                const datePosted = result.date_posted || result.found_at;
+                
+                return `
+                    <article class="result-card ${isNew ? 'new-item' : ''}" style="
+                        border: 1px solid ${isNew ? 'var(--success-color)' : 'var(--border)'};
+                        border-radius: 6px;
+                        padding: 0.75rem;
+                        margin-bottom: 0.75rem;
+                        background: ${isNew ? 'rgba(16, 185, 129, 0.05)' : 'var(--surface-elevated)'};
+                        transition: all 0.2s;
+                    " onmouseover="this.style.boxShadow='0 2px 8px rgba(0,0,0,0.1)'" onmouseout="this.style.boxShadow=''">
+                        <div style="display: grid; grid-template-columns: ${result.image_url ? 'auto 80px' : '1fr'}; gap: 0.75rem;">
+                            <!-- Main content -->
+                            <div style="min-width: 0;">
+                                <!-- Title and badges -->
+                                <header style="display: flex; align-items: flex-start; gap: 0.5rem; margin-bottom: 0.5rem;">
+                                    <h3 style="
+                                        margin: 0;
+                                        font-size: 0.95rem;
+                                        font-weight: 500;
+                                        line-height: 1.3;
+                                        flex: 1;
+                                        overflow: hidden;
+                                        text-overflow: ellipsis;
+                                        display: -webkit-box;
+                                        -webkit-line-clamp: 2;
+                                        -webkit-box-orient: vertical;
+                                    ">
+                                        ${title}
+                                    </h3>
+                                    ${isNew ? `
+                                        <span style="
+                                            padding: 0.15rem 0.4rem;
+                                            border-radius: 3px;
+                                            background: var(--success-color);
+                                            color: white;
+                                            font-size: 0.65rem;
+                                            font-weight: 600;
+                                            flex-shrink: 0;
+                                        ">NEW</span>
+                                    ` : ''}
+                                </header>
+                                
+                                <!-- Price and metadata -->
+                                <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem; flex-wrap: wrap;">
+                                    <strong style="color: var(--primary-color); font-size: 1.1rem;">
+                                        ${price}
+                                    </strong>
+                                    ${location ? `
+                                        <span style="color: var(--text-secondary); font-size: 0.75rem;">
+                                            📍 ${location}
+                                        </span>
+                                    ` : ''}
+                                    ${datePosted ? `
+                                        <time style="color: var(--text-secondary); font-size: 0.75rem;">
+                                            ${this.formatTimeAgo(datePosted)}
+                                        </time>
+                                    ` : ''}
+                                </div>
+                                
+                                <!-- Description -->
+                                ${description ? `
+                                    <p style="
+                                        margin: 0 0 0.5rem 0;
+                                        font-size: 0.8rem;
+                                        color: var(--text-secondary);
+                                        line-height: 1.4;
+                                        overflow: hidden;
+                                        text-overflow: ellipsis;
+                                        display: -webkit-box;
+                                        -webkit-line-clamp: 2;
+                                        -webkit-box-orient: vertical;
+                                    ">
+                                        ${description}
+                                    </p>
+                                ` : ''}
+                                
+                                <!-- Footer with metadata and action -->
+                                <footer style="display: flex; justify-content: space-between; align-items: center;">
+                                    <div style="display: flex; gap: 0.75rem; font-size: 0.7rem; color: var(--text-secondary);">
+                                        ${result.seller ? `<span>👤 ${this.escapeHtml(result.seller)}</span>` : ''}
+                                        ${result.views ? `<span>👁 ${result.views}</span>` : ''}
+                                        ${result.condition ? `<span>📦 ${this.escapeHtml(result.condition)}</span>` : ''}
+                                    </div>
+                                    <a href="${result.url}" 
+                                       target="_blank" 
+                                       rel="noopener noreferrer"
+                                       style="
+                                           color: var(--primary-color);
+                                           font-size: 0.75rem;
+                                           font-weight: 500;
+                                           text-decoration: none;
+                                           padding: 0.25rem 0.5rem;
+                                           border: 1px solid var(--primary-color);
+                                           border-radius: 4px;
+                                           transition: all 0.2s;
+                                       "
+                                       onmouseover="this.style.background='var(--primary-color)'; this.style.color='white';"
+                                       onmouseout="this.style.background='transparent'; this.style.color='var(--primary-color)';"
+                                       onclick="event.stopPropagation();">
+                                        View →
+                                    </a>
+                                </footer>
+                            </div>
+                            
+                            <!-- Image thumbnail -->
+                            ${result.image_url ? `
+                                <figure style="margin: 0;">
+                                    <img src="${result.image_url}" 
+                                         alt="${title}" 
+                                         loading="lazy"
+                                         style="
+                                             width: 80px;
+                                             height: 80px;
+                                             object-fit: cover;
+                                             border-radius: 4px;
+                                             background: var(--surface);
+                                         "
+                                         onerror="this.style.display='none'">
+                                </figure>
+                            ` : ''}
+                        </div>
+                    </article>
+                `;
+            }
+            
+            formatTimeAgo(dateString) {
+                if (!dateString) return '';
+                const date = new Date(dateString);
+                const now = new Date();
+                const seconds = Math.floor((now - date) / 1000);
+                
+                if (seconds < 60) return 'just now';
+                if (seconds < 3600) return Math.floor(seconds / 60) + 'm ago';
+                if (seconds < 86400) return Math.floor(seconds / 3600) + 'h ago';
+                if (seconds < 604800) return Math.floor(seconds / 86400) + 'd ago';
+                return date.toLocaleDateString();
+            }
+
+            renderSearchDetails(search) {
+                const container = document.getElementById('search-details-content');
+                
+                if (!search) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-title">Select a search</div>
+                            <p>Choose a search from the list to view and edit its details.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const lastRun = search.last_run_at ? 
+                    new Date(search.last_run_at).toLocaleString() : 'Never';
+
+                container.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                        <h3 style="margin: 0; font-size: 1.1rem;">${this.escapeHtml(search.query)}</h3>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <button class="btn btn-primary btn-sm" onclick="app.switchTab('results')">View Results</button>
+                            ${search.status === 'active' ? `
+                                <button class="btn btn-warning btn-sm" onclick="app.stopSearch('${search.search_id}')">Stop</button>
+                            ` : `
+                                <button class="btn btn-success btn-sm" onclick="app.activateSearch('${search.search_id}')">Activate</button>
+                            `}
+                            <button class="btn btn-danger btn-sm" onclick="app.deleteSearch('${search.search_id}')">Delete</button>
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; padding: 1rem; background: var(--surface); border-radius: 6px; margin-bottom: 1.5rem;">
+                        <div>
+                            <div style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.25rem;">Status</div>
+                            <span class="status-badge status-${search.status.toLowerCase()}">${search.status}</span>
+                        </div>
+                        <div>
+                            <div style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.25rem;">Last Run</div>
+                            <div style="font-size: 0.85rem;">${lastRun}</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.25rem;">Interval</div>
+                            <div style="font-size: 0.85rem;">${search.interval}s</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.25rem;">Created</div>
+                            <div style="font-size: 0.85rem;">${new Date(search.created_at).toLocaleDateString()}</div>
+                        </div>
+                    </div>
+
+                    ${search.last_error ? `
+                        <div class="alert alert-error" style="margin-bottom: 1rem;">
+                            <strong>Error:</strong> ${this.escapeHtml(search.last_error)}
+                        </div>
+                    ` : ''}
+
+                    <form onsubmit="app.saveSearchDetails(event, '${search.search_id}')" style="background: var(--surface); padding: 1rem; border-radius: 6px;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                            <div>
+                                <label style="display: block; font-size: 0.8rem; font-weight: 500; margin-bottom: 0.25rem;">Query</label>
+                                <input type="text" class="form-input" name="query" value="${this.escapeHtml(search.query)}" required style="width: 100%; padding: 0.5rem; font-size: 0.85rem;">
+                            </div>
+                            <div>
+                                <label style="display: block; font-size: 0.8rem; font-weight: 500; margin-bottom: 0.25rem;">Postal Code</label>
+                                <input type="text" class="form-input" name="zip_code" value="${search.zip_code || ''}" placeholder="1000AA" style="width: 100%; padding: 0.5rem; font-size: 0.85rem;">
+                            </div>
+                            <div>
+                                <label style="display: block; font-size: 0.8rem; font-weight: 500; margin-bottom: 0.25rem;">Distance (km)</label>
+                                <input type="number" class="form-input" name="distance" value="${search.distance || ''}" style="width: 100%; padding: 0.5rem; font-size: 0.85rem;">
+                            </div>
+                            <div>
+                                <label style="display: block; font-size: 0.8rem; font-weight: 500; margin-bottom: 0.25rem;">Interval (sec)</label>
+                                <input type="number" class="form-input" name="interval" value="${search.interval}" min="60" required style="width: 100%; padding: 0.5rem; font-size: 0.85rem;">
+                            </div>
+                            <div>
+                                <label style="display: block; font-size: 0.8rem; font-weight: 500; margin-bottom: 0.25rem;">Min Price (€)</label>
+                                <input type="number" class="form-input" name="price_from" value="${search.price_from || ''}" min="0" style="width: 100%; padding: 0.5rem; font-size: 0.85rem;">
+                            </div>
+                            <div>
+                                <label style="display: block; font-size: 0.8rem; font-weight: 500; margin-bottom: 0.25rem;">Max Price (€)</label>
+                                <input type="number" class="form-input" name="price_to" value="${search.price_to || ''}" min="0" style="width: 100%; padding: 0.5rem; font-size: 0.85rem;">
+                            </div>
+                            <div>
+                                <label style="display: block; font-size: 0.8rem; font-weight: 500; margin-bottom: 0.25rem;">Sort By</label>
+                                <select class="form-input" name="sort_by" style="width: 100%; padding: 0.5rem; font-size: 0.85rem;">
+                                    <option value="">Default</option>
+                                    <option value="price" ${search.sort_by === 'price' ? 'selected' : ''}>Price</option>
+                                    <option value="date" ${search.sort_by === 'date' ? 'selected' : ''}>Date</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="display: block; font-size: 0.8rem; font-weight: 500; margin-bottom: 0.25rem;">Order</label>
+                                <select class="form-input" name="sort_order" style="width: 100%; padding: 0.5rem; font-size: 0.85rem;">
+                                    <option value="">Default</option>
+                                    <option value="asc" ${search.sort_order === 'asc' ? 'selected' : ''}>Ascending</option>
+                                    <option value="desc" ${search.sort_order === 'desc' ? 'selected' : ''}>Descending</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="margin-top: 1rem;">Save Changes</button>
+                    </form>
+                `;
+            }
+
+            async saveSearchDetails(event, searchId) {
+                event.preventDefault();
+                
+                const formData = new FormData(event.target);
+                const updateData = {};
+                
+                // Build update object
+                for (const [key, value] of formData.entries()) {
+                    if (value !== '') {
+                        if (key === 'interval' || key === 'distance' || key === 'price_from' || key === 'price_to') {
+                            updateData[key] = parseInt(value);
+                        } else {
+                            updateData[key] = value;
+                        }
+                    }
+                }
+                
+                try {
+                    await this.apiRequest(`/api/searches/${searchId}`, {
+                        method: 'PUT',
+                        body: JSON.stringify(updateData)
+                    });
+                    
+                    // Reload searches to update the UI
+                    await this.loadSearches();
+                    
+                    // Re-select the updated search
+                    this.selectSearch(searchId);
+                } catch (error) {
+                    alert(`Failed to update search: ${error.message}`);
+                }
+            }
+
+            async activateSearch(searchId) {
+                try {
+                    await this.apiRequest(`/api/searches/${searchId}`, {
+                        method: 'PUT',
+                        body: JSON.stringify({ status: 'active' })
+                    });
+                    
+                    await this.loadSearches();
+                    this.selectSearch(searchId);
+                } catch (error) {
+                    alert(`Failed to activate search: ${error.message}`);
+                }
+            }
+
             async viewResults(searchId) {
-                this.currentSearchId = searchId;
-                this.currentResultsPage = 0;
-                
-                document.getElementById('results-section').style.display = 'block';
-                document.getElementById('results-section').scrollIntoView({ behavior: 'smooth' });
-                
-                await this.loadResults();
+                // Select the search and switch to results tab
+                this.selectSearch(searchId);
             }
 
             async loadResults() {
+                // This method is deprecated - use loadResultsForSearch instead
                 if (!this.currentSearchId) return;
 
                 const loading = document.getElementById('results-loading');
                 const container = document.getElementById('results-container');
                 const pagination = document.getElementById('results-pagination');
+                
+                if (!container) {
+                    // If old container doesn't exist, use new method
+                    return this.loadResultsForSearch(this.currentSearchId);
+                }
 
                 loading.style.display = 'flex';
 
                 try {
-                    const showNewOnly = document.getElementById('show-new-only').checked;
+                    const showNewOnly = document.getElementById('show-new-only')?.checked || false;
                     const skip = this.currentResultsPage * this.resultsLimit;
                     
                     const url = `/api/searches/${this.currentSearchId}/results?skip=${skip}&limit=${this.resultsLimit}${showNewOnly ? '&show_new_only=true' : ''}`;
                     const results = await this.apiRequest(url);
                     
-                    this.renderResults(results);
+                    // Use new rendering system
+                    this.currentResults = results;
+                    this.renderResultsGrid(results);
                     this.updateResultsPagination(results.length);
                 } catch (error) {
                     container.innerHTML = `
@@ -1133,65 +1906,7 @@
                 }
             }
 
-            renderResults(results) {
-                const container = document.getElementById('results-container');
 
-                if (results.length === 0) {
-                    container.innerHTML = `
-                        <div class="empty-state">
-                            <div class="empty-state-title">No results found</div>
-                            <p>This search hasn't found any listings yet.</p>
-                        </div>
-                    `;
-                    return;
-                }
-
-                container.innerHTML = `
-                    <div class="grid grid-cols-1">
-                        ${results.map(result => this.renderResultCard(result)).join('')}
-                    </div>
-                `;
-            }
-
-            renderResultCard(result) {
-                return `
-                    <div class="card ${result.is_new ? 'border-blue-500' : ''}" style="${result.is_new ? 'border-color: var(--primary-color); border-width: 2px;' : ''}">
-                        <div class="card-header">
-                            <div>
-                                <div class="card-title">
-                                    ${this.escapeHtml(result.title || 'Untitled')}
-                                    ${result.is_new ? '<span style="color: var(--primary-color); font-weight: bold;">NEW</span>' : ''}
-                                </div>
-                                <div class="card-meta">
-                                    ${result.price ? `€${result.price}` : 'Price not listed'} • 
-                                    Found ${new Date(result.discovered_at).toLocaleDateString()}
-                                </div>
-                            </div>
-                            ${result.image_url ? `
-                                <img src="${result.image_url}" alt="Listing image" 
-                                     style="width: 80px; height: 80px; object-fit: cover; border-radius: 0.375rem;">
-                            ` : ''}
-                        </div>
-                        
-                        ${result.description_snippet ? `
-                            <p style="margin-bottom: 0.75rem; color: var(--text-secondary);">
-                                ${this.escapeHtml(result.description_snippet)}
-                            </p>
-                        ` : ''}
-
-                        <div class="card-actions">
-                            <button class="btn btn-secondary btn-sm" onclick="app.viewListing('${result.id}')">
-                                View Details
-                            </button>
-                            ${result.url ? `
-                                <a href="${result.url}" target="_blank" class="btn btn-primary btn-sm">
-                                    View on Marktplaats
-                                </a>
-                            ` : ''}
-                        </div>
-                    </div>
-                `;
-            }
 
             updateResultsPagination(resultCount) {
                 const pagination = document.getElementById('results-pagination');
@@ -1269,9 +1984,10 @@
                         </div>
                     `;
                 } catch (error) {
+                    console.error('Error loading listing details:', error);
                     details.innerHTML = `
                         <div class="alert alert-error">
-                            Failed to load listing details: ${error.message}
+                            Failed to load listing details: ${error.message || error.toString() || 'Unknown error'}
                         </div>
                     `;
                 }
@@ -1339,7 +2055,7 @@
                     const formData = this.getSearchFormData();
                     
                     if (this.editingSearch) {
-                        await this.apiRequest(`/api/searches/${this.editingSearch.id}`, {
+                        await this.apiRequest(`/api/searches/${this.editingSearch.search_id}`, {
                             method: 'PUT',
                             body: JSON.stringify(formData)
                         });
@@ -1410,6 +2126,26 @@
                     this.loadSearches();
                 } catch (error) {
                     alert(`Failed to stop search: ${error.message}`);
+                }
+            }
+
+            async deleteSearch(searchId) {
+                if (!confirm('Are you sure you want to permanently delete this search and all its results? This action cannot be undone.')) {
+                    return;
+                }
+
+                try {
+                    await this.apiRequest(`/api/searches/${searchId}`, {
+                        method: 'DELETE'
+                    });
+                    this.loadSearches();
+                    // If we're currently viewing results for this search, hide the results section
+                    if (this.currentSearchId === searchId) {
+                        document.getElementById('results-section').style.display = 'none';
+                        this.currentSearchId = null;
+                    }
+                } catch (error) {
+                    alert(`Failed to delete search: ${error.message}`);
                 }
             }
 

@@ -4,12 +4,12 @@ import logging
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI # Import FastAPI here
-from database import create_db_and_tables, AsyncSessionLocal
-from models import User # Import User model for creating a default user
+from marktplaats_search.database import create_db_and_tables, AsyncSessionLocal
+from marktplaats_search.models import User # Import User model for creating a default user
 from sqlalchemy.future import select # For querying User table
-from scheduler import initialize_scheduler, shutdown_scheduler
-from config import settings
-from auth import generate_secure_token, hash_token, generate_user_identifier
+from marktplaats_search.scheduler import initialize_scheduler, shutdown_scheduler
+from marktplaats_search.config import settings
+from marktplaats_search.auth import generate_secure_token, hash_token, generate_user_identifier
 
 # Configure basic logging
 logging.basicConfig(level=logging.INFO)
@@ -99,7 +99,7 @@ def run_server():
     # For simplicity, we'll assume api.py imports 'lifespan' from 'main'
     # and uses it when creating its FastAPI instance.
     uvicorn.run(
-        "api:app", # Points to the app instance in api.py
+        "marktplaats_search.api:app", # Points to the app instance in the package
         host=settings.api_host,
         port=settings.api_port,
         log_level=settings.log_level.lower(),

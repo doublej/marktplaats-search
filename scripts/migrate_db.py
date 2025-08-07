@@ -15,9 +15,13 @@ from datetime import datetime
 
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import create_async_engine
-from database import DATABASE_URL, Base, engine
-from models import User
-from auth import hash_token
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from marktplaats_search.database import DATABASE_URL, Base, engine
+from marktplaats_search.models import User
+from marktplaats_search.auth import hash_token
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

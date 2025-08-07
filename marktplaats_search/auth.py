@@ -94,8 +94,12 @@ def is_token_expired(created_at: datetime, expiry_days: Optional[int] = None) ->
     if expiry_days is None:
         return False
     
+    # Ensure both datetimes are timezone-aware for comparison
+    now = datetime.now(timezone.utc)
+    if created_at.tzinfo is None:
+        created_at = created_at.replace(tzinfo=timezone.utc)
     expiry_date = created_at + timedelta(days=expiry_days)
-    return datetime.now(timezone.utc) > expiry_date
+    return now > expiry_date
 
 
 def validate_token_format(token: str) -> bool:

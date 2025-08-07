@@ -69,6 +69,8 @@ class MarktplaatsScraper:
         sort_order: Optional[str] = None,
     ) -> str:
         """Build the search URL with parameters."""
+        # Ensure query is lowercase to avoid Marktplaats redirects
+        query = query.lower()
         encoded_query = quote_plus(query)
         url = self.SEARCH_URL.format(query=encoded_query)
         
@@ -348,8 +350,8 @@ async def fetch_listings(
             # Add rate limiting delay
             await asyncio.sleep(1.0)
             
-            # Fetch the search results page
-            response = await scraper.session.get(search_url)
+            # Fetch the search results page with redirect handling
+            response = await scraper.session.get(search_url, follow_redirects=True)
             response.raise_for_status()
             
             # Check for blocking or rate limiting
