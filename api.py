@@ -4,6 +4,9 @@ from datetime import datetime
 
 from fastapi import FastAPI, HTTPException, status, Depends, Query as FastAPIQuery
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field, HttpUrl, validator
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
@@ -127,6 +130,15 @@ app = FastAPI(
     description="API for managing Marktplaats searches and viewing results.",
     version="0.3.0", # Incremented version
     lifespan=lifespan # Assign the lifespan manager
+)
+
+# Add CORS middleware for local development
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # In production, replace with specific origins
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # --- Helper to get a search instance for the current user ---
@@ -307,3 +319,18 @@ async def get_listing_details_endpoint( # Renamed
         await db.refresh(listing_instance)
         
     return listing_instance
+
+# --- Static File Serving ---
+
+# Mount static files for additional assets if needed
+# This allows serving CSS, JS, images, etc. from a static directory
+import os
+project_root = os.path.dirname(__file__)
+
+@app.get("/")
+async def serve_index():
+    """
+    Serves the main web UI at the root path.
+    """
+    index_path = os.path.join(project_root, "index.html")
+    return FileResponse(index_path)
