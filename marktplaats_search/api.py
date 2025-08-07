@@ -88,7 +88,7 @@ class SearchResponse(SearchQueryBase):
 
 
 class ListingResponse(BaseModel):
-    id: uuid.UUID = Field(..., alias="listing_id")
+    id: uuid.UUID
     search_id: uuid.UUID
     source_listing_id: Optional[str] = None
     title: Optional[str] = None
@@ -96,6 +96,7 @@ class ListingResponse(BaseModel):
     url: Optional[HttpUrl] = None
     description_snippet: Optional[str] = None
     image_url: Optional[HttpUrl] = None
+    raw_html: Optional[str] = None
     is_new: bool
     discovered_at: datetime
 

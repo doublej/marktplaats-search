@@ -1464,6 +1464,7 @@
                     }
                     
                     const newCount = results.filter(r => r.is_new).length;
+                    const currentSearch = this.searches.find(s => s.search_id === searchId);
                     container.innerHTML = `
                         <div class="results-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding-bottom: 0.75rem; border-bottom: 1px solid var(--border);">
                             <div>
@@ -1471,6 +1472,17 @@
                                     ${results.length} Results
                                     ${newCount > 0 ? `<span style="color: var(--success-color); font-size: 0.85rem; margin-left: 0.5rem;">(${newCount} new)</span>` : ''}
                                 </h3>
+                                ${currentSearch ? `
+                                    <div style="margin-top: 0.25rem;">
+                                        <a href="${this.buildMarktplaatsUrl(currentSearch)}" 
+                                           target="_blank" 
+                                           rel="noopener noreferrer"
+                                           style="font-size: 0.75rem; color: var(--primary-color); text-decoration: none;"
+                                           title="Compare results on Marktplaats.nl">
+                                            🔗 Compare on Marktplaats.nl
+                                        </a>
+                                    </div>
+                                ` : ''}
                             </div>
                             <div style="display: flex; gap: 1rem; align-items: center;">
                                 <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; cursor: pointer;">
@@ -1651,31 +1663,49 @@
                                     </p>
                                 ` : ''}
                                 
-                                <!-- Footer with metadata and action -->
+                                <!-- Footer with metadata and actions -->
                                 <footer style="display: flex; justify-content: space-between; align-items: center;">
                                     <div style="display: flex; gap: 0.75rem; font-size: 0.7rem; color: var(--text-secondary);">
                                         ${result.seller ? `<span>👤 ${this.escapeHtml(result.seller)}</span>` : ''}
                                         ${result.views ? `<span>👁 ${result.views}</span>` : ''}
                                         ${result.condition ? `<span>📦 ${this.escapeHtml(result.condition)}</span>` : ''}
                                     </div>
-                                    <a href="${result.url}" 
-                                       target="_blank" 
-                                       rel="noopener noreferrer"
-                                       style="
-                                           color: var(--primary-color);
-                                           font-size: 0.75rem;
-                                           font-weight: 500;
-                                           text-decoration: none;
-                                           padding: 0.25rem 0.5rem;
-                                           border: 1px solid var(--primary-color);
-                                           border-radius: 4px;
-                                           transition: all 0.2s;
-                                       "
-                                       onmouseover="this.style.background='var(--primary-color)'; this.style.color='white';"
-                                       onmouseout="this.style.background='transparent'; this.style.color='var(--primary-color)';"
-                                       onclick="event.stopPropagation();">
-                                        View →
-                                    </a>
+                                    <div style="display: flex; gap: 0.5rem;">
+                                        <button onclick="app.viewListing('${result.id}')" 
+                                               style="
+                                                   background: transparent;
+                                                   border: 1px solid var(--secondary-color);
+                                                   color: var(--secondary-color);
+                                                   font-size: 0.75rem;
+                                                   font-weight: 500;
+                                                   padding: 0.25rem 0.5rem;
+                                                   border-radius: 4px;
+                                                   cursor: pointer;
+                                                   transition: all 0.2s;
+                                               "
+                                               onmouseover="this.style.background='var(--secondary-color)'; this.style.color='white';"
+                                               onmouseout="this.style.background='transparent'; this.style.color='var(--secondary-color)';">
+                                            details
+                                        </button>
+                                        <a href="${result.url}" 
+                                           target="_blank" 
+                                           rel="noopener noreferrer"
+                                           style="
+                                               color: var(--primary-color);
+                                               font-size: 0.75rem;
+                                               font-weight: 500;
+                                               text-decoration: none;
+                                               padding: 0.25rem 0.5rem;
+                                               border: 1px solid var(--primary-color);
+                                               border-radius: 4px;
+                                               transition: all 0.2s;
+                                           "
+                                           onmouseover="this.style.background='var(--primary-color)'; this.style.color='white';"
+                                           onmouseout="this.style.background='transparent'; this.style.color='var(--primary-color)';"
+                                           onclick="event.stopPropagation();">
+                                            View →
+                                        </a>
+                                    </div>
                                 </footer>
                             </div>
                             
@@ -1700,6 +1730,43 @@
                 `;
             }
             
+            buildMarktplaatsUrl(search) {
+                const baseUrl = "https://www.marktplaats.nl/q/";
+                const encodedQuery = encodeURIComponent(search.query.toLowerCase());
+                let url = baseUrl + encodedQuery + "/";
+                
+                const params = new URLSearchParams();
+                
+                if (search.zip_code) {
+                    params.set("postcode", search.zip_code);
+                }
+                if (search.distance) {
+                    params.set("distanceMeters", (search.distance * 1000).toString());
+                }
+                if (search.price_from) {
+                    params.set("PriceCentsFrom", (search.price_from * 100).toString());
+                }
+                if (search.price_to) {
+                    params.set("PriceCentsTo", (search.price_to * 100).toString());
+                }
+                if (search.sort_by === "price" && search.sort_order === "asc") {
+                    params.set("sortBy", "PRICE");
+                    params.set("sortOrder", "INCREASING");
+                } else if (search.sort_by === "price" && search.sort_order === "desc") {
+                    params.set("sortBy", "PRICE");
+                    params.set("sortOrder", "DECREASING");
+                } else if (search.sort_by === "date") {
+                    params.set("sortBy", "DATE");
+                }
+                
+                const paramString = params.toString();
+                if (paramString) {
+                    url += "?" + paramString;
+                }
+                
+                return url;
+            }
+
             formatTimeAgo(dateString) {
                 if (!dateString) return '';
                 const date = new Date(dateString);
@@ -1732,8 +1799,15 @@
                 container.innerHTML = `
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
                         <h3 style="margin: 0; font-size: 1.1rem;">${this.escapeHtml(search.query)}</h3>
-                        <div style="display: flex; gap: 0.5rem;">
+                        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
                             <button class="btn btn-primary btn-sm" onclick="app.switchTab('results')">View Results</button>
+                            <a href="${this.buildMarktplaatsUrl(search)}" 
+                               target="_blank" 
+                               rel="noopener noreferrer"
+                               class="btn btn-secondary btn-sm"
+                               title="Compare on Marktplaats.nl">
+                                🔗 Compare on MP
+                            </a>
                             ${search.status === 'active' ? `
                                 <button class="btn btn-warning btn-sm" onclick="app.stopSearch('${search.search_id}')">Stop</button>
                             ` : `

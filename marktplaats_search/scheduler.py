@@ -84,6 +84,7 @@ async def run_single_search(search_id: uuid.UUID):
                             url=str(listing_data.url),
                             description_snippet=listing_data.description_snippet,
                             image_url=str(listing_data.image_url) if listing_data.image_url else None,
+                            raw_html=listing_data.raw_html,
                             is_new=True
                         )
                         new_listings_to_add.append(new_db_listing)

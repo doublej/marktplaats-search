@@ -71,6 +71,7 @@ class Listing(Base):
     image_url = Column(String, nullable=True)
     
     raw_data = Column(JSON, nullable=True) # Store full raw data from source if needed
+    raw_html = Column(Text, nullable=True) # Store original HTML from Marktplaats
     is_new = Column(Boolean, default=True, nullable=False)
 
     discovered_at = Column(DateTime(timezone=True), server_default=func.now())

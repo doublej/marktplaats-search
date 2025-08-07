@@ -20,6 +20,7 @@ class ListingItem(BaseModel):
     url: HttpUrl
     description_snippet: Optional[str] = None
     image_url: Optional[HttpUrl] = None
+    raw_html: Optional[str] = None
 
 class MarktplaatsScrapingError(Exception):
     """Custom exception for scraping-related errors."""
@@ -216,9 +217,17 @@ class MarktplaatsScraper:
             return None
         
         # Clean title - remove price and details text
-        title = re.sub(r'€\s*[\d.,]+[^a-zA-Z]*$', '', title).strip()
-        title = re.sub(r'\s*details\s*.*$', '', title, flags=re.I).strip()
-        title = re.sub(r'\s*\d+\s*$', '', title).strip()  # Remove trailing numbers
+        # Remove various price patterns that can appear anywhere in title
+        title = re.sub(r'€\s*[\d.,]+\s*,?\s*', '', title)  # Remove Euro prices with optional comma
+        title = re.sub(r'\$\s*[\d.,]+\s*,?\s*', '', title)  # Remove Dollar prices
+        title = re.sub(r'[\d,]+\s*€\s*,?\s*', '', title)   # Remove reversed Euro format
+        title = re.sub(r'€\s*[\d.,]+[^a-zA-Z]*$', '', title)  # Remove trailing Euro prices
+        title = re.sub(r'\s*details\s*.*$', '', title, flags=re.I)  # Remove details text
+        title = re.sub(r'^\s*[Nn]u ook ideal in \d*', '', title)  # Remove "Nu ook ideal in X" prefix
+        title = re.sub(r'\s*\d+\s*$', '', title)  # Remove trailing numbers
+        title = re.sub(r'\|\s*$', '', title)  # Remove trailing pipe
+        title = re.sub(r',\s*$', '', title)  # Remove trailing comma
+        title = re.sub(r'\s+', ' ', title).strip()  # Normalize whitespace
         
         # Find price
         price = "Price on request"
@@ -292,7 +301,8 @@ class MarktplaatsScraper:
                 price=price,
                 url=HttpUrl(url),
                 description_snippet=description,
-                image_url=image_url
+                image_url=image_url,
+                raw_html=str(container)
             )
         except ValidationError as e:
             logger.debug(f"Validation error for listing {listing_id}: {e}")
