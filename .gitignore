@@ -1,62 +1,85 @@
-.aider*
+# AI Development .gitignore
 
-# Environment files
-.env
-.env.local
-.env.*.local
-
-# IDE
-.idea/
-.vscode/
-*.swp
-*.swo
-
-# Python
-.venv/
+# Python Core
 __pycache__/
-*.pyc
-*.pyo
-*.pyd
-.Python
+*.py[cod]
+*$py.class
+*.so
+
+# Distribution / packaging
 build/
 develop-eggs/
 dist/
 downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
-MANIFEST
 
-# Database & Data files
-*.db
-*.db-journal
-*.sqlite3
-*.sqlite
-*.db.backup.*
+# Virtual environments
+.env
+.venv
+env/
+venv/
+ENV/
+
+# AI Development tools
+.cursorrules
+.cursorignore
+.cursorindexingignore
+.aider*
+.repomap.tags.cache.v1/
+**/.prompts/
+
+# AI/ML specific
+.abstra/
+__marimo__/
+marimo/_static/
+marimo/_lsp/
+.llm_cache/
+
+# Testing and coverage
+.pytest_cache/
+.coverage
+htmlcov/
+.hypothesis/
+
+# Type checkers and linters
+.mypy_cache/
+.ruff_cache/
+.dmypy.json
+dmypy.json
+
+# Data and models
 data/
+/data/
+models/
+checkpoints/
+*.pkl
+*.joblib
+*.h5
+*.hdf5
+*.parquet
 
-# Logs
-server.log
+# Logs and traces
 *.log
 logs/
+artifacts/
+traces/
+har/
 
-# OS-specific
+# Security
+*.pem
+*.key
+*.token
+oauth.json
+*auth*.json
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
 .DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
 Thumbs.db
-
-# Temporary files
-*.tmp
-*.temp

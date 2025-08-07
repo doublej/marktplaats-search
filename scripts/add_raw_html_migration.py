@@ -8,14 +8,15 @@ This script will:
 
 import asyncio
 import logging
-from pathlib import Path
+import os
 import shutil
+import sys
 from datetime import datetime
+from pathlib import Path
 
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import create_async_engine
-import sys
-import os
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from marktplaats_search.database import DATABASE_URL
@@ -31,13 +32,13 @@ async def backup_database():
         Path("marktplaats_api.db"),
         Path("data/marktplaats_api.db"),
     ]
-    
+
     db_path = None
     for path in possible_paths:
         if path.exists():
             db_path = path
             break
-    
+
     if db_path:
         backup_name = f"{db_path.name}.backup.{datetime.now().strftime('%Y%m%d_%H%M%S')}"
         backup_path = db_path.parent / backup_name
@@ -51,53 +52,51 @@ async def backup_database():
 
 async def check_column_exists(conn, table_name: str, column_name: str) -> bool:
     """Check if a column exists in a table."""
-    result = await conn.execute(
-        text(f"PRAGMA table_info({table_name})")
-    )
+    result = await conn.execute(text(f"PRAGMA table_info({table_name})"))
     columns = result.fetchall()
     return any(col[1] == column_name for col in columns)
 
 
 async def add_raw_html_column():
     """Add raw_html column to the listings table."""
-    
+
     # Create a new engine for migration
     migration_engine = create_async_engine(DATABASE_URL, echo=True)
-    
+
     async with migration_engine.begin() as conn:
         logger.info("Starting raw_html column migration...")
-        
+
         # Check if raw_html column already exists
         has_raw_html = await check_column_exists(conn, "listings", "raw_html")
-        
+
         if has_raw_html:
             logger.info("raw_html column already exists in listings table")
             return
-        
+
         logger.info("Adding raw_html column to listings table...")
-        
+
         # Add the raw_html column
-        await conn.execute(text(
-            "ALTER TABLE listings ADD COLUMN raw_html TEXT"
-        ))
-        
+        await conn.execute(text("ALTER TABLE listings ADD COLUMN raw_html TEXT"))
+
         logger.info("raw_html column added successfully!")
-        
+
         # Check how many listings exist
         result = await conn.execute(text("SELECT COUNT(*) FROM listings"))
         count = result.scalar()
-        logger.info(f"Found {count} existing listings (they will have NULL raw_html until next scrape)")
+        logger.info(
+            f"Found {count} existing listings (they will have NULL raw_html until next scrape)"
+        )
 
 
 async def main():
     """Main migration function."""
     logger.info("Starting raw_html column migration...")
-    
+
     # Backup database
     backup_path = await backup_database()
     if backup_path:
         logger.info(f"Backup created at: {backup_path}")
-    
+
     # Run migration
     try:
         await add_raw_html_column()

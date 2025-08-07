@@ -1,0 +1,36 @@
+# Claude Code ignore file
+# Ignore large data files and generated content
+
+# Coverage reports
+htmlcov/
+.coverage
+coverage.xml
+
+# Cache and temp files
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+__pycache__/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# IDE files
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Large binary files
+*.pkl
+*.joblib
+*.h5
+*.hdf5
+*.parquet
+
+# Logs
+*.log

@@ -1,27 +1,28 @@
-import uvicorn
-import asyncio
 import logging
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI # Import FastAPI here
-from marktplaats_search.database import create_db_and_tables, AsyncSessionLocal
-from marktplaats_search.models import User # Import User model for creating a default user
-from sqlalchemy.future import select # For querying User table
-from marktplaats_search.scheduler import initialize_scheduler, shutdown_scheduler
+import uvicorn
+from fastapi import FastAPI  # Import FastAPI here
+from sqlalchemy.future import select  # For querying User table
+
+from marktplaats_search.auth import generate_secure_token, generate_user_identifier, hash_token
 from marktplaats_search.config import settings
-from marktplaats_search.auth import generate_secure_token, hash_token, generate_user_identifier
+from marktplaats_search.database import AsyncSessionLocal, create_db_and_tables
+from marktplaats_search.models import User  # Import User model for creating a default user
+from marktplaats_search.scheduler import initialize_scheduler, shutdown_scheduler
 
 # Configure basic logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-async def _create_default_user_if_not_exists(): # Renamed to indicate internal use
+
+async def _create_default_user_if_not_exists():  # Renamed to indicate internal use
     """Creates a default user and API token if configured and in dev mode."""
     # Only create default user if explicitly enabled and in dev mode
     if not settings.create_default_user or not settings.dev_mode:
         logger.info("Default user creation disabled (secure mode)")
         return
-    
+
     # Use environment-provided credentials or generate secure ones
     if settings.default_user_token and settings.default_user_name:
         # Use provided values from environment (development only)
@@ -32,8 +33,8 @@ async def _create_default_user_if_not_exists(): # Renamed to indicate internal u
         # Generate secure credentials
         default_token = generate_secure_token()
         default_user_identifier = generate_user_identifier("dev")
-        logger.info(f"Generated secure default credentials")
-    
+        logger.info("Generated secure default credentials")
+
     # Hash the token for storage
     token_hash = hash_token(default_token)
 
@@ -41,23 +42,22 @@ async def _create_default_user_if_not_exists(): # Renamed to indicate internal u
         # Check if any users exist
         result = await db.execute(select(User))
         existing_users = result.scalars().all()
-        
+
         if not existing_users:
             logger.info(f"Creating default user '{default_user_identifier}'")
             user = User(
-                user_identifier=default_user_identifier,
-                api_token_hash=token_hash,
-                is_active=True
+                user_identifier=default_user_identifier, api_token_hash=token_hash, is_active=True
             )
             db.add(user)
             await db.commit()
-            
+
             # Log the token only in dev mode
             if settings.dev_mode:
                 logger.info(f"Default user API token: {default_token}")
                 logger.warning("SAVE THIS TOKEN - it cannot be retrieved again")
         else:
-            logger.info(f"Users already exist, skipping default user creation")
+            logger.info("Users already exist, skipping default user creation")
+
 
 @asynccontextmanager
 async def lifespan(app_instance: FastAPI):
@@ -70,14 +70,15 @@ async def lifespan(app_instance: FastAPI):
     await initialize_scheduler()
     logger.info("Scheduler initialized and jobs loaded.")
     logger.info("Application startup complete.")
-    
-    yield # Application runs here
-    
+
+    yield  # Application runs here
+
     # Shutdown logic
     logger.info("Application shutdown: Shutting down scheduler...")
     await shutdown_scheduler()
     logger.info("Scheduler shutdown complete.")
     logger.info("Application shutdown complete.")
+
 
 # The FastAPI app instance will be created in api.py and imported,
 # or created here if api.py only defines routes/routers.
@@ -87,6 +88,7 @@ async def lifespan(app_instance: FastAPI):
 # This run_server function will now use the app from api.py,
 # which needs to be initialized with the lifespan manager.
 # We will adjust api.py to accept the lifespan.
+
 
 def run_server():
     """
@@ -99,12 +101,13 @@ def run_server():
     # For simplicity, we'll assume api.py imports 'lifespan' from 'main'
     # and uses it when creating its FastAPI instance.
     uvicorn.run(
-        "marktplaats_search.api:app", # Points to the app instance in the package
+        "marktplaats_search.api:app",  # Points to the app instance in the package
         host=settings.api_host,
         port=settings.api_port,
         log_level=settings.log_level.lower(),
-        reload=settings.api_reload # Enable auto-reload based on settings
+        reload=settings.api_reload,  # Enable auto-reload based on settings
     )
+
 
 if __name__ == "__main__":
     run_server()

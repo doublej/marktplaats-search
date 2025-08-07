@@ -27,8 +27,8 @@ def print_header():
 def print_footer(results: dict, start_time: float):
     """Print test footer with results and timing."""
     duration = time.time() - start_time
-    total_tests = results['passed'] + results['failed']
-    
+    total_tests = results["passed"] + results["failed"]
+
     print("\n" + "=" * 60)
     print("📊 FINAL TEST REPORT")
     print("=" * 60)
@@ -36,11 +36,11 @@ def print_footer(results: dict, start_time: float):
     print(f"📋 Total Tests: {total_tests}")
     print(f"✅ Passed: {results['passed']}")
     print(f"❌ Failed: {results['failed']}")
-    
+
     if total_tests > 0:
-        success_rate = (results['passed'] / total_tests) * 100
+        success_rate = (results["passed"] / total_tests) * 100
         print(f"📈 Success Rate: {success_rate:.1f}%")
-        
+
         if success_rate == 100:
             print("🎉 PERFECT SCORE! All endpoints working correctly!")
         elif success_rate >= 90:
@@ -49,13 +49,13 @@ def print_footer(results: dict, start_time: float):
             print("🟡 GOOD! Most endpoints working")
         else:
             print("🔴 NEEDS ATTENTION! Several endpoints failing")
-    
-    if results['errors']:
+
+    if results["errors"]:
         print(f"\n🚨 DETAILED ERRORS ({len(results['errors'])}):")
         print("-" * 40)
-        for i, error in enumerate(results['errors'], 1):
+        for i, error in enumerate(results["errors"], 1):
             print(f"{i:2d}. {error}")
-    
+
     print("=" * 60)
     print("✨ Test run complete!")
 
@@ -64,10 +64,11 @@ async def main():
     """Main test runner function."""
     print_header()
     start_time = time.time()
-    
+
     try:
         # Check if server is running
         import httpx
+
         async with httpx.AsyncClient() as client:
             try:
                 response = await client.get("http://localhost:8000/", timeout=5.0)
@@ -80,19 +81,19 @@ async def main():
                 print(f"   Error: {e}")
                 print("   Please ensure the server is running with: python main.py")
                 return
-        
+
         print("✅ Server connection verified")
         print("🚀 Starting comprehensive API tests...\n")
-        
+
         # Run the comprehensive test suite
         results = await run_comprehensive_test()
-        
+
         # Print final report
         print_footer(results, start_time)
-        
+
         # Exit with appropriate code
-        sys.exit(0 if results['failed'] == 0 else 1)
-        
+        sys.exit(0 if results["failed"] == 0 else 1)
+
     except KeyboardInterrupt:
         print("\n⚠️ Tests interrupted by user")
         sys.exit(1)
