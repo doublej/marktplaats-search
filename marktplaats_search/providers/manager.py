@@ -206,9 +206,15 @@ class ListingProviderManager:
 
         if not available_providers:
             self._error_count += 1
+            # Convert string to enum if needed for error response
+            primary_type = (
+                ProviderType(self.config.primary_provider)
+                if isinstance(self.config.primary_provider, str)
+                else self.config.primary_provider
+            )
             return ProviderResult(
                 listings=[],
-                provider_type=self.config.primary_provider,
+                provider_type=primary_type,
                 success=False,
                 error_message="No available providers",
                 execution_time_ms=int((datetime.now() - start_time).total_seconds() * 1000),
