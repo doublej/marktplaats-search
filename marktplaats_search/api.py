@@ -3,6 +3,7 @@ import os
 import sys
 import uuid
 from datetime import UTC, date, datetime
+from typing import Any
 
 from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi import Query as FastAPIQuery
@@ -48,7 +49,9 @@ class SearchQueryBase(BaseModel):
     sort_order: str | None = Field(None, description="Sorting order ('asc', 'desc').")
 
     @validator("price_to")
-    def price_to_must_be_greater_than_price_from(cls, v, values, **kwargs):
+    def price_to_must_be_greater_than_price_from(
+        cls, v: int | None, values: dict[str, Any], **kwargs: Any
+    ) -> int | None:
         if (
             v is not None
             and "price_from" in values
@@ -81,7 +84,9 @@ class SearchUpdateRequest(BaseModel):
     status: SearchStatus | None = None
 
     @validator("price_to")
-    def _price_to_must_be_greater_than_price_from(cls, v, values, **kwargs):
+    def _price_to_must_be_greater_than_price_from(
+        cls, v: int | None, values: dict[str, Any], **kwargs: Any
+    ) -> int | None:
         if v is not None and values.get("price_from") is not None and v < values["price_from"]:
             raise ValueError("price_to must be greater than or equal to price_from")
         return v
@@ -136,15 +141,15 @@ class EnhancedListingResponse(BaseModel):
 
     # Category and attributes
     category_id: int | None = None
-    attributes: list[dict] | None = None
-    extended_attributes: list[dict] | None = None
+    attributes: list[dict[str, Any]] | None = None
+    extended_attributes: list[dict[str, Any]] | None = None
 
     # Image fields
     image_extra_small: HttpUrl | None = None
     image_medium: HttpUrl | None = None
     image_large: HttpUrl | None = None
     image_extra_large: HttpUrl | None = None
-    images: list[dict] | None = None
+    images: list[dict[str, Any]] | None = None
 
     # Legacy compatibility fields
     condition: str | None = None
@@ -347,7 +352,7 @@ app.add_middleware(
 
 
 @app.get("/")
-async def read_root():
+async def read_root() -> FileResponse | dict[str, str]:
     """Root endpoint that serves the main HTML interface."""
     frontend_file = os.path.join(
         os.path.dirname(__file__), "..", "frontend", "public", "index.html"
@@ -364,7 +369,7 @@ async def read_root():
 
 
 @app.get("/app.js")
-async def serve_app_js():
+async def serve_app_js() -> FileResponse:
     """Serve the main application JavaScript file."""
     js_file = os.path.join(os.path.dirname(__file__), "..", "frontend", "dist", "app.js")
     if os.path.exists(js_file):
@@ -374,7 +379,7 @@ async def serve_app_js():
 
 
 @app.get("/styles.css")
-async def serve_styles():
+async def serve_styles() -> FileResponse:
     """Serve the main application CSS file."""
     css_file = os.path.join(os.path.dirname(__file__), "..", "frontend", "dist", "styles.css")
     if os.path.exists(css_file):
@@ -384,7 +389,7 @@ async def serve_styles():
 
 
 @app.get("/enhanced_features.js")
-async def serve_enhanced_features():
+async def serve_enhanced_features() -> FileResponse:
     """Legacy endpoint - redirect to new app.js."""
     js_file = os.path.join(os.path.dirname(__file__), "..", "frontend", "dist", "app.js")
     if os.path.exists(js_file):
@@ -399,7 +404,7 @@ async def serve_enhanced_features():
 
 
 @app.get("/health", response_model=HealthCheckResponse)
-async def health_check(db: AsyncSession = Depends(get_db)):
+async def health_check(db: AsyncSession = Depends(get_db)) -> HealthCheckResponse:
     """
     Health check endpoint with comprehensive system status.
     """
@@ -485,7 +490,9 @@ class UserInfoResponse(BaseModel):
 @app.post(
     "/api/auth/register", response_model=UserCreateResponse, status_code=status.HTTP_201_CREATED
 )
-async def register_user(user_request: UserCreateRequest, db: AsyncSession = Depends(get_db)):
+async def register_user(
+    user_request: UserCreateRequest, db: AsyncSession = Depends(get_db)
+) -> UserCreateResponse:
     """Register a new user and generate a secure API token."""
     from .auth import generate_secure_token, generate_user_identifier, hash_token
 
@@ -528,7 +535,7 @@ async def register_user(user_request: UserCreateRequest, db: AsyncSession = Depe
 @app.get("/api/auth/me", response_model=UserInfoResponse)
 async def get_current_user_info(
     current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)
-):
+) -> UserInfoResponse:
     """Get information about the currently authenticated user."""
     await db.refresh(current_user)
 
@@ -554,7 +561,7 @@ async def get_current_user_info(
 @app.post("/api/auth/rotate-token", response_model=UserCreateResponse)
 async def rotate_api_token(
     current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)
-):
+) -> UserCreateResponse:
     """Generate a new API token for the current user."""
     from .auth import generate_secure_token, hash_token
 
@@ -578,7 +585,7 @@ async def rotate_api_token(
 @app.delete("/api/auth/deactivate", status_code=status.HTTP_204_NO_CONTENT)
 async def deactivate_account(
     current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)
-):
+) -> None:
     """Deactivate the current user's account."""
     current_user.is_active = False
     await db.commit()
@@ -593,7 +600,7 @@ async def create_search_endpoint(
     search_data: SearchCreateRequest,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
-):
+) -> Search:
     """
     Creates a new search and schedules it for periodic execution.
     """
@@ -624,7 +631,7 @@ async def create_search_endpoint(
 @app.get("/api/searches", response_model=list[SearchResponse])
 async def get_user_searches_endpoint(
     current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)
-):
+) -> list[Search]:
     """
     Retrieves all searches for the authenticated user.
     """
@@ -633,7 +640,7 @@ async def get_user_searches_endpoint(
         select(Search).where(Search.user_id == user_id).order_by(Search.created_at.desc())
     )
     searches = result.scalars().all()
-    return searches
+    return list(searches)
 
 
 @app.get("/api/searches/{search_id}", response_model=SearchResponse)
@@ -641,7 +648,7 @@ async def get_search_endpoint(
     search_id: uuid.UUID,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
-):
+) -> Search:
     """
     Retrieves details for a specific search.
     """
@@ -655,7 +662,7 @@ async def update_search_endpoint(
     search_updates: SearchUpdateRequest,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
-):
+) -> Search:
     """
     Updates an existing search. Changes to interval or status affect scheduling.
     """
@@ -680,7 +687,7 @@ async def pause_search_endpoint(
     search_id: uuid.UUID,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
-):
+) -> Search:
     """
     Pauses a search by setting its status to INACTIVE.
     """
@@ -704,7 +711,7 @@ async def delete_search_endpoint(
     search_id: uuid.UUID,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
-):
+) -> None:
     """
     Permanently deletes a search and all its associated listings.
     """
@@ -740,7 +747,7 @@ async def get_search_results_endpoint(
     ),
     min_price: float | None = FastAPIQuery(None, ge=0, description="Minimum price filter"),
     max_price: float | None = FastAPIQuery(None, ge=0, description="Maximum price filter"),
-):
+) -> list[Listing]:
     """
     Retrieves listings found for a specific search, with enhanced filtering and pagination.
     """
@@ -784,7 +791,7 @@ async def get_listing_details_endpoint(
     mark_as_read: bool = FastAPIQuery(
         True, description="Mark the listing as read (is_new=False) if it was new."
     ),
-):
+) -> Listing:
     """
     Retrieves enhanced details for a specific listing.
     """
@@ -816,7 +823,7 @@ async def get_cross_search_analysis_endpoint(
     min_searches: int = FastAPIQuery(
         2, ge=2, description="Minimum number of searches a listing must appear in"
     ),
-):
+) -> list[CrossSearchAnalysisResponse]:
     """
     Enhanced cross-search analysis with marktplaats library data.
     """
@@ -881,7 +888,7 @@ async def get_cross_search_analysis_endpoint(
 @app.get("/api/listings/stats", response_model=ListingStatsResponse)
 async def get_listing_stats_endpoint(
     current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)
-):
+) -> ListingStatsResponse:
     """
     Get comprehensive listing statistics for the user.
     """
@@ -897,7 +904,7 @@ async def get_listing_stats_endpoint(
 @app.get("/api/listings/new-summary", response_model=NewListingsSummaryResponse)
 async def get_new_listings_summary_endpoint(
     current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)
-):
+) -> NewListingsSummaryResponse:
     """
     Get summary of new listings per search.
     """
@@ -915,7 +922,7 @@ async def mark_search_listings_read_endpoint(
     search_id: uuid.UUID,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
-):
+) -> MarkAsReadResponse:
     """
     Mark all new listings for a specific search as read.
     """
@@ -929,7 +936,7 @@ async def mark_search_listings_read_endpoint(
 @app.post("/api/listings/mark-all-read", response_model=MarkAsReadResponse)
 async def mark_all_listings_read_endpoint(
     current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)
-):
+) -> MarkAsReadResponse:
     """
     Mark all new listings for all user's searches as read.
     """
@@ -949,7 +956,7 @@ async def get_search_listings_legacy_endpoint(
     skip: int = FastAPIQuery(0, ge=0),
     limit: int = FastAPIQuery(20, ge=1, le=100),
     show_new_only: bool = FastAPIQuery(False),
-):
+) -> list[ListingResponse]:
     """
     Legacy endpoint for backward compatibility.
     """
@@ -1002,7 +1009,7 @@ async def get_search_listings_legacy_endpoint(
 async def refresh_all_searches_endpoint(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
-):
+) -> dict[str, str | int]:
     """
     Refresh all searches by deleting their results and restarting them.
     This preserves the search configurations but clears accumulated results.
@@ -1061,7 +1068,7 @@ async def cleanup_old_listings_endpoint(
     dry_run: bool = FastAPIQuery(
         True, description="If true, only count what would be deleted without deleting"
     ),
-):
+) -> CleanupResponse:
     """
     Clean up old listings to manage database size.
     By default runs in dry-run mode to show what would be deleted.
@@ -1090,7 +1097,7 @@ async def cleanup_old_listings_endpoint(
 async def optimize_listing_queries_endpoint(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
-):
+) -> dict[str, str | dict[str, Any]]:
     """
     Optimize database queries by creating missing indexes.
     This improves performance for listing operations.
