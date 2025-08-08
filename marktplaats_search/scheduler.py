@@ -7,9 +7,10 @@ from apscheduler.triggers.interval import IntervalTrigger
 from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload
 
-from .client import ListingItem, fetch_listings
 from .database import AsyncSessionLocal  # Use the session factory directly for background tasks
 from .models import Listing, Search, SearchStatus
+from .providers.base import SearchContext
+from .providers.manager import ListingProviderManager
 
 logger = logging.getLogger(__name__)
 scheduler = AsyncIOScheduler(
@@ -17,6 +18,9 @@ scheduler = AsyncIOScheduler(
     executors={"default": {"type": "asyncio"}},
     job_defaults={"coalesce": True, "max_instances": 1, "misfire_grace_time": 30},
 )
+
+# Global provider manager instance
+provider_manager = ListingProviderManager()
 
 
 async def run_single_search(search_id: uuid.UUID) -> None:
@@ -47,7 +51,8 @@ async def run_single_search(search_id: uuid.UUID) -> None:
                 # Job should be removed/paused by API logic that changes status
                 return
 
-            new_listings_data: list[ListingItem] = await fetch_listings(
+            # Create search context for provider manager
+            search_context = SearchContext(
                 query=search_instance.query,
                 zip_code=search_instance.zip_code,
                 distance=search_instance.distance,
@@ -56,7 +61,50 @@ async def run_single_search(search_id: uuid.UUID) -> None:
                 limit=search_instance.limit,
                 sort_by=search_instance.sort_by,
                 sort_order=search_instance.sort_order,
+                search_id=str(search_instance.id),
             )
+
+            # Use provider manager to fetch listings
+            provider_result = await provider_manager.search(
+                context=search_context,
+                preferred_provider=search_instance.preferred_provider,
+            )
+
+            if not provider_result.success:
+                raise Exception(f"Provider search failed: {provider_result.error_message}")
+
+            new_listings_data = provider_result.listings
+
+            # Update search with successful provider information
+            search_instance.last_successful_provider = provider_result.provider_type.value
+
+            # Update provider metrics for this search
+            if search_instance.provider_metrics is None:
+                search_instance.provider_metrics = {}
+
+            provider_name = provider_result.provider_type.value
+            if provider_name not in search_instance.provider_metrics:
+                search_instance.provider_metrics[provider_name] = {
+                    "total_requests": 0,
+                    "successful_requests": 0,
+                    "total_listings": 0,
+                    "avg_response_time": 0.0,
+                }
+
+            metrics = search_instance.provider_metrics[provider_name]
+            metrics["total_requests"] += 1
+            metrics["successful_requests"] += 1
+            metrics["total_listings"] += len(new_listings_data)
+
+            # Update average response time
+            response_time = provider_result.execution_time_ms or 0
+            if metrics["total_requests"] == 1:
+                metrics["avg_response_time"] = response_time
+            else:
+                alpha = 0.1
+                metrics["avg_response_time"] = (
+                    alpha * response_time + (1 - alpha) * metrics["avg_response_time"]
+                )
 
             added_count = 0
 
@@ -99,6 +147,11 @@ async def run_single_search(search_id: uuid.UUID) -> None:
                             views=listing_data.views,
                             condition=listing_data.condition,
                             date_posted=listing_data.date_posted,
+                            # Provider tracking information
+                            provider_name=provider_result.provider_type.value,
+                            provider_type=provider_result.provider_type.value,
+                            provider_response_time=provider_result.execution_time_ms,
+                            provider_metadata=provider_result.source_metadata,
                         )
                         new_listings_to_add.append(new_db_listing)
                         added_count += 1
@@ -132,6 +185,26 @@ async def run_single_search(search_id: uuid.UUID) -> None:
                 if error_search_instance:
                     error_search_instance.last_run_at = datetime.now(UTC)
                     error_search_instance.last_error = str(e)
+
+                    # Update provider metrics with failed attempt if we got a provider result
+                    if "provider_result" in locals() and provider_result is not None:
+                        if error_search_instance.provider_metrics is None:
+                            error_search_instance.provider_metrics = {}
+
+                        provider_name = provider_result.provider_type.value
+                        if provider_name not in error_search_instance.provider_metrics:
+                            error_search_instance.provider_metrics[provider_name] = {
+                                "total_requests": 0,
+                                "successful_requests": 0,
+                                "failed_requests": 0,
+                                "total_listings": 0,
+                                "avg_response_time": 0.0,
+                            }
+
+                        metrics = error_search_instance.provider_metrics[provider_name]
+                        metrics["total_requests"] += 1
+                        metrics["failed_requests"] += 1
+
                     # Optionally change status to ERROR, or just log and retry next interval
                     # error_search_instance.status = SearchStatus.ERROR
                     await error_db.commit()
@@ -208,3 +281,18 @@ async def shutdown_scheduler() -> None:
     if scheduler.running:
         scheduler.shutdown(wait=True)  # Wait for jobs to complete
         logger.info("SCHEDULER: Shutdown.")
+
+
+def get_provider_manager() -> ListingProviderManager:
+    """Get the global provider manager instance."""
+    return provider_manager
+
+
+def get_provider_health() -> dict:
+    """Get health status of all providers."""
+    return provider_manager.health_check()
+
+
+def get_provider_metrics() -> dict:
+    """Get comprehensive metrics for all providers."""
+    return provider_manager.get_manager_metrics()

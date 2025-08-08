@@ -464,7 +464,7 @@ class MarktplaatsScraper:
             return None
 
 
-async def fetch_listings(
+async def fetch_listings_legacy(
     query: str,
     zip_code: str | None = None,
     distance: int | None = None,
@@ -545,3 +545,82 @@ async def fetch_listings(
     except Exception as e:
         logger.error(f"Unexpected error while fetching listings: {e}")
         raise MarktplaatsScrapingError(f"Scraping failed: {e}") from e
+
+
+# Import and use the new provider system
+async def fetch_listings(
+    query: str,
+    zip_code: str | None = None,
+    distance: int | None = None,
+    price_from: int | None = None,
+    price_to: int | None = None,
+    limit: int = 10,
+    sort_by: str | None = None,
+    sort_order: str | None = None,
+) -> list[ListingItem]:
+    """
+    Fetch listings using the provider abstraction system with fallback support.
+
+    This function maintains backward compatibility while providing enterprise-grade
+    reliability through the provider manager system.
+
+    Args:
+        query: Search query string
+        zip_code: Dutch postal code (e.g., "1012AB")
+        distance: Search radius in kilometers
+        price_from: Minimum price in euros
+        price_to: Maximum price in euros
+        limit: Maximum number of listings to return
+        sort_by: Sort criteria ("price", "date", "relevance")
+        sort_order: Sort order ("asc", "desc")
+
+    Returns:
+        List of ListingItem objects
+
+    Raises:
+        Exception: If all providers fail
+    """
+    try:
+        # Use the provider system
+        from .provider_client import fetch_listings_with_providers
+
+        return await fetch_listings_with_providers(
+            query=query,
+            zip_code=zip_code,
+            distance=distance,
+            price_from=price_from,
+            price_to=price_to,
+            limit=limit,
+            sort_by=sort_by,
+            sort_order=sort_order,
+        )
+    except ImportError:
+        # Fallback to legacy implementation if provider system not available
+        logger.warning("Provider system not available, using legacy scraper")
+        return await fetch_listings_legacy(
+            query=query,
+            zip_code=zip_code,
+            distance=distance,
+            price_from=price_from,
+            price_to=price_to,
+            limit=limit,
+            sort_by=sort_by,
+            sort_order=sort_order,
+        )
+    except Exception as e:
+        # If provider system fails, try legacy as fallback
+        logger.warning(f"Provider system failed ({e}), attempting legacy fallback")
+        try:
+            return await fetch_listings_legacy(
+                query=query,
+                zip_code=zip_code,
+                distance=distance,
+                price_from=price_from,
+                price_to=price_to,
+                limit=limit,
+                sort_by=sort_by,
+                sort_order=sort_order,
+            )
+        except Exception as fallback_error:
+            logger.error(f"Both provider system and legacy fallback failed: {fallback_error}")
+            raise Exception(f"All listing retrieval methods failed: {e}") from fallback_error

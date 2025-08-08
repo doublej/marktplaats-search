@@ -80,6 +80,12 @@ class Search(Base):
     last_run_at = Column(DateTime(timezone=True), nullable=True)
     last_error = Column(Text, nullable=True)
 
+    # Provider configuration and tracking
+    preferred_provider = Column(String, nullable=True)  # Preferred provider name for this search
+    provider_config = Column(JSON, nullable=True)  # Search-specific provider configuration
+    last_successful_provider = Column(String, nullable=True)  # Track which provider last succeeded
+    provider_metrics = Column(JSON, nullable=True)  # Store provider usage metrics per search
+
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     owner = relationship("User", back_populates="searches")
 
@@ -146,6 +152,14 @@ class Listing(Base):
     raw_data = Column(JSON, nullable=True)  # Store full raw data from source if needed
     raw_html = Column(Text, nullable=True)  # Store original HTML from Marktplaats
     is_new = Column(Boolean, default=True, nullable=False, index=True)
+
+    # Provider tracking
+    provider_name = Column(String, nullable=True, index=True)  # Which provider found this listing
+    provider_type = Column(String, nullable=True, index=True)  # Type of provider used
+    provider_response_time = Column(
+        Float, nullable=True
+    )  # Response time when this listing was found
+    provider_metadata = Column(JSON, nullable=True)  # Provider-specific metadata
 
     discovered_at = Column(DateTime(timezone=True), server_default=func.now(), index=True)
 
