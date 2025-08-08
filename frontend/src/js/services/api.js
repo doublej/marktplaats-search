@@ -5,9 +5,18 @@
 class ApiService {
     constructor() {
         this.baseUrl = CONFIG.API_BASE_URL;
-        this.token = localStorage.getItem(CONFIG.STORAGE_KEYS.API_TOKEN) ||
-                    (CONFIG.FEATURE_FLAGS.FALLBACK_TO_COOKIE ? this.getCookie(CONFIG.COOKIE_KEYS.API_TOKEN) : '') ||
-                    '';
+        // Initialize with localStorage first, cookie fallback will be handled later
+        this.token = localStorage.getItem(CONFIG.STORAGE_KEYS.API_TOKEN) || '';
+        
+        // If no localStorage token and cookie fallback is enabled, check cookies
+        if (!this.token && CONFIG.FEATURE_FLAGS.FALLBACK_TO_COOKIE) {
+            const cookieToken = this.getCookie(CONFIG.COOKIE_KEYS.API_TOKEN);
+            if (cookieToken) {
+                this.token = cookieToken;
+                // Sync back to localStorage
+                localStorage.setItem(CONFIG.STORAGE_KEYS.API_TOKEN, cookieToken);
+            }
+        }
     }
 
     getCookie(name) {
