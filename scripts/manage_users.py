@@ -17,6 +17,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from marktplaats_search.auth import generate_secure_token, generate_user_identifier, hash_token
 from marktplaats_search.database import AsyncSessionLocal
+from marktplaats_search.database_utils import with_db_session
 from marktplaats_search.models import User
 
 
@@ -50,29 +51,29 @@ async def create_user(username: str | None = None) -> tuple[str, str]:
         return username, token
 
 
-async def list_users():
+@with_db_session
+async def list_users(db):
     """List all users in the system."""
-    async with AsyncSessionLocal() as db:
-        result = await db.execute(select(User).order_by(User.created_at.desc()))
-        users = result.scalars().all()
+    result = await db.execute(select(User).order_by(User.created_at.desc()))
+    users = result.scalars().all()
 
-        if not users:
-            print("No users found.")
-            return
+    if not users:
+        print("No users found.")
+        return
 
-        print(f"\n{'ID':<5} {'Username':<20} {'Active':<8} {'Created':<20} {'Last Activity':<20}")
-        print("-" * 80)
+    print(f"\n{'ID':<5} {'Username':<20} {'Active':<8} {'Created':<20} {'Last Activity':<20}")
+    print("-" * 80)
 
-        for user in users:
-            created = user.created_at.strftime("%Y-%m-%d %H:%M:%S") if user.created_at else "N/A"
-            last_activity = (
-                user.last_activity.strftime("%Y-%m-%d %H:%M:%S") if user.last_activity else "Never"
-            )
-            active = "Yes" if user.is_active else "No"
+    for user in users:
+        created = user.created_at.strftime("%Y-%m-%d %H:%M:%S") if user.created_at else "N/A"
+        last_activity = (
+            user.last_activity.strftime("%Y-%m-%d %H:%M:%S") if user.last_activity else "Never"
+        )
+        active = "Yes" if user.is_active else "No"
 
-            print(
-                f"{user.id:<5} {user.user_identifier:<20} {active:<8} {created:<20} {last_activity:<20}"
-            )
+        print(
+            f"{user.id:<5} {user.user_identifier:<20} {active:<8} {created:<20} {last_activity:<20}"
+        )
 
 
 async def activate_user(username: str, activate: bool = True):

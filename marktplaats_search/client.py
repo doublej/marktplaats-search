@@ -10,6 +10,9 @@ from bs4 import BeautifulSoup
 from fake_useragent import UserAgent
 from pydantic import BaseModel, HttpUrl, ValidationError
 
+from .price_utils import clean_and_parse_price
+from .text_utils import clean_description, clean_text
+
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -121,98 +124,16 @@ class MarktplaatsScraper:
         return None
 
     def _clean_price(self, price_text: str) -> tuple[str, int | None]:
-        """Clean and normalize price text, returning both display text and numeric value."""
-        if not price_text:
-            return "Price on request", None
-
-        # Remove extra whitespace and normalize
-        price = re.sub(r"\s+", " ", price_text.strip())
-
-        # Handle various price formats
-        if "vraagprijs" in price.lower() or "v.o.n" in price.lower():
-            return "Price on request", None
-        elif "gratis" in price.lower():
-            return "€ 0", 0
-
-        # Extract numeric value for sorting/filtering
-        numeric_match = re.search(r"[\d.,]+", price.replace(",", "."))
-        numeric_value = None
-        if numeric_match:
-            try:
-                # Convert to cents for precise integer storage
-                numeric_value = int(float(numeric_match.group().replace(",", ".")) * 100)
-            except ValueError:
-                numeric_value = None
-
-        # Format display text
-        if "€" not in price and price.replace(".", "").replace(",", "").isdigit():
-            # Add euro sign if missing
-            return f"€ {price}", numeric_value
-
-        return price, numeric_value
+        """Clean and normalize price text using shared price utilities."""
+        return clean_and_parse_price(price_text)
 
     def _clean_text(self, text: str | None) -> str | None:
-        """Clean and normalize text content."""
-        if not text:
-            return None
-        return re.sub(r"\s+", " ", text.strip())
+        """Clean and normalize text content using shared utilities."""
+        return clean_text(text)
 
     def _clean_description(self, text: str | None) -> str | None:
-        """Clean and normalize description text, removing price and metadata pollution."""
-        if not text:
-            return None
-
-        # Start with basic text cleaning
-        cleaned = self._clean_text(text)
-        if not cleaned:
-            return None
-
-        # Remove price patterns that commonly appear in descriptions
-        cleaned = re.sub(r"€\s*[\d.,]+(?:\s*,\d+)?\s*", "", cleaned)  # Remove Euro prices
-        cleaned = re.sub(r"\$\s*[\d.,]+\s*", "", cleaned)  # Remove Dollar prices
-        cleaned = re.sub(r"[\d,]+\s*€\s*", "", cleaned)  # Remove reversed Euro format
-
-        # Remove metadata patterns more aggressively
-        cleaned = re.sub(r"\s*details\s*", "", cleaned, flags=re.I)  # Remove "details" text
-        cleaned = re.sub(r"🇳🇱\s*", "", cleaned)  # Remove Netherlands flag emoji
-
-        # Remove condition and shipping info - more comprehensive patterns
-        cleaned = re.sub(
-            r"\s*(Gebruikt|Nieuw|Zo goed als nieuw|Used|New|Like new)\s*", "", cleaned, flags=re.I
-        )
-        cleaned = re.sub(
-            r"\s*(Ophalen|Verzenden|Ophalen of Verzenden|Pickup|Shipping)\s*",
-            "",
-            cleaned,
-            flags=re.I,
-        )
-
-        # Remove title repetition - often the description starts with title + price
-        # Split on common patterns and take meaningful content
-        parts = re.split(r"€[\d.,]+(?:,\d+)?details", cleaned, maxsplit=1, flags=re.I)
-        if len(parts) > 1:
-            cleaned = parts[1].strip()
-
-        # Remove standalone price mentions that remain
-        cleaned = re.sub(r"€[\d.,]+(?:,\d+)?", "", cleaned)
-
-        # Remove common trailing elements
-        cleaned = re.sub(r"\s*(Alle|All)\s*$", "", cleaned, flags=re.I)
-        cleaned = re.sub(r"\s*\|\s*$", "", cleaned)  # Remove trailing pipe
-
-        # Clean up punctuation
-        cleaned = re.sub(r"!+", "!", cleaned)  # Multiple ! to single !
-        cleaned = re.sub(r"\s*!\s*$", "", cleaned)  # Remove trailing !
-        cleaned = re.sub(r",\s*$", "", cleaned)  # Remove trailing comma
-
-        # Clean up whitespace
-        cleaned = re.sub(r"\s+", " ", cleaned).strip()
-
-        # Return None if cleaned text is too short or mostly punctuation
-        if len(cleaned) < 10 or len(re.sub(r"[^a-zA-Z0-9\s]", "", cleaned)) < 5:
-            return None
-
-        return cleaned
+        """Clean and normalize description text using shared utilities."""
+        return clean_description(text)
 
     def _parse_listings(self, html: str) -> list[ListingItem]:
         """Parse listings from HTML content."""

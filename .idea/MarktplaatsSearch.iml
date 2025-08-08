@@ -8,7 +8,7 @@
       <excludePattern pattern=".python-version" />
       <excludePattern pattern=".venv" />
     </content>
-    <orderEntry type="jdk" jdkName="Python 3.12 virtualenv at ~/Documents/projects/_python/to_organize/MarktplaatsSearch/.venv" jdkType="Python SDK" />
+    <orderEntry type="jdk" jdkName="Python 3.11 virtualenv at ~/Documents/development/python/MarktplaatsSearch/.venv" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
 </module>

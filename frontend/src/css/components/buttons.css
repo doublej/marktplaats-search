@@ -1,0 +1,72 @@
+/* Button Styles */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    border: none;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+}
+
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+    background-color: var(--primary-hover);
+}
+
+.btn-secondary {
+    background-color: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+}
+
+.btn-secondary:hover:not(:disabled) {
+    background-color: var(--surface-elevated);
+    border-color: var(--border-hover);
+}
+
+.btn-danger {
+    background-color: var(--error-color);
+    color: white;
+}
+
+.btn-danger:hover:not(:disabled) {
+    background-color: #b91c1c;
+}
+
+.btn-success {
+    background-color: #10b981;
+    color: white;
+}
+
+.btn-success:hover:not(:disabled) {
+    background-color: #059669;
+}
+
+.btn-warning {
+    background-color: #f59e0b;
+    color: white;
+}
+
+.btn-warning:hover:not(:disabled) {
+    background-color: #d97706;
+}
+
+.btn-sm {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8125rem;
+}

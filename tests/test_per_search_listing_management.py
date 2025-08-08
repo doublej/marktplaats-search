@@ -16,8 +16,6 @@ from sqlalchemy import text
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from marktplaats_search.auth import generate_secure_token, hash_token
-from marktplaats_search.database import AsyncSessionLocal, Base, engine
 from marktplaats_search.listing_management import (
     cleanup_old_listings,
     get_cross_search_duplicates,
@@ -30,35 +28,21 @@ from marktplaats_search.models import Listing, Search, SearchStatus, User
 
 
 @pytest.fixture
-async def db_session():
-    """Create a test database session."""
-    # Create all tables
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
-
-    # Create session
-    async with AsyncSessionLocal() as session:
-        yield session
-
-    # Clean up after test
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.drop_all)
-
-
-@pytest.fixture
-async def test_user(db_session: AsyncSession):
-    """Create a test user."""
-    token = generate_secure_token()
-    user = User(
-        user_identifier="test_user",
-        api_token_hash=hash_token(token),
-        is_active=True,
-        token_created_at=datetime.now(UTC),
+async def test_user_with_searches(test_user, db_helper):
+    """Create test searches for the user using shared helpers."""
+    # Create multiple searches using the helper
+    search1 = await db_helper.create_search_for_user(
+        test_user["user_id"], query="laptop", interval=300
     )
-    db_session.add(user)
-    await db_session.commit()
-    await db_session.refresh(user)
-    return user
+    search2 = await db_helper.create_search_for_user(
+        test_user["user_id"], query="macbook", interval=600
+    )
+
+    return {
+        "user": test_user["user"],
+        "searches": [search1, search2],
+        "token": test_user["token"],
+    }
 
 
 @pytest.fixture

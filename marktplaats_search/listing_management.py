@@ -52,7 +52,7 @@ async def get_cross_search_duplicates(
         List of dictionaries with duplicate information
     """
     query = text("""
-        SELECT 
+        SELECT
             l.url,
             l.title,
             l.price,
@@ -184,8 +184,8 @@ async def mark_search_listings_as_read(db: AsyncSession, search_id: uuid.UUID, u
     # Update listings
     update_result = await db.execute(
         text("""
-            UPDATE listings 
-            SET is_new = 0 
+            UPDATE listings
+            SET is_new = 0
             WHERE search_id = :search_id AND is_new = 1
         """),
         {"search_id": str(search_id)},
@@ -208,8 +208,8 @@ async def mark_all_user_listings_as_read(db: AsyncSession, user_id: int) -> int:
     """
     update_result = await db.execute(
         text("""
-            UPDATE listings 
-            SET is_new = 0 
+            UPDATE listings
+            SET is_new = 0
             WHERE is_new = 1 AND search_id IN (
                 SELECT id FROM searches WHERE user_id = :user_id
             )

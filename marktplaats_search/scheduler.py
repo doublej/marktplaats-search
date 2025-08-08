@@ -73,11 +73,18 @@ async def run_single_search(search_id: uuid.UUID):
                     )
                     if existing_listing.scalars().first() is None:
                         # Listing doesn't exist for this search, create new one
+                        # Convert price_numeric from cents to euros for Float field
+                        price_float = (
+                            listing_data.price_numeric / 100.0
+                            if listing_data.price_numeric is not None
+                            else None
+                        )
+
                         new_db_listing = Listing(
                             search_id=search_instance.id,
                             source_listing_id=listing_data.source_listing_id,
                             title=listing_data.title,
-                            price=listing_data.price,
+                            price=price_float,
                             price_numeric=listing_data.price_numeric,
                             url=str(listing_data.url),
                             description_snippet=listing_data.description_snippet,

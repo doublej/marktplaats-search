@@ -101,7 +101,7 @@ def run_server():
     # For simplicity, we'll assume api.py imports 'lifespan' from 'main'
     # and uses it when creating its FastAPI instance.
     uvicorn.run(
-        "marktplaats_search.api:app",  # Points to the app instance in the package
+        "marktplaats_search.api:app",  # Points to the unified app instance
         host=settings.api_host,
         port=settings.api_port,
         log_level=settings.log_level.lower(),

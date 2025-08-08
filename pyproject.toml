@@ -25,6 +25,7 @@ dependencies = [
     "apscheduler>=3.10.0",
     "passlib[bcrypt]>=1.7.0",
     "python-jose[cryptography]>=3.3.0",
+    "marktplaats>=0.3.1",
 ]
 
 [project.optional-dependencies]
@@ -84,3 +85,8 @@ python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
 addopts = []
+
+[dependency-groups]
+dev = [
+    "pytest>=8.4.1",
+]

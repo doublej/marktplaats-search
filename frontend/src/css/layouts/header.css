@@ -1,0 +1,58 @@
+/* Header Layout */
+.header {
+    background-color: var(--surface-elevated);
+    border-bottom: 1px solid var(--border);
+    padding: 1rem 0;
+    box-shadow: var(--shadow);
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.theme-toggle {
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 0.5rem;
+    padding: 0.5rem;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.theme-toggle:hover {
+    border-color: var(--border-hover);
+    background-color: var(--surface);
+}
+
+.auth-status {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+}
+
+.status-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: var(--error-color);
+}
+
+.status-indicator.authenticated {
+    background-color: var(--success-color);
+}

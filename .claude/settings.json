@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "echo 'Running pre-change quality checks...' && ruff format . && ruff check . --fix"
+            "command": "echo 'Running pre-change quality checks...' && ruff format . >/dev/null && (LC_ALL=C LANG=C ruff check . --fix | tr -cd '\t\n\r\040-\176' | head -n 200 || true)"
           }
         ]
       },
@@ -26,7 +26,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "echo 'Code modified, running post-change checks...' && mypy . --ignore-missing-imports || echo 'Type checking issues found'"
+            "command": "echo 'Code modified, running post-change checks...' && (LC_ALL=C LANG=C mypy . --ignore-missing-imports | tr -cd '\t\n\r\040-\176' | head -n 200 || echo 'Type checking issues found')"
           }
         ]
       }

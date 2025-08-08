@@ -124,7 +124,7 @@ def update_models_file():
     print("Add these lines to the ListingItem class:")
     print("""
     location: str | None = None
-    seller: str | None = None  
+    seller: str | None = None
     views: int | None = None
     condition: str | None = None
     date_posted: datetime | None = None
@@ -135,7 +135,7 @@ def update_models_file():
     print("""
     location: str | None = None
     seller: str | None = None
-    views: int | None = None 
+    views: int | None = None
     condition: str | None = None
     date_posted: datetime | None = None
 """)
@@ -148,13 +148,13 @@ def update_models_file():
     location_elem = container.find(class_=re.compile(r"location|city", re.I))
     if location_elem:
         location = self._clean_text(location_elem.get_text())
-    
-    # Extract seller info  
+
+    # Extract seller info
     seller = None
     seller_elem = container.find(class_=re.compile(r"seller|username", re.I))
     if seller_elem:
         seller = self._clean_text(seller_elem.get_text())
-        
+
     # Extract views
     views = None
     views_elem = container.find(string=re.compile(r"\\d+.*views?", re.I))
@@ -162,13 +162,13 @@ def update_models_file():
         views_match = re.search(r"(\\d+)", views_elem)
         if views_match:
             views = int(views_match.group(1))
-            
+
     # Extract condition
     condition = None
     condition_elem = container.find(class_=re.compile(r"condition|state", re.I))
     if condition_elem:
         condition = self._clean_text(condition_elem.get_text())
-        
+
     # Extract post date
     date_posted = None
     date_elem = container.find(class_=re.compile(r"date|posted", re.I))
@@ -182,7 +182,7 @@ def update_models_file():
     print("Add these fields when creating new listings:")
     print("""
     location=listing_data.location,
-    seller=listing_data.seller, 
+    seller=listing_data.seller,
     views=listing_data.views,
     condition=listing_data.condition,
     date_posted=listing_data.date_posted,

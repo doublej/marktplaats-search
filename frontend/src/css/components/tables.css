@@ -1,0 +1,107 @@
+/* Table Styles */
+.table-container {
+    overflow-x: auto;
+    border-radius: 0.5rem;
+    border: 1px solid var(--border);
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: var(--surface-elevated);
+}
+
+.table th,
+.table td {
+    text-align: left;
+    padding: 0.75rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.table th {
+    background-color: var(--surface);
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.table tbody tr:hover {
+    background-color: var(--surface);
+}
+
+.table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* Loading states */
+.loading {
+    display: inline-block;
+    width: 1rem;
+    height: 1rem;
+    border: 2px solid transparent;
+    border-top: 2px solid currentColor;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255, 255, 255, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: inherit;
+}
+
+[data-theme="dark"] .loading-overlay {
+    background-color: rgba(0, 0, 0, 0.8);
+}
+
+/* Alerts */
+.alert {
+    padding: 1rem;
+    border-radius: 0.5rem;
+    margin-bottom: 1rem;
+    font-size: 0.875rem;
+}
+
+.alert-success {
+    background-color: rgba(16, 185, 129, 0.1);
+    color: var(--success-color);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.alert-error {
+    background-color: rgba(239, 68, 68, 0.1);
+    color: var(--error-color);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.alert-warning {
+    background-color: rgba(245, 158, 11, 0.1);
+    color: var(--warning-color);
+    border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+/* Pagination */
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1.5rem;
+}
+
+.pagination-info {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}

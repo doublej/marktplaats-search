@@ -1,0 +1,153 @@
+/* Main Layout Styles */
+.main {
+    padding: 2rem 0;
+    min-height: calc(100vh - 80px);
+}
+
+.section {
+    background-color: var(--surface-elevated);
+    border: 1px solid var(--border);
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: var(--shadow);
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.section-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+/* Main Layout Grid */
+.main-layout {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: 1.5rem;
+    min-height: calc(100vh - 200px);
+}
+
+/* Sidebar */
+.sidebar {
+    background: var(--surface-elevated);
+    border-radius: 8px;
+    padding: 1rem;
+    box-shadow: var(--shadow);
+    height: fit-content;
+    max-height: calc(100vh - 200px);
+    overflow-y: auto;
+}
+
+.sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.sidebar-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.sidebar-actions {
+    display: flex;
+    gap: 0.25rem;
+}
+
+/* Main content area with tabs */
+.main-content {
+    background: var(--surface-elevated);
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+}
+
+.tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+}
+
+.tab {
+    padding: 0.75rem 1.5rem;
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+}
+
+.tab:hover {
+    color: var(--text-primary);
+    background: var(--surface-elevated);
+}
+
+.tab.active {
+    color: var(--primary-color);
+    background: var(--surface-elevated);
+}
+
+.tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--primary-color);
+}
+
+.tab-content {
+    padding: 1.5rem;
+    min-height: 400px;
+}
+
+.tab-panel {
+    display: none;
+}
+
+.tab-panel.active {
+    display: block;
+}
+
+/* Empty state */
+.empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--text-secondary);
+}
+
+.empty-state-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+}
+
+/* Position utilities */
+.position-relative {
+    position: relative;
+}
+
+/* Authentication hiding */
+.auth-required {
+    display: none;
+}
+
+.authenticated .auth-required {
+    display: block;
+}

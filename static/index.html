@@ -1386,18 +1386,18 @@
                         ` : ''}
 
                         <div class="card-actions">
-                            <button class="btn btn-primary btn-sm" onclick="app.viewResults('${search.search_id}')">
+                            <button class="btn btn-primary btn-sm" onclick="app.viewResults('${search.id}')">
                                 View Results
                             </button>
-                            <button class="btn btn-primary btn-sm" onclick="app.editSearch('${search.search_id}')">
+                            <button class="btn btn-primary btn-sm" onclick="app.editSearch('${search.id}')">
                                 Edit
                             </button>
                             ${search.status === 'active' ? `
-                                <button class="btn btn-primary btn-sm" onclick="app.stopSearch('${search.search_id}')">
+                                <button class="btn btn-primary btn-sm" onclick="app.stopSearch('${search.id}')">
                                     Stop
                                 </button>
                             ` : ''}
-                            <button class="btn btn-danger btn-sm" onclick="app.deleteSearch('${search.search_id}')">
+                            <button class="btn btn-danger btn-sm" onclick="app.deleteSearch('${search.id}')">
                                 Delete
                             </button>
                         </div>
@@ -1407,10 +1407,11 @@
 
             renderSearchListItem(search, index) {
                 const statusClass = search.status.toLowerCase();
-                const isActive = this.selectedSearchId === search.search_id;
+                const searchId = search.id; // API returns 'id' field, not 'search_id'
+                const isActive = this.selectedSearchId === searchId;
 
                 return `
-                    <div class="search-item ${isActive ? 'active' : ''}" onclick="app.selectSearch('${search.search_id}')">
+                    <div class="search-item ${isActive ? 'active' : ''}" onclick="app.selectSearch('${searchId}')">
                         <div class="search-item-title">${this.escapeHtml(search.query)}</div>
                         <div class="search-meta">
                             <span>${search.zip_code || 'All locations'}</span>
@@ -1430,7 +1431,7 @@
                 document.querySelector(`[onclick="app.selectSearch('${searchId}')"]`)?.classList.add('active');
 
                 // Find search
-                const search = this.searches.find(s => s.search_id === searchId);
+                const search = this.searches.find(s => s.id === searchId);
                 if (search) {
                     // Load results in the results tab
                     this.loadResultsForSearch(searchId);
@@ -1456,6 +1457,14 @@
             }
 
             async loadResultsForSearch(searchId) {
+                // Validate searchId
+                if (!searchId) {
+                    console.warn('loadResultsForSearch called with undefined searchId');
+                    const container = document.getElementById('results-content');
+                    container.innerHTML = '<div class="empty-state">Please select a search to view results</div>';
+                    return;
+                }
+
                 const container = document.getElementById('results-content');
                 container.innerHTML = '<div class="loading">Loading results...</div>';
 
@@ -1810,11 +1819,11 @@
                                 Compare on MP
                             </a>
                             ${search.status === 'active' ? `
-                                <button class="btn btn-primary btn-sm" onclick="app.stopSearch('${search.search_id}')">Stop</button>
+                                <button class="btn btn-primary btn-sm" onclick="app.stopSearch('${search.id}')">Stop</button>
                             ` : `
-                                <button class="btn btn-primary btn-sm" onclick="app.activateSearch('${search.search_id}')">Activate</button>
+                                <button class="btn btn-primary btn-sm" onclick="app.activateSearch('${search.id}')">Activate</button>
                             `}
-                            <button class="btn btn-danger btn-sm" onclick="app.deleteSearch('${search.search_id}')">Delete</button>
+                            <button class="btn btn-danger btn-sm" onclick="app.deleteSearch('${search.id}')">Delete</button>
                         </div>
                     </div>
 
@@ -1843,7 +1852,7 @@
                         </div>
                     ` : ''}
 
-                    <form onsubmit="app.saveSearchDetails(event, '${search.search_id}')" style="background: var(--surface); padding: 1rem; border-radius: 6px;">
+                    <form onsubmit="app.saveSearchDetails(event, '${search.id}')" style="background: var(--surface); padding: 1rem; border-radius: 6px;">
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                             <div>
                                 <label style="display: block; font-size: 0.8rem; font-weight: 500; margin-bottom: 0.25rem;">Query</label>
@@ -1947,7 +1956,10 @@
 
             async loadResults() {
                 // This method is deprecated - use loadResultsForSearch instead
-                if (!this.currentSearchId) return;
+                if (!this.currentSearchId) {
+                    console.warn('loadResults called with undefined currentSearchId');
+                    return;
+                }
 
                 const loading = document.getElementById('results-loading');
                 const container = document.getElementById('results-container');
@@ -2222,27 +2234,27 @@
                     "Are you sure you want to refresh all searches?\n\n" +
                     "This action cannot be undone."
                 );
-                
+
                 if (!confirmed) {
                     return;
                 }
-                
+
                 const refreshBtn = document.getElementById('refresh-searches-btn');
                 const originalText = refreshBtn.innerHTML;
-                
+
                 try {
                     // Show loading state
                     refreshBtn.disabled = true;
                     refreshBtn.innerHTML = '<div class="loading" style="width: 12px; height: 12px;"></div>';
-                    
+
                     // Call the refresh endpoint
                     await this.apiRequest('/api/admin/refresh-searches', {
                         method: 'POST'
                     });
-                    
+
                     // Reload the searches list
                     await this.loadSearches();
-                    
+
                     // Clear any selected search
                     this.selectedSearchId = null;
                     document.getElementById('results-content').innerHTML = `
@@ -2251,9 +2263,9 @@
                             <p style="font-size: 0.85rem; color: var(--text-secondary);">Choose a search from the sidebar to see its results</p>
                         </div>
                     `;
-                    
+
                     alert('All searches have been refreshed successfully! Results will start appearing as the searches run.');
-                    
+
                 } catch (error) {
                     const errorMessage = error.message || error.toString() || 'Unknown error';
                     alert(`Failed to refresh searches: ${errorMessage}`);
@@ -2274,5 +2286,8 @@
         // Initialize the application
         const app = new MarktplaatsSearchApp();
     </script>
+
+    <!-- Enhanced Features for Marktplaats Library Integration -->
+    <script src="enhanced_features.js"></script>
 </body>
 </html>
