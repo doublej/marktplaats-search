@@ -4,6 +4,7 @@ This provider uses the marktplaats>=0.3.1 Python library to fetch listings
 through the official API, providing a more reliable data source.
 """
 
+import contextlib
 import logging
 from datetime import datetime
 from typing import Any
@@ -149,9 +150,7 @@ class MarktplaatsLibraryProvider(MarktplaatsProvider):
             # Test the library with a very quick search
             import asyncio
 
-            test_listings = await asyncio.get_event_loop().run_in_executor(
-                None, test_query.get_listings
-            )
+            await asyncio.get_event_loop().run_in_executor(None, test_query.get_listings)
 
             # If we get here without exception, the library is working
             self._last_health_check = datetime.now()
@@ -171,7 +170,7 @@ class MarktplaatsLibraryProvider(MarktplaatsProvider):
             Configured SearchQuery object
         """
         # Base parameters
-        query_params = {
+        query_params: dict[str, Any] = {
             "limit": min(context.limit or 25, 100),  # Library max is 100
         }
 
@@ -258,11 +257,11 @@ class MarktplaatsLibraryProvider(MarktplaatsProvider):
             price_obj = getattr(raw_listing, "price", None)
             price_str = "Price on request"
             price_numeric = None
-            price_type = None
 
             if price_obj:
                 if hasattr(price_obj, "price_type"):
-                    price_type = self._map_price_type(price_obj.price_type)
+                    # Price type mapping available but not used in current ListingItem
+                    pass
 
                 if hasattr(price_obj, "amount") and price_obj.amount is not None:
                     price_numeric = int(float(price_obj.amount) * 100)  # Convert to cents
@@ -281,57 +280,36 @@ class MarktplaatsLibraryProvider(MarktplaatsProvider):
             # Extract location information
             location_obj = getattr(raw_listing, "location", None)
             location_city = None
-            location_distance = None
-            location_latitude = None
-            location_longitude = None
 
             if location_obj:
                 location_city = getattr(location_obj, "city", None)
-                location_distance = getattr(location_obj, "distance", None)
-                location_latitude = getattr(location_obj, "latitude", None)
-                location_longitude = getattr(location_obj, "longitude", None)
+                # Additional location data available: distance, latitude, longitude
+                # but not used in current ListingItem structure
 
             # Extract seller information
             seller_obj = getattr(raw_listing, "seller", None)
-            seller_id = None
             seller_name = None
-            seller_is_verified = None
 
             if seller_obj:
-                seller_id = getattr(seller_obj, "id", None)
+                # Seller ID and verification status available but not used
                 seller_name = getattr(seller_obj, "name", None)
-                seller_is_verified = getattr(seller_obj, "is_verified", None)
 
             # Extract images
             image_url = None
-            images_data = None
-            image_extra_small = None
-            image_medium = None
-            image_large = None
-            image_extra_large = None
 
             if hasattr(raw_listing, "first_image") and raw_listing.first_image:
-                try:
+                with contextlib.suppress(ValidationError):
                     image_url = HttpUrl(raw_listing.first_image)
-                    image_medium = raw_listing.first_image
-                except ValidationError:
-                    pass
 
+            # Additional image sizes available but not used in current ListingItem
             if hasattr(raw_listing, "images") and raw_listing.images:
-                images_data = raw_listing.images
-                # Extract different image sizes if available
-                for img in raw_listing.images[:1]:  # Use first image
-                    if hasattr(img, "sizes"):
-                        sizes = img.sizes
-                        image_extra_small = sizes.get("XS")
-                        image_medium = sizes.get("M")
-                        image_large = sizes.get("L")
-                        image_extra_large = sizes.get("XL")
+                # Multiple image sizes and data available for future enhancement
+                pass
 
-            # Extract category information
-            category_id = None
+            # Category information available but not used in current ListingItem
             if hasattr(raw_listing, "category") and raw_listing.category:
-                category_id = getattr(raw_listing.category, "id", None)
+                # Category ID available for future enhancement
+                pass
 
             # Extract date posted
             date_posted = None

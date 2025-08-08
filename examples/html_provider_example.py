@@ -13,6 +13,7 @@ import asyncio
 import logging
 import uuid
 
+from marktplaats_search.client import MarktplaatsScrapingError
 from marktplaats_search.providers import (
     HtmlScrapingProvider,
     ListingProviderManager,
@@ -73,7 +74,7 @@ async def example_basic_provider_usage():
                 # Display first few listings
                 for i, listing in enumerate(result.listings[:3]):
                     logger.info(
-                        f"  {i+1}. {listing.title} - {listing.price} "
+                        f"  {i + 1}. {listing.title} - {listing.price} "
                         f"({listing.source_listing_id})"
                     )
 
@@ -151,7 +152,7 @@ async def example_provider_manager_usage():
 
                 # Display listings with more details
                 for i, listing in enumerate(result.listings):
-                    logger.info(f"  {i+1}. {listing.title}")
+                    logger.info(f"  {i + 1}. {listing.title}")
                     logger.info(f"     Price: {listing.price}")
                     logger.info(f"     Location: {listing.location}")
                     logger.info(f"     URL: {listing.url}")
@@ -182,11 +183,11 @@ async def example_error_handling():
     logger.info("\n=== Error Handling Example ===")
 
     # Create a provider with aggressive settings to trigger errors
-    config = HtmlScrapingConfig(
-        name="test_provider",
-        timeout=5.0,  # Very short timeout
-        rate_limit_delay=0.1,  # Aggressive rate limiting
+    config = ProviderConfig(
+        provider_type=ProviderType.HTML_SCRAPER,
+        timeout_seconds=5,  # Very short timeout
         max_retries=1,  # Few retries
+        rate_limit_requests_per_minute=600,  # Aggressive rate limiting
     )
 
     provider = HtmlScrapingProvider(config)
@@ -196,30 +197,37 @@ async def example_error_handling():
         {
             "name": "Invalid search",
             "context": SearchContext(
+                search_id=str(uuid.uuid4()),
                 query="",  # Empty query
                 limit=1,
-                provider_name=provider.name,
             ),
         },
         {
             "name": "Normal search (should work)",
-            "context": SearchContext(query="test", limit=1, provider_name=provider.name),
+            "context": SearchContext(search_id=str(uuid.uuid4()), query="test", limit=1),
         },
     ]
 
-    async with provider:
+    try:
         for scenario in error_scenarios:
             try:
                 logger.info(f"Testing scenario: {scenario['name']}")
-                listings = await provider.search_listings(scenario["context"])
-                logger.info(f"  ✓ Success: {len(listings)} listings found")
+                result = await provider.search_listings(scenario["context"])
+                if result.success:
+                    logger.info(f"  ✓ Success: {len(result.listings)} listings found")
+                else:
+                    logger.warning(f"  ✗ Provider failed: {result.error_message}")
 
-            except ProviderError as e:
+            except MarktplaatsScrapingError as e:
                 logger.warning(f"  ✗ Provider error: {e}")
                 logger.warning(f"    Error type: {type(e).__name__}")
 
             except Exception as e:
                 logger.error(f"  ✗ Unexpected error: {e}")
+
+    finally:
+        # Cleanup provider resources
+        await provider.cleanup()
 
 
 async def main():
