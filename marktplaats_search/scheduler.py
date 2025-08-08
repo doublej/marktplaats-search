@@ -10,8 +10,8 @@ from sqlalchemy.orm import selectinload
 
 from .database import AsyncSessionLocal  # Use the session factory directly for background tasks
 from .models import Listing, Search, SearchStatus
-from .providers.base import SearchContext
-from .providers.manager import ListingProviderManager
+from .providers.base import ProviderConfig, ProviderType, SearchContext
+from .providers.manager import ListingProviderManager, ProviderManagerConfig
 
 logger = logging.getLogger(__name__)
 scheduler = AsyncIOScheduler(
@@ -21,9 +21,38 @@ scheduler = AsyncIOScheduler(
 )
 
 # Global provider manager instance
-from .providers.manager import ProviderManagerConfig
 
-provider_manager = ListingProviderManager(config=ProviderManagerConfig())
+# Create provider configurations
+html_scraper_config = ProviderConfig(
+    provider_type=ProviderType.HTML_SCRAPER,
+    enabled=True,
+    priority=50,
+    timeout_seconds=30,
+    max_retries=2,
+)
+
+library_provider_config = ProviderConfig(
+    provider_type=ProviderType.MARKTPLAATS_LIBRARY,
+    enabled=True,
+    priority=100,
+    timeout_seconds=45,
+    max_retries=1,
+)
+
+# Create manager configuration with provider configs
+manager_config = ProviderManagerConfig(
+    primary_provider=ProviderType.HTML_SCRAPER,
+    fallback_providers=[ProviderType.MARKTPLAATS_LIBRARY],
+    max_concurrent_requests=3,
+    global_timeout_seconds=60,
+    enable_provider_switching=True,
+    provider_configs={
+        ProviderType.HTML_SCRAPER.value: html_scraper_config,
+        ProviderType.MARKTPLAATS_LIBRARY.value: library_provider_config,
+    },
+)
+
+provider_manager = ListingProviderManager(config=manager_config)
 
 
 async def run_single_search(search_id: uuid.UUID) -> None:
@@ -68,8 +97,6 @@ async def run_single_search(search_id: uuid.UUID) -> None:
             )
 
             # Convert preferred_provider string to ProviderType enum if needed
-            from .providers.base import ProviderType
-
             preferred_provider_enum = None
             if search_instance.preferred_provider:
                 try:
@@ -276,7 +303,12 @@ def remove_search_job(search: Search) -> None:
 
 
 async def initialize_scheduler() -> None:
-    logger.info("SCHEDULER: Initializing and loading active searches...")
+    logger.info("SCHEDULER: Initializing provider manager and loading active searches...")
+
+    # Initialize the provider manager first
+    await provider_manager.initialize()
+    logger.info("SCHEDULER: Provider manager initialized.")
+
     async with AsyncSessionLocal() as db:
         result = await db.execute(select(Search).where(Search.status == SearchStatus.ACTIVE))
         active_searches: list[Search] = list(result.scalars().all())
@@ -295,6 +327,10 @@ async def shutdown_scheduler() -> None:
     if scheduler.running:
         scheduler.shutdown(wait=True)  # Wait for jobs to complete
         logger.info("SCHEDULER: Shutdown.")
+
+    # Shutdown provider manager
+    await provider_manager.shutdown()
+    logger.info("SCHEDULER: Provider manager shutdown.")
 
 
 def get_provider_manager() -> ListingProviderManager:
