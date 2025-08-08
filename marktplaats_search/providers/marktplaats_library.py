@@ -7,7 +7,7 @@ through the official API, providing a more reliable data source.
 import contextlib
 import logging
 from datetime import datetime
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from pydantic import HttpUrl, ValidationError
 
@@ -25,11 +25,14 @@ try:
 except ImportError as e:
     logger.warning(f"Marktplaats library not available: {e}")
     MARKTPLAATS_LIBRARY_AVAILABLE = False
-    # Create dummy classes for type hints
-    SearchQuery = None
-    SortBy = None
-    SortOrder = None
-    Condition = None
+
+    if TYPE_CHECKING:
+        from marktplaats import Condition, SearchQuery, SortBy, SortOrder
+    else:
+        SearchQuery = None  # type: ignore
+        SortBy = None  # type: ignore
+        SortOrder = None  # type: ignore
+        Condition = None  # type: ignore
 
 
 class MarktplaatsLibraryProvider(MarktplaatsProvider):

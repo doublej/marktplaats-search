@@ -20,8 +20,16 @@ try:
 
     _MARKTPLAATS_LIBRARY_AVAILABLE = True
 except ImportError:
-    MarktplaatsLibraryProvider = None  # type: ignore
-    MarktplaatsLibraryProviderConfig = None  # type: ignore
+    from typing import TYPE_CHECKING
+
+    if TYPE_CHECKING:
+        from .marktplaats_library_provider import (
+            MarktplaatsLibraryProvider,
+            MarktplaatsLibraryProviderConfig,
+        )
+    else:
+        MarktplaatsLibraryProvider = None  # type: ignore
+        MarktplaatsLibraryProviderConfig = None  # type: ignore
     _MARKTPLAATS_LIBRARY_AVAILABLE = False
 
 __all__ = [

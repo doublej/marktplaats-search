@@ -1,6 +1,7 @@
 """CLI interface for frontend asset management operations."""
 
 from pathlib import Path
+from typing import Any
 
 from ..services.frontend_service import FrontendService
 
@@ -12,7 +13,7 @@ class FrontendCLI:
         """Initialize CLI with frontend service."""
         self.service = FrontendService(project_root)
 
-    def consolidate_assets(self) -> dict:
+    def consolidate_assets(self) -> dict[str, Any]:
         """Consolidate frontend assets into unified structure.
 
         Returns:
@@ -20,7 +21,7 @@ class FrontendCLI:
         """
         return self.service.consolidate_frontend_assets()
 
-    def build_assets(self) -> dict:
+    def build_assets(self) -> dict[str, Any]:
         """Build frontend assets from source files.
 
         Returns:
@@ -28,7 +29,7 @@ class FrontendCLI:
         """
         return self.service.build_assets()
 
-    def clean_build(self) -> dict:
+    def clean_build(self) -> dict[str, Any]:
         """Clean build artifacts and temporary files.
 
         Returns:
@@ -36,7 +37,7 @@ class FrontendCLI:
         """
         return self.service.clean_build_artifacts()
 
-    def show_build_status(self) -> dict:
+    def show_build_status(self) -> dict[str, Any]:
         """Show current build status and file information.
 
         Returns:
@@ -44,7 +45,7 @@ class FrontendCLI:
         """
         return self.service.get_build_status()
 
-    def format_consolidation_results(self, results: dict) -> str:
+    def format_consolidation_results(self, results: dict[str, Any]) -> str:
         """Format consolidation results for console output.
 
         Args:
@@ -88,7 +89,7 @@ class FrontendCLI:
 
         return "\\n".join(lines)
 
-    def format_build_results(self, results: dict) -> str:
+    def format_build_results(self, results: dict[str, Any]) -> str:
         """Format build results for console output.
 
         Args:
@@ -118,7 +119,7 @@ class FrontendCLI:
 
         return "\\n".join(lines)
 
-    def format_build_status(self, status_data: dict) -> str:
+    def format_build_status(self, status_data: dict[str, Any]) -> str:
         """Format build status for console output.
 
         Args:
@@ -173,7 +174,7 @@ class FrontendCLI:
         lines.append("=" * 30)
         return "\\n".join(lines)
 
-    def format_cleanup_results(self, results: dict) -> str:
+    def format_cleanup_results(self, results: dict[str, Any]) -> str:
         """Format cleanup results for console output.
 
         Args:

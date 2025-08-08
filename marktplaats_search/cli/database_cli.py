@@ -3,6 +3,7 @@
 import asyncio
 from datetime import datetime
 from pathlib import Path
+from typing import Any
 
 from ..services.database_service import DatabaseService
 
@@ -10,11 +11,11 @@ from ..services.database_service import DatabaseService
 class DatabaseCLI:
     """Command-line interface for database management operations."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize CLI with database service."""
         self.service = DatabaseService()
 
-    def create_fresh_database(self, drop_existing: bool = False) -> dict:
+    def create_fresh_database(self, drop_existing: bool = False) -> dict[str, Any]:
         """Create a fresh database, optionally dropping existing tables.
 
         Args:
@@ -44,7 +45,7 @@ class DatabaseCLI:
                 "message": f"Failed to create database: {e}",
             }
 
-    def check_and_fix_database(self) -> dict:
+    def check_and_fix_database(self) -> dict[str, Any]:
         """Check database integrity and perform maintenance.
 
         Returns:
@@ -72,7 +73,7 @@ class DatabaseCLI:
                 "message": f"Database check failed: {e}",
             }
 
-    def backup_database(self, backup_path: Path | None = None) -> dict:
+    def backup_database(self, backup_path: Path | None = None) -> dict[str, Any]:
         """Create a database backup.
 
         Args:
@@ -88,7 +89,7 @@ class DatabaseCLI:
 
         return self.service.backup_database(backup_path)
 
-    def restore_database(self, backup_path: Path) -> dict:
+    def restore_database(self, backup_path: Path) -> dict[str, Any]:
         """Restore database from backup.
 
         Args:
@@ -99,7 +100,7 @@ class DatabaseCLI:
         """
         return self.service.restore_database(backup_path)
 
-    async def show_database_info(self) -> dict:
+    async def show_database_info(self) -> dict[str, Any]:
         """Show comprehensive database information.
 
         Returns:
@@ -125,7 +126,7 @@ class DatabaseCLI:
                 "message": f"Failed to get database info: {e}",
             }
 
-    def format_database_info(self, info_data: dict) -> str:
+    def format_database_info(self, info_data: dict[str, Any]) -> str:
         """Format database information for console output.
 
         Args:
@@ -179,7 +180,7 @@ class DatabaseCLI:
         lines.append("=" * 50)
         return "\n".join(lines)
 
-    def format_backup_results(self, results: dict) -> str:
+    def format_backup_results(self, results: dict[str, Any]) -> str:
         """Format backup results for console output.
 
         Args:
@@ -198,7 +199,7 @@ class DatabaseCLI:
         else:
             return f"Backup failed: {results['error']}"
 
-    def format_check_results(self, results: dict) -> str:
+    def format_check_results(self, results: dict[str, Any]) -> str:
         """Format database check results for console output.
 
         Args:

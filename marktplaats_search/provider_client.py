@@ -6,7 +6,7 @@ for reliable listing retrieval with fallback support.
 
 import logging
 import uuid
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from .client import ListingItem
 from .providers import (
@@ -17,6 +17,9 @@ from .providers import (
     SearchContext,
 )
 
+if TYPE_CHECKING:
+    pass
+
 logger = logging.getLogger(__name__)
 
 
@@ -24,7 +27,7 @@ class ProviderManager:
     """Singleton provider manager for the application."""
 
     _instance: ListingProviderManager | None = None
-    _initialized = False
+    _initialized: bool = False
 
     @classmethod
     async def get_instance(

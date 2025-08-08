@@ -14,7 +14,7 @@ from fastapi.openapi.utils import get_openapi
 class OpenAPIService:
     """Service for OpenAPI schema management and code generation."""
 
-    def __init__(self, app):
+    def __init__(self, app: Any) -> None:
         """Initialize service with FastAPI app instance."""
         self.app = app
 

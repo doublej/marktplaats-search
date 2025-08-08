@@ -1,6 +1,7 @@
 """CLI interface for OpenAPI schema operations."""
 
 from pathlib import Path
+from typing import Any
 
 from ..services.openapi_service import OpenAPIService
 
@@ -8,15 +9,16 @@ from ..services.openapi_service import OpenAPIService
 class OpenAPICLI:
     """Command-line interface for OpenAPI schema operations."""
 
-    def __init__(self, app=None):
+    def __init__(self, app: Any = None) -> None:
         """Initialize CLI with optional FastAPI app instance."""
         self.app = app
+        self.service: OpenAPIService | None
         if app:
             self.service = OpenAPIService(app)
         else:
             self.service = None
 
-    def export_schema(self, output_path: Path, format_type: str = "json") -> dict:
+    def export_schema(self, output_path: Path, format_type: str = "json") -> dict[str, Any]:
         """Export OpenAPI schema to file.
 
         Args:
@@ -31,7 +33,7 @@ class OpenAPICLI:
 
         return self.service.export_schema_to_file(output_path, format_type)
 
-    def validate_schema(self) -> dict:
+    def validate_schema(self) -> dict[str, Any]:
         """Validate OpenAPI schema.
 
         Returns:
@@ -42,7 +44,7 @@ class OpenAPICLI:
 
         return self.service.validate_schema()
 
-    def preview_typescript_types(self) -> dict:
+    def preview_typescript_types(self) -> dict[str, Any]:
         """Preview TypeScript types that would be generated.
 
         Returns:
@@ -57,7 +59,7 @@ class OpenAPICLI:
         except Exception as e:
             return {"success": False, "error": str(e)}
 
-    def show_schema_info(self) -> dict:
+    def show_schema_info(self) -> dict[str, Any]:
         """Show OpenAPI schema information.
 
         Returns:
@@ -88,7 +90,7 @@ class OpenAPICLI:
         except Exception as e:
             return {"success": False, "error": str(e)}
 
-    def format_schema_info(self, info_data: dict) -> str:
+    def format_schema_info(self, info_data: dict[str, Any]) -> str:
         """Format schema information for console output.
 
         Args:
@@ -120,7 +122,7 @@ class OpenAPICLI:
         lines.append("=" * 50)
         return "\n".join(lines)
 
-    def format_validation_results(self, validation_data: dict) -> str:
+    def format_validation_results(self, validation_data: dict[str, Any]) -> str:
         """Format validation results for console output.
 
         Args:
@@ -152,7 +154,7 @@ class OpenAPICLI:
         lines.append("=" * 50)
         return "\n".join(lines)
 
-    def format_export_results(self, export_data: dict) -> str:
+    def format_export_results(self, export_data: dict[str, Any]) -> str:
         """Format export results for console output.
 
         Args:
@@ -180,7 +182,7 @@ class OpenAPICLI:
         else:
             return f"❌ Export failed: {export_data['error']}"
 
-    def format_typescript_preview(self, preview_data: dict) -> str:
+    def format_typescript_preview(self, preview_data: dict[str, Any]) -> str:
         """Format TypeScript preview for console output.
 
         Args:

@@ -20,7 +20,9 @@ scheduler = AsyncIOScheduler(
 )
 
 # Global provider manager instance
-provider_manager = ListingProviderManager()
+from .providers.manager import ProviderManagerConfig
+
+provider_manager = ListingProviderManager(config=ProviderManagerConfig())
 
 
 async def run_single_search(search_id: uuid.UUID) -> None:

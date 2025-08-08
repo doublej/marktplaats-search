@@ -59,7 +59,7 @@ def clean_and_parse_price(price_text: str) -> tuple[str, int | None]:
                 else:
                     number_str = number_str.replace(",", "")
             # Only comma (could be thousands separator or decimal)
-            elif "," in number_str and not ".":
+            elif "," in number_str:
                 # If comma is followed by exactly 2 digits, it's decimal separator
                 if re.search(r",\d{2}$", number_str):
                     number_str = number_str.replace(",", ".")

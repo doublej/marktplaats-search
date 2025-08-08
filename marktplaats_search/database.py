@@ -1,13 +1,13 @@
 from collections.abc import AsyncGenerator
 
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
-from sqlalchemy.orm import declarative_base, sessionmaker
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.orm import declarative_base
 
 DATABASE_URL = "sqlite+aiosqlite:///./data/marktplaats_api.db"
 
 engine = create_async_engine(DATABASE_URL, echo=False)  # Set echo=True for detailed SQL logging
-AsyncSessionLocal = sessionmaker(
-    autocommit=False, autoflush=False, bind=engine, class_=AsyncSession
+AsyncSessionLocal = async_sessionmaker(
+    bind=engine, class_=AsyncSession, autoflush=False, expire_on_commit=False
 )
 
 Base = declarative_base()

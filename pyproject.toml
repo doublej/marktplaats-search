@@ -91,4 +91,6 @@ addopts = []
 dev = [
     "mypy>=1.17.1",
     "pytest>=8.4.1",
+    "pyyaml>=6.0.2",
+    "types-pyyaml>=6.0.12.20250516",
 ]

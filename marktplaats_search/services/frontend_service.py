@@ -29,7 +29,7 @@ class FrontendService:
             Dictionary with consolidation results
         """
         try:
-            results = {
+            results: dict[str, Any] = {
                 "success": True,
                 "actions": [],
                 "removed_duplicates": [],

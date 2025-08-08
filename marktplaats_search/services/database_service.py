@@ -18,7 +18,7 @@ from ..models import Listing, Search, User
 class DatabaseService:
     """Service for database management operations."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize database service."""
         # Create sync engine for Alembic and other sync operations
         sync_url = settings.database_url.replace("+aiosqlite", "")
@@ -90,7 +90,7 @@ class DatabaseService:
 
         return results
 
-    def _ensure_indexes(self, conn) -> None:
+    def _ensure_indexes(self, conn: Any) -> None:
         """Ensure all necessary indexes exist."""
         indexes = [
             # User table indexes
@@ -201,18 +201,18 @@ class DatabaseService:
 
             return {
                 "users": {
-                    "total": user_count,
-                    "active": active_users,
-                    "inactive": user_count - active_users,
+                    "total": user_count or 0,
+                    "active": active_users or 0,
+                    "inactive": (user_count or 0) - (active_users or 0),
                 },
                 "searches": {
-                    "total": search_count,
-                    "active": active_searches,
-                    "inactive": search_count - active_searches,
+                    "total": search_count or 0,
+                    "active": active_searches or 0,
+                    "inactive": (search_count or 0) - (active_searches or 0),
                 },
                 "listings": {
-                    "total": listing_count,
-                    "new": new_listings,
-                    "seen": listing_count - new_listings,
+                    "total": listing_count or 0,
+                    "new": new_listings or 0,
+                    "seen": (listing_count or 0) - (new_listings or 0),
                 },
             }

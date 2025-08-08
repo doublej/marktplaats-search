@@ -2,6 +2,7 @@
 
 from datetime import datetime
 from pathlib import Path
+from typing import Any
 
 from ..services.search_management_service import SearchManagementService
 
@@ -9,13 +10,13 @@ from ..services.search_management_service import SearchManagementService
 class SearchCLI:
     """Command-line interface for search management operations."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize CLI with search management service."""
         self.service = SearchManagementService()
 
     async def refresh_searches(
         self, backup_file: Path | None = None, user_id: str | None = None, dry_run: bool = False
-    ) -> dict:
+    ) -> dict[str, Any]:
         """Refresh all searches by backing up, deleting, and recreating them.
 
         Args:
@@ -38,7 +39,9 @@ class SearchCLI:
         else:
             return await self.service.refresh_searches(backup_file, user_id)
 
-    async def _dry_run_refresh(self, backup_file: Path, user_id: str | None = None) -> dict:
+    async def _dry_run_refresh(
+        self, backup_file: Path, user_id: str | None = None
+    ) -> dict[str, Any]:
         """Perform dry run of refresh operation."""
         # Get current counts
         counts = await self.service.get_search_counts(user_id)
@@ -53,7 +56,9 @@ class SearchCLI:
             "dry_run": True,
         }
 
-    async def export_searches(self, backup_file: Path, user_id: str | None = None) -> dict:
+    async def export_searches(
+        self, backup_file: Path, user_id: str | None = None
+    ) -> dict[str, Any]:
         """Export searches to backup file.
 
         Args:
@@ -72,7 +77,7 @@ class SearchCLI:
             "exported_count": len(searches_data),
         }
 
-    async def get_search_statistics(self, user_id: str | None = None) -> dict:
+    async def get_search_statistics(self, user_id: str | None = None) -> dict[str, Any]:
         """Get search and listing statistics.
 
         Args:
@@ -90,7 +95,7 @@ class SearchCLI:
             "user_filter": user_id,
         }
 
-    def format_refresh_results(self, results: dict, verbose: bool = False) -> str:
+    def format_refresh_results(self, results: dict[str, Any], verbose: bool = False) -> str:
         """Format refresh operation results for console output.
 
         Args:

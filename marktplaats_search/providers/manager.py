@@ -9,7 +9,7 @@ import contextlib
 import logging
 from collections import defaultdict
 from datetime import datetime
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, Field, validator
 
@@ -20,6 +20,9 @@ from .base import (
     ProviderType,
     SearchContext,
 )
+
+if TYPE_CHECKING:
+    pass
 
 logger = logging.getLogger(__name__)
 
@@ -46,6 +49,7 @@ class ProviderManagerConfig(BaseModel):
         """Ensure fallback providers don't include primary provider."""
         primary = values.get("primary_provider")
         if primary and primary in v:
+            v = v.copy()  # Don't mutate the original list
             v.remove(primary)
         return v
 
@@ -131,7 +135,9 @@ class ListingProviderManager:
                 library_provider_config = MarktplaatsLibraryProviderConfig()
             else:
                 # Convert generic config to library-specific config
-                library_provider_config = MarktplaatsLibraryProviderConfig(**library_config.dict())
+                library_provider_config = MarktplaatsLibraryProviderConfig(
+                    **library_config.model_dump()
+                )
 
             library_provider = MarktplaatsLibraryProvider(library_provider_config)
             self.register_provider(library_provider)

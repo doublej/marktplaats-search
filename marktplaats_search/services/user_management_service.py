@@ -115,7 +115,7 @@ class UserManagementService:
             if not user:
                 return False
 
-            user.is_active = activate
+            user.is_active = activate  # type: ignore[assignment]
             await db.commit()
             return True
 
@@ -139,8 +139,8 @@ class UserManagementService:
             new_token = generate_secure_token()
             new_token_hash = hash_token(new_token)
 
-            user.api_token_hash = new_token_hash
-            user.token_created_at = datetime.now(UTC)
+            user.api_token_hash = new_token_hash  # type: ignore[assignment]
+            user.token_created_at = datetime.now(UTC)  # type: ignore[assignment]
 
             await db.commit()
             return new_token
@@ -194,10 +194,10 @@ class UserManagementService:
             recent_users = recent_result.scalar()
 
             return {
-                "total_users": total_users,
-                "active_users": active_users,
-                "inactive_users": total_users - active_users,
-                "recent_users": recent_users,
+                "total_users": total_users or 0,
+                "active_users": active_users or 0,
+                "inactive_users": (total_users or 0) - (active_users or 0),
+                "recent_users": recent_users or 0,
                 "recent_days": recent_days,
             }
 
@@ -229,6 +229,6 @@ class UserManagementService:
             if not user:
                 return False
 
-            user.last_activity = datetime.now(UTC)
+            user.last_activity = datetime.now(UTC)  # type: ignore[assignment]
             await db.commit()
             return True

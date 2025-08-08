@@ -41,7 +41,7 @@ class MarktplaatsLibraryProviderConfig(ProviderConfig):
 class MarktplaatsLibraryProvider(MarktplaatsProvider):
     """Provider using the official marktplaats Python library."""
 
-    def __init__(self, config: MarktplaatsLibraryProviderConfig | None = None):
+    def __init__(self, config: MarktplaatsLibraryProviderConfig | None = None) -> None:
         if config is None:
             config = MarktplaatsLibraryProviderConfig()
         super().__init__(config)

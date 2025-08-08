@@ -31,7 +31,7 @@ class TestFixturesService:
             if fixtures_path not in sys.path:
                 sys.path.insert(0, fixtures_path)
 
-            from constants import (
+            from tests.fixtures.constants import (
                 API_ERROR_RESPONSES,
                 API_TIMEOUT,
                 BASE_URL,
@@ -79,7 +79,7 @@ class TestFixturesService:
         except ImportError as e:
             return {"error": f"Failed to load test constants: {e}"}
 
-    def create_test_search_data(self, **overrides) -> dict[str, Any]:
+    def create_test_search_data(self, **overrides: Any) -> dict[str, Any]:
         """Create test search data with optional overrides.
 
         Args:
@@ -96,7 +96,7 @@ class TestFixturesService:
         template.update(overrides)
         return template
 
-    def create_test_listing_data(self, **overrides) -> dict[str, Any]:
+    def create_test_listing_data(self, **overrides: Any) -> dict[str, Any]:
         """Create test listing data with optional overrides.
 
         Args:
@@ -113,7 +113,7 @@ class TestFixturesService:
         template.update(overrides)
         return template
 
-    def create_test_user_data(self, **overrides) -> dict[str, Any]:
+    def create_test_user_data(self, **overrides: Any) -> dict[str, Any]:
         """Create test user data with optional overrides.
 
         Args:
@@ -230,11 +230,13 @@ class TestFixturesService:
                 return {"success": False, "error": constants["error"]}
 
             # Add generated scenarios
-            fixtures_data = {
+            search_scenarios = self.create_multiple_search_scenarios(5)
+            listing_variations = self.create_listing_variations(10)
+            fixtures_data: dict[str, Any] = {
                 "constants": constants,
                 "scenarios": {
-                    "search_scenarios": self.create_multiple_search_scenarios(5),
-                    "listing_variations": self.create_listing_variations(10),
+                    "search_scenarios": search_scenarios,
+                    "listing_variations": listing_variations,
                 },
                 "generated_at": str(Path(__file__).stat().st_mtime),
             }
@@ -246,8 +248,7 @@ class TestFixturesService:
             return {
                 "success": True,
                 "output_path": str(output_path),
-                "fixtures_count": len(fixtures_data["scenarios"]["search_scenarios"])
-                + len(fixtures_data["scenarios"]["listing_variations"]),
+                "fixtures_count": len(search_scenarios) + len(listing_variations),
             }
 
         except Exception as e:
@@ -259,7 +260,7 @@ class TestFixturesService:
         Returns:
             Dictionary with validation results
         """
-        results = {
+        results: dict[str, Any] = {
             "success": True,
             "files_checked": [],
             "missing_files": [],
@@ -315,7 +316,7 @@ class TestFixturesService:
         """
         validation = self.validate_fixtures_structure()
 
-        status = {
+        status: dict[str, Any] = {
             "fixtures_dir": str(self.fixtures_dir),
             "fixtures_exist": self.fixtures_dir.exists(),
             "validation": validation,

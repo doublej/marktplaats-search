@@ -25,15 +25,15 @@ from .database import Base
 class User(Base):
     __tablename__ = "users"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True, index=True, nullable=False)
     user_identifier = Column(String, unique=True, index=True, nullable=False)
     api_token_hash = Column(
         String, unique=True, index=True, nullable=False
     )  # Store hash instead of plaintext
     is_active = Column(Boolean, default=True, nullable=False)  # Account status
-    token_created_at = Column(DateTime(timezone=True), server_default=func.now())  # Track token age
+    token_created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)  # Track token age
     last_activity = Column(DateTime(timezone=True), nullable=True)  # Track last API usage
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
     searches = relationship("Search", back_populates="owner", cascade="all, delete-orphan")
 
@@ -62,7 +62,7 @@ class PriceTypeEnum(str, enum.Enum):
 class Search(Base):
     __tablename__ = "searches"
 
-    id = Column(PG_UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
+    id = Column(PG_UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True, nullable=False)
 
     # Search parameters
     query = Column(String, nullable=False)
@@ -91,14 +91,14 @@ class Search(Base):
 
     listings = relationship("Listing", back_populates="search", cascade="all, delete-orphan")
 
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
 
 
 class Listing(Base):
     __tablename__ = "listings"
 
-    id = Column(PG_UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
+    id = Column(PG_UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True, nullable=False)
     search_id = Column(PG_UUID(as_uuid=True), ForeignKey("searches.id"), nullable=False, index=True)
 
     # Core listing data from marktplaats library
@@ -161,7 +161,7 @@ class Listing(Base):
     )  # Response time when this listing was found
     provider_metadata = Column(JSON, nullable=True)  # Provider-specific metadata
 
-    discovered_at = Column(DateTime(timezone=True), server_default=func.now(), index=True)
+    discovered_at = Column(DateTime(timezone=True), server_default=func.now(), index=True, nullable=False)
 
     search = relationship("Search", back_populates="listings")
 

@@ -14,9 +14,10 @@ from .openapi_service import OpenAPIService
 class CodegenService:
     """Service for generating frontend code from OpenAPI schemas."""
 
-    def __init__(self, app=None):
+    def __init__(self, app: Any = None) -> None:
         """Initialize service with optional FastAPI app."""
         self.app = app
+        self.openapi_service: OpenAPIService | None
         if app:
             self.openapi_service = OpenAPIService(app)
         else:

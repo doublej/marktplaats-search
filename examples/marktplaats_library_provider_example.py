@@ -82,7 +82,7 @@ async def example_usage():
 
     for i, listing in enumerate(result2.listings[:3]):
         logger.info(
-            f"  {i+1}. {listing.title} - {listing.price} - {listing.location or 'Unknown location'}"
+            f"  {i + 1}. {listing.title} - {listing.price} - {listing.location or 'Unknown location'}"
         )
 
     # Example 3: Health check

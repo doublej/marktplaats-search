@@ -2,7 +2,7 @@
 
 import logging
 from datetime import datetime
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from marktplaats import SortBy, SortOrder
 from marktplaats.models import Listing as MarktplaatsListing
@@ -10,6 +10,9 @@ from pydantic import HttpUrl, ValidationError
 
 from ..client import ListingItem
 from ..models import PriceTypeEnum
+
+if TYPE_CHECKING:
+    from .base import SearchContext
 
 logger = logging.getLogger(__name__)
 
@@ -55,7 +58,7 @@ class MarktplaatsLibraryDataMapper:
 
             if library_listing.price is not None and library_listing.price > 0:
                 price_numeric = int(library_listing.price * 100)  # Convert to cents
-                if library_listing.price_type:
+                if hasattr(library_listing, "price_type") and library_listing.price_type:
                     price_str = library_listing.price_as_string(euro_sign=True, lang="nl")
                 else:
                     price_str = f"€ {library_listing.price:.2f}"
@@ -232,13 +235,13 @@ class MarktplaatsLibraryDataMapper:
                 # Category and attributes
                 "category_id": library_listing.category_id,
                 "attributes": [
-                    {"name": attr.name, "value": attr.value}
+                    {"name": getattr(attr, "name", str(attr)), "value": getattr(attr, "value", "")}
                     for attr in (library_listing.attributes or [])
                 ]
                 if library_listing.attributes
                 else None,
                 "extended_attributes": [
-                    {"name": attr.name, "value": attr.value}
+                    {"name": getattr(attr, "name", str(attr)), "value": getattr(attr, "value", "")}
                     for attr in (library_listing.extended_attributes or [])
                 ]
                 if library_listing.extended_attributes
@@ -290,7 +293,7 @@ class MarktplaatsLibraryDataMapper:
 
     @staticmethod
     def convert_search_params(
-        search_context: Any, provider_config: dict[str, Any] | None = None
+        search_context: "SearchContext", provider_config: dict[str, Any] | None = None
     ) -> dict[str, Any]:
         """
         Convert SearchContext parameters to marktplaats library format.

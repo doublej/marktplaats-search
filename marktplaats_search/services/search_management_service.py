@@ -68,9 +68,9 @@ class SearchManagementService:
                     "sort_by": search.sort_by,
                     "sort_order": search.sort_order,
                     "interval": search.interval,
-                    "status": search.status.value,
+                    "status": search.status.value if search.status else None,
                     "original_id": str(search.id),
-                    "created_at": search.created_at.isoformat(),
+                    "created_at": search.created_at.isoformat() if search.created_at else None,
                     "updated_at": search.updated_at.isoformat() if search.updated_at else None,
                 }
                 searches_data.append(search_data)

@@ -362,7 +362,7 @@ app.add_middleware(
 
 
 @app.get("/", response_model=None)
-async def read_root():
+async def read_root() -> FileResponse | dict[str, str]:
     """Root endpoint that serves the main HTML interface."""
     frontend_file = os.path.join(
         os.path.dirname(__file__), "..", "frontend", "public", "index.html"
@@ -549,6 +549,13 @@ async def get_current_user_info(
     """Get information about the currently authenticated user."""
     await db.refresh(current_user)
 
+    # These fields are guaranteed to be non-null for active users
+    assert current_user.id is not None
+    assert current_user.user_identifier is not None
+    assert current_user.is_active is not None
+    assert current_user.created_at is not None
+    assert current_user.token_created_at is not None
+
     response = UserInfoResponse(
         id=current_user.id,
         user_identifier=current_user.user_identifier,
@@ -622,6 +629,7 @@ async def rotate_api_token(
 
     current_user.api_token_hash = new_token_hash
     current_user.token_created_at = datetime.now(UTC)
+    assert current_user.user_identifier is not None
     username = current_user.user_identifier
 
     await db.commit()
@@ -727,6 +735,7 @@ async def get_search_endpoint(
     """
     Retrieves details for a specific search.
     """
+    assert current_user.id is not None
     search_instance = await get_search_or_404(search_id, current_user.id, db)
     return search_instance
 
@@ -741,6 +750,7 @@ async def update_search_endpoint(
     """
     Updates an existing search. Changes to interval or status affect scheduling.
     """
+    assert current_user.id is not None
     search_instance = await get_search_or_404(search_id, current_user.id, db)
 
     update_data = search_updates.dict(exclude_unset=True)
@@ -766,6 +776,7 @@ async def pause_search_endpoint(
     """
     Pauses a search by setting its status to INACTIVE.
     """
+    assert current_user.id is not None
     search_instance = await get_search_or_404(search_id, current_user.id, db)
 
     if search_instance.status == SearchStatus.INACTIVE:
@@ -790,6 +801,7 @@ async def delete_search_endpoint(
     """
     Permanently deletes a search and all its associated listings.
     """
+    assert current_user.id is not None
     search_instance = await get_search_or_404(search_id, current_user.id, db)
 
     # Remove from scheduler first
@@ -831,6 +843,7 @@ async def get_search_results_endpoint(
     """
     Retrieves listings found for a specific search, with enhanced filtering and pagination.
     """
+    assert current_user.id is not None
     await get_search_or_404(search_id, current_user.id, db)
 
     query_obj = (
@@ -860,7 +873,7 @@ async def get_search_results_endpoint(
 
     result = await db.execute(query_obj)
     listings = result.scalars().all()
-    return listings
+    return list(listings)
 
 
 @app.get("/api/results/{listing_id}", response_model=EnhancedListingResponse)
@@ -972,6 +985,7 @@ async def get_listing_stats_endpoint(
     """
     Get comprehensive listing statistics for the user.
     """
+    assert current_user.id is not None
     stats = await get_listing_stats_for_user(db, current_user.id)
     return ListingStatsResponse(
         total_listings=stats.total_listings,
@@ -988,6 +1002,7 @@ async def get_new_listings_summary_endpoint(
     """
     Get summary of new listings per search.
     """
+    assert current_user.id is not None
     summary = await get_new_listings_summary(db, current_user.id)
     total_new = sum(data["new_count"] for data in summary.values())
 
@@ -1006,6 +1021,7 @@ async def mark_search_listings_read_endpoint(
     """
     Mark all new listings for a specific search as read.
     """
+    assert current_user.id is not None
     marked_count = await mark_search_listings_as_read(db, search_id, current_user.id)
     return MarkAsReadResponse(
         marked_count=marked_count,
@@ -1020,6 +1036,7 @@ async def mark_all_listings_read_endpoint(
     """
     Mark all new listings for all user's searches as read.
     """
+    assert current_user.id is not None
     marked_count = await mark_all_user_listings_as_read(db, current_user.id)
     return MarkAsReadResponse(
         marked_count=marked_count,
@@ -1040,6 +1057,7 @@ async def get_search_listings_legacy_endpoint(
     """
     Legacy endpoint for backward compatibility.
     """
+    assert current_user.id is not None
     await get_search_or_404(search_id, current_user.id, db)
 
     query_obj = (
@@ -1058,26 +1076,45 @@ async def get_search_listings_legacy_endpoint(
     # Convert to legacy format
     legacy_listings = []
     for listing in listings:
-        legacy_listing = {
-            "id": listing.id,
-            "search_id": listing.search_id,
-            "source_listing_id": listing.source_listing_id or listing.marktplaats_id,
-            "title": listing.title,
-            "price": f"€ {listing.price:.2f}" if listing.price else None,
-            "price_numeric": listing.price_numeric,
-            "url": listing.url,
-            "description_snippet": listing.description_snippet or listing.description,
-            "image_url": listing.image_url,
-            "raw_html": listing.raw_html,
-            "is_new": listing.is_new,
-            "discovered_at": listing.discovered_at,
-            "location": listing.location or listing.location_city,
-            "seller": listing.seller or listing.seller_name,
-            "views": listing.views,
-            "condition": listing.condition,
-            "date_posted": listing.date_posted,
-        }
-        legacy_listings.append(ListingResponse(**legacy_listing))
+        # Assert required fields are not None
+        assert listing.id is not None
+        assert listing.search_id is not None
+        assert listing.url is not None
+        assert listing.is_new is not None
+        assert listing.discovered_at is not None
+
+        # Convert date to datetime for the date_posted field
+        date_posted_dt = None
+        if listing.date_posted:
+            date_posted_dt = datetime.combine(listing.date_posted, datetime.min.time()).replace(
+                tzinfo=UTC
+            )
+
+        # Convert URL strings to HttpUrl if needed
+        from typing import cast
+
+        from pydantic import HttpUrl
+
+        legacy_listing = ListingResponse(
+            id=cast(uuid.UUID, listing.id),
+            search_id=cast(uuid.UUID, listing.search_id),
+            source_listing_id=listing.source_listing_id or listing.marktplaats_id,
+            title=listing.title,
+            price=f"€ {listing.price:.2f}" if listing.price else None,
+            price_numeric=listing.price_numeric,
+            url=HttpUrl(listing.url) if listing.url else None,
+            description_snippet=listing.description_snippet or listing.description,
+            image_url=HttpUrl(listing.image_url) if listing.image_url else None,
+            raw_html=listing.raw_html,
+            is_new=listing.is_new,
+            discovered_at=listing.discovered_at,
+            location=listing.location or listing.location_city,
+            seller=listing.seller or listing.seller_name,
+            views=listing.views,
+            condition=listing.condition,
+            date_posted=date_posted_dt,
+        )
+        legacy_listings.append(legacy_listing)
 
     return legacy_listings
 

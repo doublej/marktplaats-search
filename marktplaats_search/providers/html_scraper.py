@@ -7,7 +7,7 @@ from .base import MarktplaatsProvider, ProviderConfig, ProviderResult, ProviderT
 class HtmlScrapingProvider(MarktplaatsProvider):
     """Provider that uses the existing HTML scraper from client.py."""
 
-    def __init__(self, config: ProviderConfig):
+    def __init__(self, config: ProviderConfig) -> None:
         super().__init__(config)
 
     async def search_listings(self, context: SearchContext) -> ProviderResult:

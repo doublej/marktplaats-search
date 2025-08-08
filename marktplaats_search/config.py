@@ -731,10 +731,10 @@ class Settings:
 
         # Check if override is valid and allowed
         if override_provider and self.validate_provider_override(override_provider):
-            if isinstance(override_provider, str):
-                return ProviderType(override_provider.lower())
-            elif isinstance(override_provider, ProviderType):
+            if isinstance(override_provider, ProviderType):
                 return override_provider
+            elif isinstance(override_provider, str):
+                return ProviderType(override_provider.lower())
             # If override_provider is neither str nor ProviderType, ignore it and continue
 
         # Fall back to primary provider if enabled, then any enabled provider

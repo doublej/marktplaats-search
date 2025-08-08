@@ -1,6 +1,7 @@
 """CLI interface for code generation operations."""
 
 from pathlib import Path
+from typing import Any
 
 from ..services.codegen_service import CodegenService
 
@@ -8,12 +9,12 @@ from ..services.codegen_service import CodegenService
 class CodegenCLI:
     """Command-line interface for code generation operations."""
 
-    def __init__(self, app=None):
+    def __init__(self, app: Any = None) -> None:
         """Initialize CLI with optional FastAPI app instance."""
         self.app = app
         self.service = CodegenService(app)
 
-    def generate_types(self, output_dir: Path, schema_path: Path | None = None) -> dict:
+    def generate_types(self, output_dir: Path, schema_path: Path | None = None) -> dict[str, Any]:
         """Generate TypeScript types.
 
         Args:
@@ -27,7 +28,7 @@ class CodegenCLI:
 
     def generate_client(
         self, output_dir: Path, schema_path: Path | None = None, client_name: str = "ApiClient"
-    ) -> dict:
+    ) -> dict[str, Any]:
         """Generate API client.
 
         Args:
@@ -40,7 +41,7 @@ class CodegenCLI:
         """
         return self.service.generate_api_client(output_dir, schema_path, client_name)
 
-    def validate_generated_code(self, output_dir: Path) -> dict:
+    def validate_generated_code(self, output_dir: Path) -> dict[str, Any]:
         """Validate generated code.
 
         Args:
@@ -51,7 +52,7 @@ class CodegenCLI:
         """
         return self.service.validate_generated_code(output_dir)
 
-    def clean_generated_code(self, output_dir: Path) -> dict:
+    def clean_generated_code(self, output_dir: Path) -> dict[str, Any]:
         """Clean generated code directory.
 
         Args:
@@ -62,7 +63,7 @@ class CodegenCLI:
         """
         return self.service.clean_generated_code(output_dir)
 
-    def format_generation_results(self, results: dict) -> str:
+    def format_generation_results(self, results: dict[str, Any]) -> str:
         """Format generation results for console output.
 
         Args:
@@ -108,7 +109,7 @@ class CodegenCLI:
 
             return "\n".join(lines)
 
-    def format_validation_results(self, results: dict) -> str:
+    def format_validation_results(self, results: dict[str, Any]) -> str:
         """Format validation results for console output.
 
         Args:
@@ -154,7 +155,7 @@ class CodegenCLI:
         lines.append("=" * 50)
         return "\n".join(lines)
 
-    def format_cleanup_results(self, results: dict) -> str:
+    def format_cleanup_results(self, results: dict[str, Any]) -> str:
         """Format cleanup results for console output.
 
         Args:

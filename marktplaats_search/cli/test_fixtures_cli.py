@@ -1,6 +1,7 @@
 """CLI interface for test fixtures management operations."""
 
 from pathlib import Path
+from typing import Any
 
 from ..services.test_fixtures_service import TestFixturesService
 
@@ -12,7 +13,7 @@ class TestFixturesCLI:
         """Initialize CLI with test fixtures service."""
         self.service = TestFixturesService(project_root)
 
-    def show_fixtures_status(self) -> dict:
+    def show_fixtures_status(self) -> dict[str, Any]:
         """Show current status of test fixtures.
 
         Returns:
@@ -20,7 +21,7 @@ class TestFixturesCLI:
         """
         return self.service.get_fixtures_status()
 
-    def validate_fixtures(self) -> dict:
+    def validate_fixtures(self) -> dict[str, Any]:
         """Validate test fixtures structure and imports.
 
         Returns:
@@ -28,7 +29,7 @@ class TestFixturesCLI:
         """
         return self.service.validate_fixtures_structure()
 
-    def export_fixtures(self, output_path: Path | None = None) -> dict:
+    def export_fixtures(self, output_path: Path | None = None) -> dict[str, Any]:
         """Export test fixtures to JSON file.
 
         Args:
@@ -39,7 +40,7 @@ class TestFixturesCLI:
         """
         return self.service.export_test_fixtures_json(output_path)
 
-    def create_test_data_preview(self) -> dict:
+    def create_test_data_preview(self) -> dict[str, Any]:
         """Create preview of test data that will be generated.
 
         Returns:
@@ -63,7 +64,7 @@ class TestFixturesCLI:
         except Exception as e:
             return {"success": False, "error": f"Preview generation failed: {e}"}
 
-    def format_fixtures_status(self, status_data: dict) -> str:
+    def format_fixtures_status(self, status_data: dict[str, Any]) -> str:
         """Format fixtures status for console output.
 
         Args:
@@ -111,7 +112,7 @@ class TestFixturesCLI:
         lines.append("=" * 30)
         return "\\n".join(lines)
 
-    def format_validation_results(self, validation_data: dict) -> str:
+    def format_validation_results(self, validation_data: dict[str, Any]) -> str:
         """Format validation results for console output.
 
         Args:
@@ -151,7 +152,7 @@ class TestFixturesCLI:
         lines.append("=" * 30)
         return "\\n".join(lines)
 
-    def format_export_results(self, export_data: dict) -> str:
+    def format_export_results(self, export_data: dict[str, Any]) -> str:
         """Format export results for console output.
 
         Args:
@@ -177,7 +178,7 @@ class TestFixturesCLI:
 
         return "\\n".join(lines)
 
-    def format_test_data_preview(self, preview_data: dict) -> str:
+    def format_test_data_preview(self, preview_data: dict[str, Any]) -> str:
         """Format test data preview for console output.
 
         Args:

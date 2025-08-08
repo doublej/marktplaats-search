@@ -1,16 +1,18 @@
 """CLI interface for user management operations."""
 
+from typing import Any
+
 from ..services.user_management_service import UserManagementService
 
 
 class UserCLI:
     """Command-line interface for user management operations."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize CLI with user management service."""
         self.service = UserManagementService()
 
-    async def create_user(self, username: str | None = None) -> dict:
+    async def create_user(self, username: str | None = None) -> dict[str, Any]:
         """Create a new user.
 
         Args:
@@ -33,7 +35,7 @@ class UserCLI:
                 "message": str(e),
             }
 
-    async def list_users(self, include_inactive: bool = True) -> dict:
+    async def list_users(self, include_inactive: bool = True) -> dict[str, Any]:
         """List all users.
 
         Args:
@@ -49,7 +51,7 @@ class UserCLI:
             "count": len(users),
         }
 
-    async def activate_user(self, username: str, activate: bool = True) -> dict:
+    async def activate_user(self, username: str, activate: bool = True) -> dict[str, Any]:
         """Activate or deactivate a user.
 
         Args:
@@ -73,7 +75,7 @@ class UserCLI:
                 "message": f"User '{username}' not found",
             }
 
-    async def reset_user_token(self, username: str) -> dict:
+    async def reset_user_token(self, username: str) -> dict[str, Any]:
         """Reset a user's API token.
 
         Args:
@@ -97,7 +99,7 @@ class UserCLI:
                 "message": f"User '{username}' not found",
             }
 
-    async def delete_user(self, username: str) -> dict:
+    async def delete_user(self, username: str) -> dict[str, Any]:
         """Delete a user and all their data.
 
         Args:
@@ -119,7 +121,7 @@ class UserCLI:
                 "message": f"User '{username}' not found",
             }
 
-    async def show_statistics(self, recent_days: int = 7) -> dict:
+    async def show_statistics(self, recent_days: int = 7) -> dict[str, Any]:
         """Show user statistics.
 
         Args:
@@ -134,7 +136,7 @@ class UserCLI:
             **stats,
         }
 
-    def format_user_list(self, users_data: dict) -> str:
+    def format_user_list(self, users_data: dict[str, Any]) -> str:
         """Format user list for console output.
 
         Args:
@@ -167,7 +169,7 @@ class UserCLI:
 
         return "\n".join(lines)
 
-    def format_statistics(self, stats_data: dict) -> str:
+    def format_statistics(self, stats_data: dict[str, Any]) -> str:
         """Format user statistics for console output.
 
         Args:

@@ -10,13 +10,15 @@ from collections.abc import Awaitable, Callable
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any
+from typing import Any, TypeVar
 
 from pydantic import BaseModel, Field
 
 from ..client import ListingItem
 
 logger = logging.getLogger(__name__)
+
+T = TypeVar("T")
 
 
 class ProviderType(str, Enum):
@@ -216,8 +218,8 @@ class MarktplaatsProvider(ABC):
             )
 
     async def _execute_with_circuit_breaker(
-        self, operation_name: str, operation: Callable[[], Awaitable[Any]]
-    ) -> Any:
+        self, operation_name: str, operation: Callable[[], Awaitable[T]]
+    ) -> T:
         """Execute an operation with circuit breaker protection.
 
         Args:
