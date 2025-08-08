@@ -1,6 +1,6 @@
 """HTML scraper provider implementation that wraps the existing client.py functionality."""
 
-from ..client import fetch_listings
+from ..client import fetch_listings_legacy
 from .base import MarktplaatsProvider, ProviderConfig, ProviderResult, ProviderType, SearchContext
 
 
@@ -13,8 +13,8 @@ class HtmlScrapingProvider(MarktplaatsProvider):
     async def search_listings(self, context: SearchContext) -> ProviderResult:
         """Execute search using HTML scraping via the existing client.py implementation."""
         try:
-            # Use the existing fetch_listings function
-            listings = await fetch_listings(
+            # Use the legacy fetch_listings function directly to avoid circular dependency
+            listings = await fetch_listings_legacy(
                 query=context.query,
                 zip_code=context.zip_code,
                 distance=context.distance,
