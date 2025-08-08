@@ -1,6 +1,7 @@
 import logging
 import uuid
 from datetime import UTC, datetime
+from typing import Any
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.interval import IntervalTrigger
@@ -67,7 +68,7 @@ async def run_single_search(search_id: uuid.UUID) -> None:
             )
 
             # Use provider manager to fetch listings
-            provider_result = await provider_manager.search(
+            provider_result = await provider_manager.search_listings(
                 context=search_context,
                 preferred_provider=search_instance.preferred_provider,
             )
@@ -290,11 +291,11 @@ def get_provider_manager() -> ListingProviderManager:
     return provider_manager
 
 
-def get_provider_health() -> dict:
+async def get_provider_health() -> dict[Any, bool]:
     """Get health status of all providers."""
-    return provider_manager.health_check()
+    return await provider_manager.health_check_all_providers()
 
 
-def get_provider_metrics() -> dict:
+def get_provider_metrics() -> dict[str, Any]:
     """Get comprehensive metrics for all providers."""
     return provider_manager.get_manager_metrics()
