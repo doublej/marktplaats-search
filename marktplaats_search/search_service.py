@@ -8,6 +8,7 @@ from typing import Any
 
 from fastapi import HTTPException
 from fastapi import status as http_status
+from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from .crud_base import CRUDBase
@@ -15,26 +16,41 @@ from .models import Search, SearchStatus
 from .scheduler import remove_search_job, schedule_search_job
 
 
-class SearchCreateData:
+class SearchCreateData(BaseModel):
     """Data class for search creation."""
 
-    def __init__(self, **kwargs: Any) -> None:
-        for key, value in kwargs.items():
-            setattr(self, key, value)
+    user_id: int
+    query: str
+    zip_code: str | None = None
+    distance: int | None = None
+    price_from: int | None = None
+    price_to: int | None = None
+    interval: int
+    limit: int = 25
+    sort_by: str | None = None
+    sort_order: str | None = None
+    status: SearchStatus = SearchStatus.ACTIVE
 
-    def model_dump(self) -> dict[str, Any]:
-        return dict(self.__dict__.items())
+    class Config:
+        use_enum_values = True
 
 
-class SearchUpdateData:
+class SearchUpdateData(BaseModel):
     """Data class for search updates."""
 
-    def __init__(self, **kwargs: Any) -> None:
-        for key, value in kwargs.items():
-            setattr(self, key, value)
+    query: str | None = None
+    zip_code: str | None = None
+    distance: int | None = None
+    price_from: int | None = None
+    price_to: int | None = None
+    interval: int | None = None
+    limit: int | None = None
+    sort_by: str | None = None
+    sort_order: str | None = None
+    status: SearchStatus | None = None
 
-    def model_dump(self, exclude_unset: bool = True) -> dict[str, Any]:
-        return {k: v for k, v in self.__dict__.items() if v is not None}
+    class Config:
+        use_enum_values = True
 
 
 class SearchCRUD(CRUDBase[Search, SearchCreateData, SearchUpdateData]):

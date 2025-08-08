@@ -1091,13 +1091,12 @@ async def get_search_listings_legacy_endpoint(
             )
 
         # Convert URL strings to HttpUrl if needed
-        from typing import cast
 
         from pydantic import HttpUrl
 
         legacy_listing = ListingResponse(
-            id=cast(uuid.UUID, listing.id),
-            search_id=cast(uuid.UUID, listing.search_id),
+            id=listing.id,
+            search_id=listing.search_id,
             source_listing_id=listing.source_listing_id or listing.marktplaats_id,
             title=listing.title,
             price=f"€ {listing.price:.2f}" if listing.price else None,

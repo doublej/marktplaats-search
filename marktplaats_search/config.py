@@ -122,7 +122,6 @@ print(f"Configuration: {config_dict}")
 """
 
 import os
-from enum import Enum
 from pathlib import Path
 from typing import Any
 
@@ -131,12 +130,8 @@ from dotenv import load_dotenv
 # Load environment variables from .env file
 load_dotenv()
 
-
-class ProviderType(str, Enum):
-    """Available provider types for search operations."""
-
-    HTML = "html"
-    LIBRARY = "library"
+# Import ProviderType from the providers module
+from .providers.base import ProviderType
 
 
 class ProviderConfig:
@@ -244,12 +239,19 @@ class Settings:
         # PROVIDER SETTINGS
         # ===================
 
-        # Primary provider selection
-        self.primary_provider = ProviderType(
-            os.getenv("PRIMARY_PROVIDER", ProviderType.HTML.value).lower()
-        )
-        self.secondary_provider = ProviderType(
-            os.getenv("SECONDARY_PROVIDER", ProviderType.LIBRARY.value).lower()
+        # Primary provider selection - map config values to provider types
+        primary_env = os.getenv("PRIMARY_PROVIDER", "html").lower()
+        secondary_env = os.getenv("SECONDARY_PROVIDER", "library").lower()
+
+        # Map config names to provider enum values
+        provider_mapping = {
+            "html": ProviderType.HTML_SCRAPER,
+            "library": ProviderType.MARKTPLAATS_LIBRARY,
+        }
+
+        self.primary_provider = provider_mapping.get(primary_env, ProviderType.HTML_SCRAPER)
+        self.secondary_provider = provider_mapping.get(
+            secondary_env, ProviderType.MARKTPLAATS_LIBRARY
         )
 
         # Allow per-search provider overrides
@@ -311,7 +313,7 @@ class Settings:
         force_provider_str = os.getenv("FORCE_PROVIDER")  # Override for testing
         self.force_provider: ProviderType | None = None
         if force_provider_str:
-            self.force_provider = ProviderType(force_provider_str.lower())
+            self.force_provider = provider_mapping.get(force_provider_str.lower())
 
         # Provider health check settings
         self.health_check_enabled = self._get_bool_env("PROVIDER_HEALTH_CHECK", True)
@@ -416,9 +418,9 @@ class Settings:
 
     def _get_provider_config(self, provider_type: ProviderType) -> ProviderConfig:
         """Get configuration for a specific provider type."""
-        if provider_type == ProviderType.HTML:
+        if provider_type == ProviderType.HTML_SCRAPER:
             return self.html_provider
-        elif provider_type == ProviderType.LIBRARY:
+        elif provider_type == ProviderType.MARKTPLAATS_LIBRARY:
             return self.library_provider
         else:
             raise ValueError(f"Unknown provider type: {provider_type}")
@@ -426,22 +428,30 @@ class Settings:
     def get_provider_config(self, provider_type: ProviderType | str) -> ProviderConfig:
         """Public method to get provider configuration."""
         if isinstance(provider_type, str):
-            provider_type = ProviderType(provider_type.lower())
+            provider_mapping = {
+                "html": ProviderType.HTML_SCRAPER,
+                "library": ProviderType.MARKTPLAATS_LIBRARY,
+            }
+            provider_type = provider_mapping.get(provider_type.lower(), ProviderType.HTML_SCRAPER)
         return self._get_provider_config(provider_type)
 
     def is_provider_enabled(self, provider_type: ProviderType | str) -> bool:
         """Check if a provider is enabled."""
         if isinstance(provider_type, str):
-            provider_type = ProviderType(provider_type.lower())
+            provider_mapping = {
+                "html": ProviderType.HTML_SCRAPER,
+                "library": ProviderType.MARKTPLAATS_LIBRARY,
+            }
+            provider_type = provider_mapping.get(provider_type.lower(), ProviderType.HTML_SCRAPER)
         return self._get_provider_config(provider_type).enabled
 
     def get_enabled_providers(self) -> list[ProviderType]:
         """Get list of all enabled providers."""
         enabled = []
         if self.html_provider.enabled:
-            enabled.append(ProviderType.HTML)
+            enabled.append(ProviderType.HTML_SCRAPER)
         if self.library_provider.enabled:
-            enabled.append(ProviderType.LIBRARY)
+            enabled.append(ProviderType.MARKTPLAATS_LIBRARY)
         return enabled
 
     def should_use_fallback(self) -> bool:
@@ -706,10 +716,14 @@ class Settings:
             return False
 
         if isinstance(provider_type, str):
-            try:
-                provider_type = ProviderType(provider_type.lower())
-            except ValueError:
+            provider_mapping = {
+                "html": ProviderType.HTML_SCRAPER,
+                "library": ProviderType.MARKTPLAATS_LIBRARY,
+            }
+            mapped_provider = provider_mapping.get(provider_type.lower())
+            if mapped_provider is None:
                 return False
+            provider_type = mapped_provider
 
         return self.is_provider_enabled(provider_type)
 
@@ -734,7 +748,13 @@ class Settings:
             if isinstance(override_provider, ProviderType):
                 return override_provider
             elif isinstance(override_provider, str):
-                return ProviderType(override_provider.lower())
+                provider_mapping = {
+                    "html": ProviderType.HTML_SCRAPER,
+                    "library": ProviderType.MARKTPLAATS_LIBRARY,
+                }
+                mapped_provider = provider_mapping.get(override_provider.lower())
+                if mapped_provider:
+                    return mapped_provider
             # If override_provider is neither str nor ProviderType, ignore it and continue
 
         # Fall back to primary provider if enabled, then any enabled provider

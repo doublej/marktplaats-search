@@ -67,10 +67,21 @@ async def run_single_search(search_id: uuid.UUID) -> None:
                 search_id=str(search_instance.id),
             )
 
+            # Convert preferred_provider string to ProviderType enum if needed
+            from .providers.base import ProviderType
+
+            preferred_provider_enum = None
+            if search_instance.preferred_provider:
+                try:
+                    preferred_provider_enum = ProviderType(search_instance.preferred_provider)
+                except ValueError:
+                    # If invalid provider string, use None (default behavior)
+                    preferred_provider_enum = None
+
             # Use provider manager to fetch listings
             provider_result = await provider_manager.search_listings(
                 context=search_context,
-                preferred_provider=search_instance.preferred_provider,
+                preferred_provider=preferred_provider_enum,
             )
 
             if not provider_result.success:

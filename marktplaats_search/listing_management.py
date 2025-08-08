@@ -193,7 +193,8 @@ async def mark_search_listings_as_read(db: AsyncSession, search_id: uuid.UUID, u
     )
 
     await db.commit()
-    return update_result.rowcount
+    # For SQL text operations, rowcount is available on the result
+    return getattr(update_result, "rowcount", 0) or 0
 
 
 async def mark_all_user_listings_as_read(db: AsyncSession, user_id: int) -> int:
@@ -219,7 +220,8 @@ async def mark_all_user_listings_as_read(db: AsyncSession, user_id: int) -> int:
     )
 
     await db.commit()
-    return update_result.rowcount
+    # For SQL text operations, rowcount is available on the result
+    return getattr(update_result, "rowcount", 0) or 0
 
 
 async def get_new_listings_summary(db: AsyncSession, user_id: int) -> dict[str, dict[str, Any]]:
@@ -313,7 +315,7 @@ async def cleanup_old_listings(
         delete_result = await db.execute(delete_query, params)
         await db.commit()
 
-        return delete_result.rowcount, search_ids
+        return getattr(delete_result, "rowcount", 0) or 0, search_ids
 
 
 async def optimize_listing_queries(db: AsyncSession) -> dict[str, bool]:

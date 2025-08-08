@@ -97,7 +97,10 @@ class ListingProviderManager:
             provider_type = provider.provider_type
 
         self.providers[provider_type] = provider
-        self.logger.info(f"Registered provider: {provider_type.value}")
+        provider_type_str = (
+            provider_type.value if hasattr(provider_type, "value") else str(provider_type)
+        )
+        self.logger.info(f"Registered provider: {provider_type_str}")
 
     def unregister_provider(self, provider_type: ProviderType) -> None:
         """Unregister a provider from the manager.
@@ -107,7 +110,10 @@ class ListingProviderManager:
         """
         if provider_type in self.providers:
             del self.providers[provider_type]
-            self.logger.info(f"Unregistered provider: {provider_type.value}")
+            provider_type_str = (
+                provider_type.value if hasattr(provider_type, "value") else str(provider_type)
+            )
+            self.logger.info(f"Unregistered provider: {provider_type_str}")
 
     async def initialize(self) -> None:
         """Initialize the provider manager and register providers."""
