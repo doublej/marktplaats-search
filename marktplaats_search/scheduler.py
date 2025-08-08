@@ -19,7 +19,7 @@ scheduler = AsyncIOScheduler(
 )
 
 
-async def run_single_search(search_id: uuid.UUID):
+async def run_single_search(search_id: uuid.UUID) -> None:
     """
     Executes a single search, fetches listings, and stores new ones.
     """
@@ -139,7 +139,7 @@ async def run_single_search(search_id: uuid.UUID):
             logger.error(f"SCHEDULER: Error updating search error status: {error_handling_error}")
 
 
-def schedule_search_job(search: Search):
+def schedule_search_job(search: Search) -> None:
     """Schedule, modify, or remove a search job based on search status and interval."""
     job_id = str(search.id)
 
@@ -180,7 +180,7 @@ def schedule_search_job(search: Search):
         raise
 
 
-def remove_search_job(search: Search):
+def remove_search_job(search: Search) -> None:
     """Remove a search job from the scheduler."""
     job_id = str(search.id)
     if scheduler.get_job(job_id):
@@ -188,11 +188,11 @@ def remove_search_job(search: Search):
         logger.info(f"SCHEDULER: Removed job for search {job_id}")
 
 
-async def initialize_scheduler():
+async def initialize_scheduler() -> None:
     logger.info("SCHEDULER: Initializing and loading active searches...")
     async with AsyncSessionLocal() as db:
         result = await db.execute(select(Search).where(Search.status == SearchStatus.ACTIVE))
-        active_searches: list[Search] = result.scalars().all()
+        active_searches: list[Search] = list(result.scalars().all())
 
     for search_item in active_searches:
         schedule_search_job(search_item)
@@ -204,7 +204,7 @@ async def initialize_scheduler():
         logger.info("SCHEDULER: Already running.")
 
 
-async def shutdown_scheduler():
+async def shutdown_scheduler() -> None:
     if scheduler.running:
         scheduler.shutdown(wait=True)  # Wait for jobs to complete
         logger.info("SCHEDULER: Shutdown.")

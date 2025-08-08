@@ -8,6 +8,9 @@ export const CONFIG = {
         THEME: 'mp_theme',
         USER_PREFS: 'mp_user_preferences'
     },
+    COOKIE_KEYS: {
+        API_TOKEN: 'mp_auth_token'
+    },
     DEFAULTS: {
         RESULTS_LIMIT: 20,
         SEARCH_INTERVAL: 3600, // 1 hour
@@ -17,6 +20,16 @@ export const CONFIG = {
     THEMES: {
         LIGHT: 'light',
         DARK: 'dark'
+    },
+    COOKIE_CONFIG: {
+        SECURE: window.location.protocol === 'https:',
+        SAME_SITE: 'Strict',
+        PATH: '/',
+        MAX_AGE_DAYS: 30
+    },
+    FEATURE_FLAGS: {
+        COOKIE_AUTH: true,
+        FALLBACK_TO_COOKIE: true
     },
     STATUS: {
         ACTIVE: 'active',

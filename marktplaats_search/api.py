@@ -5,7 +5,7 @@ import uuid
 from datetime import UTC, date, datetime
 from typing import Any
 
-from fastapi import Depends, FastAPI, HTTPException, status
+from fastapi import Depends, FastAPI, HTTPException, Request, Response, status
 from fastapi import Query as FastAPIQuery
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
@@ -272,20 +272,30 @@ class HealthCheckResponse(BaseModel):
 
 
 # --- Authentication ---
-http_bearer_scheme = HTTPBearer()
+AUTH_COOKIE_NAME = "mp_auth_token"
+http_bearer_scheme = HTTPBearer(auto_error=False)
 
 
 async def get_current_user(
+    request: Request,
     db: AsyncSession = Depends(get_db),
-    credentials: HTTPAuthorizationCredentials = Depends(http_bearer_scheme),
+    credentials: HTTPAuthorizationCredentials | None = Depends(http_bearer_scheme),
 ) -> User:
-    if credentials.scheme != "Bearer":
+    token = None
+
+    # Try Bearer token first
+    if credentials and credentials.scheme == "Bearer":
+        token = credentials.credentials
+    # Fallback to cookie if no Bearer token
+    elif AUTH_COOKIE_NAME in request.cookies:
+        token = request.cookies[AUTH_COOKIE_NAME]
+
+    if not token:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid authentication scheme. Use 'Bearer <token>'",
+            detail="No valid authentication token provided",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    token = credentials.credentials
 
     if not validate_token_format(token):
         raise HTTPException(
@@ -351,8 +361,8 @@ app.add_middleware(
 # Startup and shutdown events are now handled by the lifespan manager
 
 
-@app.get("/")
-async def read_root() -> FileResponse | dict[str, str]:
+@app.get("/", response_model=None)
+async def read_root():
     """Root endpoint that serves the main HTML interface."""
     frontend_file = os.path.join(
         os.path.dirname(__file__), "..", "frontend", "public", "index.html"
@@ -558,9 +568,50 @@ async def get_current_user_info(
     return response
 
 
+@app.post("/api/auth/set-cookie", status_code=status.HTTP_200_OK)
+async def set_auth_cookie(
+    request: Request,
+    response: Response,
+    current_user: User = Depends(get_current_user),
+) -> dict[str, str]:
+    """Set authentication cookie for the current session."""
+    # Extract token from the request (Bearer or cookie)
+    token = None
+
+    # Get Authorization header directly
+    auth_header = request.headers.get("authorization")
+    if auth_header and auth_header.startswith("Bearer "):
+        token = auth_header[7:]  # Remove "Bearer " prefix
+    elif AUTH_COOKIE_NAME in request.cookies:
+        token = request.cookies[AUTH_COOKIE_NAME]
+
+    if token:
+        # Set cookie with appropriate security settings
+        max_age = None
+        if settings.token_expiry_days:
+            max_age = settings.token_expiry_days * 24 * 60 * 60
+
+        response.set_cookie(
+            key=AUTH_COOKIE_NAME,
+            value=token,
+            max_age=max_age,
+            httponly=True,
+            secure=request.url.scheme == "https",
+            samesite="strict",
+            path="/",
+        )
+        return {"message": "Authentication cookie set successfully"}
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="No valid token found to set cookie"
+        )
+
+
 @app.post("/api/auth/rotate-token", response_model=UserCreateResponse)
 async def rotate_api_token(
-    current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)
+    response: Response,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
 ) -> UserCreateResponse:
     """Generate a new API token for the current user."""
     from .auth import generate_secure_token, hash_token
@@ -575,6 +626,11 @@ async def rotate_api_token(
 
     await db.commit()
 
+    # Clear old cookie and potentially set new one
+    response.delete_cookie(
+        key=AUTH_COOKIE_NAME, path="/", httponly=True, secure=True, samesite="strict"
+    )
+
     return UserCreateResponse(
         user_identifier=username,
         api_token=new_token,
@@ -582,13 +638,32 @@ async def rotate_api_token(
     )
 
 
+@app.post("/api/auth/logout", status_code=status.HTTP_200_OK)
+async def logout_user(
+    response: Response,
+    current_user: User = Depends(get_current_user),
+) -> dict[str, str]:
+    """Logout user and clear authentication cookies."""
+    response.delete_cookie(
+        key=AUTH_COOKIE_NAME, path="/", httponly=True, secure=True, samesite="strict"
+    )
+    return {"message": "Successfully logged out"}
+
+
 @app.delete("/api/auth/deactivate", status_code=status.HTTP_204_NO_CONTENT)
 async def deactivate_account(
-    current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)
+    response: Response,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
 ) -> None:
     """Deactivate the current user's account."""
     current_user.is_active = False
     await db.commit()
+
+    # Clear cookie on account deactivation
+    response.delete_cookie(
+        key=AUTH_COOKIE_NAME, path="/", httponly=True, secure=True, samesite="strict"
+    )
     return None
 
 

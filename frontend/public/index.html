@@ -118,7 +118,118 @@
                 <button class="modal-close" id="search-modal-close">&times;</button>
             </div>
             <form id="search-form">
-                <!-- Form content will be loaded by JavaScript -->
+                <div class="form-group">
+                    <label for="search-query" class="form-label">Search Query *</label>
+                    <input
+                        type="text"
+                        id="search-query"
+                        class="form-input"
+                        placeholder="e.g., Samsung SSD"
+                        required
+                    >
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="search-zip-code" class="form-label">Postal Code</label>
+                        <input
+                            type="text"
+                            id="search-zip-code"
+                            class="form-input"
+                            placeholder="e.g., 1234AB"
+                            pattern="[0-9]{4}[A-Z]{2}"
+                        >
+                    </div>
+                    <div class="form-group">
+                        <label for="search-distance" class="form-label">Distance (km)</label>
+                        <input
+                            type="number"
+                            id="search-distance"
+                            class="form-input"
+                            min="1"
+                            placeholder="e.g., 25"
+                        >
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="search-price-from" class="form-label">Min Price (€)</label>
+                        <input
+                            type="number"
+                            id="search-price-from"
+                            class="form-input"
+                            min="0"
+                            placeholder="e.g., 50"
+                        >
+                    </div>
+                    <div class="form-group">
+                        <label for="search-price-to" class="form-label">Max Price (€)</label>
+                        <input
+                            type="number"
+                            id="search-price-to"
+                            class="form-input"
+                            min="0"
+                            placeholder="e.g., 500"
+                        >
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="search-limit" class="form-label">Results per fetch</label>
+                        <input
+                            type="number"
+                            id="search-limit"
+                            class="form-input"
+                            min="1"
+                            max="100"
+                            value="25"
+                        >
+                    </div>
+                    <div class="form-group">
+                        <label for="search-interval" class="form-label">Interval (minutes) *</label>
+                        <input
+                            type="number"
+                            id="search-interval"
+                            class="form-input"
+                            min="1"
+                            max="1440"
+                            value="60"
+                            required
+                        >
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="search-sort-by" class="form-label">Sort by</label>
+                        <select id="search-sort-by" class="form-select">
+                            <option value="">Default</option>
+                            <option value="date">Date</option>
+                            <option value="price">Price</option>
+                            <option value="distance">Distance</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="search-sort-order" class="form-label">Sort order</label>
+                        <select id="search-sort-order" class="form-select">
+                            <option value="">Default</option>
+                            <option value="asc">Ascending</option>
+                            <option value="desc">Descending</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-error" id="search-form-error"></div>
+
+                <div style="display: flex; gap: 0.5rem; justify-content: flex-end; margin-top: 1.5rem;">
+                    <button type="button" class="btn btn-secondary" id="cancel-search">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="save-search">
+                        <span class="loading" id="search-save-loading" style="display: none;"></span>
+                        <span id="save-search-text">Create Search</span>
+                    </button>
+                </div>
             </form>
         </div>
     </div>

@@ -5,7 +5,7 @@ Provides decorators and context managers to reduce boilerplate database operatio
 
 import functools
 import logging
-from collections.abc import AsyncGenerator, Callable
+from collections.abc import AsyncGenerator, Awaitable, Callable
 from contextlib import asynccontextmanager
 from typing import Any, TypeVar
 
@@ -43,7 +43,7 @@ async def get_db_session() -> AsyncGenerator[AsyncSession, None]:
             raise
 
 
-def with_db_session(func: Callable[..., T]) -> Callable[..., T]:
+def with_db_session(func: Callable[..., Awaitable[T]]) -> Callable[..., Awaitable[T]]:
     """
     Decorator that provides a database session as the first argument.
 
@@ -63,14 +63,14 @@ def with_db_session(func: Callable[..., T]) -> Callable[..., T]:
     """
 
     @functools.wraps(func)
-    async def wrapper(*args, **kwargs):
+    async def wrapper(*args: Any, **kwargs: Any) -> T:
         async with get_db_session() as db:
             return await func(db, *args, **kwargs)
 
     return wrapper
 
 
-async def execute_with_session(operation: Callable[[AsyncSession], Any]) -> Any:
+async def execute_with_session(operation: Callable[[AsyncSession], Awaitable[T]]) -> T:
     """
     Execute a database operation with automatic session management.
 
@@ -107,7 +107,7 @@ class DatabaseService:
             yield db
 
     @classmethod
-    async def with_session(cls, operation: Callable[[AsyncSession], Any]) -> Any:
+    async def with_session(cls, operation: Callable[[AsyncSession], Awaitable[T]]) -> T:
         """Execute an operation with a database session."""
         async with cls.session() as db:
             return await operation(db)

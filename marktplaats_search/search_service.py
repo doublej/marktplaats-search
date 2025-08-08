@@ -4,8 +4,10 @@ Provides business logic for search management operations.
 """
 
 import uuid
+from typing import Any
 
-from fastapi import HTTPException, status
+from fastapi import HTTPException
+from fastapi import status as http_status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from .crud_base import CRUDBase
@@ -16,29 +18,29 @@ from .scheduler import remove_search_job, schedule_search_job
 class SearchCreateData:
     """Data class for search creation."""
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs: Any) -> None:
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-    def model_dump(self):
+    def model_dump(self) -> dict[str, Any]:
         return dict(self.__dict__.items())
 
 
 class SearchUpdateData:
     """Data class for search updates."""
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs: Any) -> None:
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-    def model_dump(self, exclude_unset=True):
+    def model_dump(self, exclude_unset: bool = True) -> dict[str, Any]:
         return {k: v for k, v in self.__dict__.items() if v is not None}
 
 
 class SearchCRUD(CRUDBase[Search, SearchCreateData, SearchUpdateData]):
     """CRUD operations for Search model."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(Search)
 
     async def update_status(
@@ -70,7 +72,7 @@ class SearchService:
     and scheduler integration.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.crud = SearchCRUD()
 
     async def create_search(
@@ -93,24 +95,25 @@ class SearchService:
         # Validate price range
         if price_from is not None and price_from < 0:
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST, detail="price_from must be non-negative"
+                status_code=http_status.HTTP_400_BAD_REQUEST,
+                detail="price_from must be non-negative",
             )
 
         if price_to is not None and price_to < 0:
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST, detail="price_to must be non-negative"
+                status_code=http_status.HTTP_400_BAD_REQUEST, detail="price_to must be non-negative"
             )
 
         if price_from is not None and price_to is not None and price_from > price_to:
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
+                status_code=http_status.HTTP_400_BAD_REQUEST,
                 detail="price_from must be less than or equal to price_to",
             )
 
         # Validate interval
         if interval < 300:  # Minimum 5 minutes
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
+                status_code=http_status.HTTP_400_BAD_REQUEST,
                 detail="interval must be at least 300 seconds (5 minutes)",
             )
 
@@ -172,12 +175,13 @@ class SearchService:
         # Validate updates
         if price_from is not None and price_from < 0:
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST, detail="price_from must be non-negative"
+                status_code=http_status.HTTP_400_BAD_REQUEST,
+                detail="price_from must be non-negative",
             )
 
         if price_to is not None and price_to < 0:
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST, detail="price_to must be non-negative"
+                status_code=http_status.HTTP_400_BAD_REQUEST, detail="price_to must be non-negative"
             )
 
         # Check price range consistency
@@ -190,18 +194,18 @@ class SearchService:
             and final_price_from > final_price_to
         ):
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
+                status_code=http_status.HTTP_400_BAD_REQUEST,
                 detail="price_from must be less than or equal to price_to",
             )
 
         if interval is not None and interval < 300:
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
+                status_code=http_status.HTTP_400_BAD_REQUEST,
                 detail="interval must be at least 300 seconds (5 minutes)",
             )
 
         # Create update data with only non-None values
-        update_data = {}
+        update_data: dict[str, Any] = {}
         if query is not None:
             update_data["query"] = query.strip()
         if zip_code is not None:

@@ -15,7 +15,7 @@ load_dotenv()
 class Settings:
     """Application settings loaded from environment variables."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         # Database settings
         self.database_url = os.getenv("DATABASE_URL", "sqlite+aiosqlite:///./marktplaats_api.db")
 
@@ -81,7 +81,7 @@ class Settings:
         except ValueError:
             return default
 
-    def _validate_settings(self):
+    def _validate_settings(self) -> None:
         """Validate settings and generate missing security values."""
         # Generate token salt if not provided
         if not self.token_salt:
@@ -90,7 +90,7 @@ class Settings:
             self.token_salt = secrets.token_hex(32)
             self._save_generated_salt()
 
-    def _save_generated_salt(self):
+    def _save_generated_salt(self) -> None:
         """Save generated salt to .env file for persistence."""
         env_file = Path(".env")
 

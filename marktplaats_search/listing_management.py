@@ -11,6 +11,7 @@ This module provides utilities for:
 import logging
 import uuid
 from datetime import UTC, datetime, timedelta
+from typing import Any
 
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -39,7 +40,7 @@ class ListingStats:
 
 async def get_cross_search_duplicates(
     db: AsyncSession, user_id: int, limit: int = 50
-) -> list[dict]:
+) -> list[dict[str, Any]]:
     """
     Find listings that appear across multiple searches for a user.
 
@@ -221,7 +222,7 @@ async def mark_all_user_listings_as_read(db: AsyncSession, user_id: int) -> int:
     return update_result.rowcount
 
 
-async def get_new_listings_summary(db: AsyncSession, user_id: int) -> dict[str, int]:
+async def get_new_listings_summary(db: AsyncSession, user_id: int) -> dict[str, dict[str, Any]]:
     """
     Get summary of new listings per search for a user.
 

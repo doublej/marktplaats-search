@@ -1,0 +1,33 @@
+{
+  "name": "marktplaats-search-frontend",
+  "version": "2.0.0",
+  "description": "Frontend JavaScript for MarktplaatsSearch application",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "lint": "eslint frontend/src/js/**/*.js static/**/*.js",
+    "lint:fix": "eslint frontend/src/js/**/*.js static/**/*.js --fix",
+    "lint:check": "eslint frontend/src/js/**/*.js static/**/*.js --max-warnings 0",
+    "build": "python frontend/build.py"
+  },
+  "devDependencies": {
+    "@eslint/js": "^8.57.0",
+    "@openapitools/openapi-generator-cli": "^2.21.4",
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.1.0",
+    "prettier": "^3.2.0"
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  },
+  "keywords": [
+    "marktplaats",
+    "search",
+    "javascript",
+    "frontend"
+  ],
+  "author": "MarktplaatsSearch Project",
+  "license": "MIT"
+}

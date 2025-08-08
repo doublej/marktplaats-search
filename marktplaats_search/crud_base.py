@@ -33,7 +33,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType], DatabaseS
 
     async def get(self, db: AsyncSession, id: int | UUID) -> ModelType | None:
         """Get a single record by ID."""
-        result = await db.execute(select(self.model).where(self.model.id == id))
+        result = await db.execute(select(self.model).where(self.model.id == id))  # type: ignore[attr-defined]
         return result.scalars().first()
 
     async def get_or_404(self, db: AsyncSession, id: int | UUID) -> ModelType:
@@ -64,11 +64,11 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType], DatabaseS
 
         query = query.offset(skip).limit(limit)
         result = await db.execute(query)
-        return result.scalars().all()
+        return list(result.scalars().all())
 
     async def count(self, db: AsyncSession, filters: dict[str, Any] | None = None) -> int:
         """Count total records with optional filtering."""
-        query = select(func.count(self.model.id))
+        query = select(func.count(self.model.id))  # type: ignore[attr-defined]
 
         if filters:
             for key, value in filters.items():
@@ -76,7 +76,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType], DatabaseS
                     query = query.where(getattr(self.model, key) == value)
 
         result = await db.execute(query)
-        return result.scalar()
+        return result.scalar() or 0
 
     async def create(self, db: AsyncSession, *, obj_in: CreateSchemaType) -> ModelType:
         """Create a new record."""
@@ -135,9 +135,9 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType], DatabaseS
         if not hasattr(self.model, "user_id"):
             raise ValueError(f"{self.model.__name__} does not have user_id field")
 
-        query = select(self.model).where(self.model.user_id == owner_id).offset(skip).limit(limit)
+        query = select(self.model).where(self.model.user_id == owner_id).offset(skip).limit(limit)  # type: ignore[attr-defined]
         result = await db.execute(query)
-        return result.scalars().all()
+        return list(result.scalars().all())
 
     async def get_by_owner_and_id(
         self, db: AsyncSession, *, id: int | UUID, owner_id: int
@@ -146,7 +146,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType], DatabaseS
         if not hasattr(self.model, "user_id"):
             raise ValueError(f"{self.model.__name__} does not have user_id field")
 
-        query = select(self.model).where(self.model.id == id, self.model.user_id == owner_id)
+        query = select(self.model).where(self.model.id == id, self.model.user_id == owner_id)  # type: ignore[attr-defined]
         result = await db.execute(query)
         return result.scalars().first()
 
@@ -230,7 +230,7 @@ class CRUDService(Generic[ModelType, CreateSchemaType, UpdateSchemaType, Respons
         else:
             db_obj = await self.crud.get_or_404(db, item_id)
 
-        await self.crud.delete(db, id=db_obj.id)
+        await self.crud.delete(db, id=db_obj.id)  # type: ignore[attr-defined]
 
     async def get_user_items(
         self, db: AsyncSession, owner_id: int, skip: int = 0, limit: int = 100

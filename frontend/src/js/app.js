@@ -17,6 +17,7 @@ class MarktplaatsSearchApp {
     async init() {
         this.setupEventListeners();
         this.startHealthChecks();
+        this.startProgressUpdates();
 
         // Initialize services
         await this.initializeServices();
@@ -35,6 +36,9 @@ class MarktplaatsSearchApp {
                 this.renderSearches();
             }
         });
+
+        // Initialize SearchForm component
+        this.searchForm = new SearchForm(this);
     }
 
     setupEventListeners() {
@@ -149,15 +153,68 @@ class MarktplaatsSearchApp {
         const searchId = search.id;
         const isActive = this.selectedSearchId === searchId;
 
+        // Calculate progress for active searches
+        let progressData = null;
+        if (search.status === 'active' && search.last_run_at && search.interval) {
+            const lastRun = new Date(search.last_run_at);
+            const nextRun = new Date(lastRun.getTime() + (search.interval * 1000));
+            const now = new Date();
+
+            const totalDuration = search.interval * 1000; // in milliseconds
+            const elapsed = now.getTime() - lastRun.getTime();
+            const progress = Math.min(Math.max(elapsed / totalDuration * 100, 0), 100);
+
+            progressData = {
+                progress: progress,
+                lastRun: lastRun,
+                nextRun: nextRun,
+                isOverdue: now > nextRun
+            };
+        }
+
         return `
             <div class="search-item ${isActive ? 'active' : ''}" onclick="app.selectSearch('${searchId}')">
                 <div class="search-item-title">${escapeHtml(search.query)}</div>
                 <div class="search-meta">
-                    <span>${search.zip_code || 'All locations'}</span>
+                    <span style="font-size: 0.65rem;">${search.zip_code || 'All locations'}</span>
                     <span class="status-badge status-${statusClass}">${search.status}</span>
                 </div>
+                ${progressData ? `
+                    <div style="margin-top: 0.4rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.6rem; color: var(--text-secondary, #6b7280); margin-bottom: 0.2rem;">
+                            <span>Last: ${this.formatTime(progressData.lastRun)}</span>
+                            <span ${progressData.isOverdue ? 'style="color: var(--error-color, #ef4444); font-weight: 500;"' : ''}>
+                                Next: ${this.formatTime(progressData.nextRun)}
+                            </span>
+                        </div>
+                        <div style="width: 100%; height: 3px; background: var(--surface, #f1f5f9); border-radius: 1.5px; overflow: hidden;">
+                            <div style="
+                                height: 100%;
+                                width: ${progressData.progress}%;
+                                background: ${progressData.isOverdue ? 'var(--error-color, #ef4444)' : 'var(--primary-color, #3b82f6)'};
+                                transition: width 0.3s ease;
+                                border-radius: 1.5px;
+                            "></div>
+                        </div>
+                    </div>
+                ` : ''}
             </div>
         `;
+    }
+
+    formatTime(date) {
+        const now = new Date();
+        const diff = Math.abs(now - date);
+        const minutes = Math.floor(diff / 60000);
+        const hours = Math.floor(minutes / 60);
+
+        if (minutes < 60) {
+            return `${minutes}m`;
+        } else if (hours < 24) {
+            return `${hours}h ${minutes % 60}m`;
+        } else {
+            return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
     }
 
     selectSearch(searchId) {
@@ -241,7 +298,8 @@ class MarktplaatsSearchApp {
         const price = escapeHtml(result.price || 'Contact for price');
         const description = result.description ? escapeHtml(result.description) : '';
         const location = result.location ? escapeHtml(result.location) : '';
-        const datePosted = result.date_posted || result.discovered_at;
+        const datePosted = result.date_posted;
+        const dateDiscovered = result.discovered_at;
 
         return `
             <article class="result-card ${isNew ? 'new-item' : ''}" style="
@@ -290,12 +348,23 @@ class MarktplaatsSearchApp {
                             </strong>
                             ${location ? `
                                 <span style="color: var(--text-secondary, #6b7280); font-size: 0.75rem;">
-                                    ${location}
+                                    📍 ${location}
                                 </span>
                             ` : ''}
+                        </div>
+
+                        <!-- Date information -->
+                        <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem; flex-wrap: wrap; font-size: 0.7rem; color: var(--text-secondary, #6b7280);">
                             ${datePosted ? `
-                                <time style="color: var(--text-secondary, #6b7280); font-size: 0.75rem;">
+                                <time style="display: flex; align-items: center; gap: 0.25rem;">
+                                    <span style="font-weight: 500;">Posted:</span>
                                     ${formatTimeAgo(datePosted)}
+                                </time>
+                            ` : ''}
+                            ${dateDiscovered ? `
+                                <time style="display: flex; align-items: center; gap: 0.25rem;">
+                                    <span style="font-weight: 500;">Found:</span>
+                                    ${formatTimeAgo(dateDiscovered)}
                                 </time>
                             ` : ''}
                         </div>
@@ -522,19 +591,14 @@ class MarktplaatsSearchApp {
         $(`#${tabName}-tab`)?.classList.add('active');
     }
 
-    openSearchModal() {
-        const modal = $('#search-modal');
-        if (modal) {
-            modal.classList.add('open');
-        }
+    openSearchModal(search = null) {
+        this.searchForm.open(search);
     }
 
     closeSearchModal() {
-        const modal = $('#search-modal');
-        if (modal) {
-            modal.classList.remove('open');
-        }
+        this.searchForm.close();
     }
+
 
     async refreshAllSearches() {
         try {
@@ -590,6 +654,20 @@ class MarktplaatsSearchApp {
         setInterval(() => {
             this.checkHealth();
         }, CONFIG.DEFAULTS.HEALTH_CHECK_INTERVAL);
+    }
+
+    startProgressUpdates() {
+        // Update progress bars every 30 seconds
+        this.progressUpdateInterval = setInterval(() => {
+            this.updateProgressBars();
+        }, 30000);
+    }
+
+    updateProgressBars() {
+        if (!this.searches || this.searches.length === 0) return;
+
+        // Re-render search list to update progress bars
+        this.renderSearches(this.searches);
     }
 
     async checkHealth() {

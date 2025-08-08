@@ -5,15 +5,47 @@
 class ApiService {
     constructor() {
         this.baseUrl = CONFIG.API_BASE_URL;
-        this.token = localStorage.getItem(CONFIG.STORAGE_KEYS.API_TOKEN) || '';
+        this.token = localStorage.getItem(CONFIG.STORAGE_KEYS.API_TOKEN) ||
+                    (CONFIG.FEATURE_FLAGS.FALLBACK_TO_COOKIE ? this.getCookie(CONFIG.COOKIE_KEYS.API_TOKEN) : '') ||
+                    '';
+    }
+
+    getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+        return null;
+    }
+
+    setCookie(name, value, days = CONFIG.COOKIE_CONFIG.MAX_AGE_DAYS) {
+        let expires = "";
+        if (days) {
+            const date = new Date();
+            date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+            expires = "; expires=" + date.toUTCString();
+        }
+        const secure = CONFIG.COOKIE_CONFIG.SECURE ? "; secure" : "";
+        const sameSite = `; samesite=${CONFIG.COOKIE_CONFIG.SAME_SITE}`;
+        const path = `; path=${CONFIG.COOKIE_CONFIG.PATH}`;
+        document.cookie = `${name}=${value || ""}${expires}${path}${secure}${sameSite}`;
+    }
+
+    deleteCookie(name) {
+        document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=${CONFIG.COOKIE_CONFIG.PATH};`;
     }
 
     setToken(token) {
         this.token = token;
         if (token) {
             localStorage.setItem(CONFIG.STORAGE_KEYS.API_TOKEN, token);
+            if (CONFIG.FEATURE_FLAGS.COOKIE_AUTH) {
+                this.setCookie(CONFIG.COOKIE_KEYS.API_TOKEN, token);
+            }
         } else {
             localStorage.removeItem(CONFIG.STORAGE_KEYS.API_TOKEN);
+            if (CONFIG.FEATURE_FLAGS.COOKIE_AUTH) {
+                this.deleteCookie(CONFIG.COOKIE_KEYS.API_TOKEN);
+            }
         }
     }
 
@@ -105,6 +137,10 @@ class ApiService {
         return this.get('/api/searches');
     }
 
+    async getSearch(searchId) {
+        return this.get(`/api/searches/${searchId}`);
+    }
+
     async createSearch(searchData) {
         return this.post('/api/searches', searchData);
     }
@@ -135,6 +171,16 @@ class ApiService {
     async cleanupOldListings(options = {}) {
         const params = new URLSearchParams(options);
         return this.post(`/api/admin/cleanup-listings?${params}`);
+    }
+
+    async logout() {
+        try {
+            await this.post('/api/auth/logout');
+        } catch (error) {
+            console.warn('Logout request failed:', error);
+        } finally {
+            this.setToken('');
+        }
     }
 }
 

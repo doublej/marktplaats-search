@@ -26,6 +26,7 @@ dependencies = [
     "passlib[bcrypt]>=1.7.0",
     "python-jose[cryptography]>=3.3.0",
     "marktplaats>=0.3.1",
+    "alembic>=1.16.4",
 ]
 
 [project.optional-dependencies]
@@ -88,5 +89,6 @@ addopts = []
 
 [dependency-groups]
 dev = [
+    "mypy>=1.17.1",
     "pytest>=8.4.1",
 ]

@@ -1,4 +1,5 @@
 import logging
+from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 
 import uvicorn
@@ -16,7 +17,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-async def _create_default_user_if_not_exists():  # Renamed to indicate internal use
+async def _create_default_user_if_not_exists() -> None:  # Renamed to indicate internal use
     """Creates a default user and API token if configured and in dev mode."""
     # Only create default user if explicitly enabled and in dev mode
     if not settings.create_default_user or not settings.dev_mode:
@@ -41,7 +42,7 @@ async def _create_default_user_if_not_exists():  # Renamed to indicate internal 
     async with AsyncSessionLocal() as db:
         # Check if any users exist
         result = await db.execute(select(User))
-        existing_users = result.scalars().all()
+        existing_users = list(result.scalars().all())
 
         if not existing_users:
             logger.info(f"Creating default user '{default_user_identifier}'")
@@ -60,7 +61,7 @@ async def _create_default_user_if_not_exists():  # Renamed to indicate internal 
 
 
 @asynccontextmanager
-async def lifespan(app_instance: FastAPI):
+async def lifespan(app_instance: FastAPI) -> AsyncGenerator[None, None]:
     # Startup logic
     logger.info("Application startup: Initializing database and scheduler...")
     await create_db_and_tables()
@@ -90,7 +91,7 @@ async def lifespan(app_instance: FastAPI):
 # We will adjust api.py to accept the lifespan.
 
 
-def run_server():
+def run_server() -> None:
     """
     Configures and runs the Uvicorn server.
     The 'app' instance is now expected to be imported from api.py,

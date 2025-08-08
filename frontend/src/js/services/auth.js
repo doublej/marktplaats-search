@@ -15,8 +15,18 @@ class AuthService {
     }
 
     init() {
-        const token = localStorage.getItem(CONFIG.STORAGE_KEYS.API_TOKEN);
+        const localToken = localStorage.getItem(CONFIG.STORAGE_KEYS.API_TOKEN);
+        const cookieToken = CONFIG.FEATURE_FLAGS.FALLBACK_TO_COOKIE ?
+            apiService.getCookie(CONFIG.COOKIE_KEYS.API_TOKEN) : null;
+
+        const token = localToken || cookieToken;
         if (token) {
+            // Ensure both storage methods have the token
+            if (localToken && !cookieToken && CONFIG.FEATURE_FLAGS.COOKIE_AUTH) {
+                apiService.setCookie(CONFIG.COOKIE_KEYS.API_TOKEN, localToken);
+            } else if (!localToken && cookieToken) {
+                localStorage.setItem(CONFIG.STORAGE_KEYS.API_TOKEN, cookieToken);
+            }
             this.validateStoredToken();
         }
     }
@@ -27,25 +37,38 @@ class AuthService {
             this.setAuthenticatedState(true, user);
         } catch (error) {
             console.warn('Stored token is invalid:', error.message);
+            // Clear both localStorage and cookies
+            apiService.setToken('');
             this.setAuthenticatedState(false);
         }
     }
 
     async authenticate(token) {
         try {
-            apiService.setToken(token);
+            apiService.setToken(token); // This now handles both localStorage and cookie
             const user = await apiService.validateToken();
+
+            // Attempt to set server-side cookie for persistence
+            if (CONFIG.FEATURE_FLAGS.COOKIE_AUTH) {
+                try {
+                    await apiService.post('/api/auth/set-cookie');
+                } catch (cookieError) {
+                    console.warn('Failed to set server cookie:', cookieError);
+                    // Continue anyway - client-side cookie should still work
+                }
+            }
+
             this.setAuthenticatedState(true, user);
             return true;
         } catch (error) {
-            apiService.setToken('');
+            apiService.setToken(''); // This now clears both localStorage and cookie
             this.setAuthenticatedState(false);
             throw error;
         }
     }
 
-    logout() {
-        apiService.setToken('');
+    async logout() {
+        await apiService.logout(); // This handles server-side logout and clears tokens
         this.setAuthenticatedState(false);
     }
 
@@ -91,6 +114,18 @@ class AuthService {
 
     isUserAuthenticated() {
         return this.isAuthenticated;
+    }
+
+    syncTokenStorage() {
+        const localToken = localStorage.getItem(CONFIG.STORAGE_KEYS.API_TOKEN);
+        const cookieToken = apiService.getCookie(CONFIG.COOKIE_KEYS.API_TOKEN);
+
+        if (localToken && !cookieToken && CONFIG.FEATURE_FLAGS.COOKIE_AUTH) {
+            apiService.setCookie(CONFIG.COOKIE_KEYS.API_TOKEN, localToken);
+        } else if (!localToken && cookieToken && CONFIG.FEATURE_FLAGS.FALLBACK_TO_COOKIE) {
+            localStorage.setItem(CONFIG.STORAGE_KEYS.API_TOKEN, cookieToken);
+            apiService.setToken(cookieToken); // Update apiService instance
+        }
     }
 }
 

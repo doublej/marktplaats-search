@@ -754,6 +754,17 @@ function setupPeriodicHealthCheck() {
 }
 
 /**
+ * Format interval for display
+ */
+function formatInterval(seconds) {
+    if (!seconds || seconds < 60) return `${seconds || 0}s`;
+    const minutes = Math.round(seconds / 60);
+    if (minutes < 60) return `${minutes}m`;
+    const hours = Math.round(minutes / 60);
+    return `${hours}h`;
+}
+
+/**
  * Format date for display
  */
 function formatDate(dateString) {

@@ -6,7 +6,11 @@
         "hooks": [
           {
             "type": "command",
-            "command": "echo 'Running pre-change quality checks...' && ruff format . >/dev/null && (LC_ALL=C LANG=C ruff check . --fix | tr -cd '\t\n\r\040-\176' | head -n 200 || true)"
+            "command": "echo 'Running pre-change quality checks...' && ruff format . >/dev/null && (LC_ALL=C LANG=C ruff check . --fix | tr -cd '\\t\\n\\r\\040-\\176' | head -n 200 || true)"
+          },
+          {
+            "type": "command",
+            "command": "if [ -f package.json ] && [ -d node_modules ]; then echo 'Running JavaScript quality checks...' && (npm run lint:fix >/dev/null 2>&1 || true); fi"
           }
         ]
       },
@@ -26,7 +30,11 @@
         "hooks": [
           {
             "type": "command",
-            "command": "echo 'Code modified, running post-change checks...' && (LC_ALL=C LANG=C mypy . --ignore-missing-imports | tr -cd '\t\n\r\040-\176' | head -n 200 || echo 'Type checking issues found')"
+            "command": "echo 'Code modified, running post-change checks...' && (LC_ALL=C LANG=C mypy . --ignore-missing-imports | tr -cd '\\t\\n\\r\\040-\\176' | head -n 200 || echo 'Type checking issues found')"
+          },
+          {
+            "type": "command",
+            "command": "if [ -f package.json ] && [ -d node_modules ]; then echo 'Checking JavaScript code quality...' && (npm run lint --silent | head -n 20 || echo 'JavaScript linting issues found'); fi"
           }
         ]
       }
@@ -46,6 +54,10 @@
       {
         "matcher": ".*",
         "hooks": [
+          {
+            "type": "command",
+            "command": "echo 'Running final quality checks before commit...' && ruff check . && ruff format . >/dev/null && (if [ -f package.json ] && [ -d node_modules ]; then npm run lint --silent || echo 'JavaScript linting completed with issues'; fi) && echo 'Quality checks completed'"
+          },
           {
             "type": "command",
             "command": "if [ -d .git ] && ! git diff --quiet; then echo 'Creating commit after Claude Code changes...' && git add -A && git commit -m 'Implement changes with Claude Code\n\nGenerated with Claude Code\n\nCo-Authored-By: Claude <noreply@anthropic.com>' || true; fi"

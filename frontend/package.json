@@ -1,0 +1,15 @@
+{
+  "name": "marktplaats-search-frontend",
+  "version": "1.0.0",
+  "description": "Frontend assets for MarktplaatsSearch application",
+  "scripts": {
+    "build": "npm run build:css && npm run build:js",
+    "build:css": "cat src/css/utilities/reset.css src/css/utilities/variables.css src/css/layouts/*.css src/css/components/*.css src/css/utilities/responsive.css > dist/styles.css",
+    "build:js": "cat src/js/config/*.js src/js/services/*.js src/js/components/*.js src/js/utils/*.js src/js/app.js > dist/app.js",
+    "watch": "npm run build && echo 'Watching for changes...'",
+    "clean": "rm -rf dist/* && mkdir -p dist"
+  },
+  "devDependencies": {
+    "@openapitools/openapi-generator-cli": "^2.13.4"
+  }
+}

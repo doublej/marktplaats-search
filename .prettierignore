@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+frontend/dist/
+build/
+coverage/
+
+# Minified files
+**/*.min.js
+**/*.min.css
+
+# Generated files
+*.generated.js
+*.bundle.js
+
+# Python files (handled by ruff)
+**/*.py
+
+# Configuration files that should maintain their format
+package-lock.json
+yarn.lock
+uv.lock
+*.toml
+*.yaml
+*.yml
+
+# Git
+.git/

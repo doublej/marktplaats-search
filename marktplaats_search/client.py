@@ -3,6 +3,7 @@ import contextlib
 import logging
 import re
 from datetime import datetime, timedelta
+from typing import Any
 from urllib.parse import quote_plus, urlencode
 
 import httpx
@@ -48,11 +49,11 @@ class MarktplaatsScraper:
     BASE_URL = "https://www.marktplaats.nl"
     SEARCH_URL = "https://www.marktplaats.nl/q/{query}/"
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.ua = UserAgent()
         self.session: httpx.AsyncClient | None = None
 
-    async def __aenter__(self):
+    async def __aenter__(self) -> "MarktplaatsScraper":
         """Async context manager entry."""
         self.session = httpx.AsyncClient(
             timeout=30.0,
@@ -70,7 +71,7 @@ class MarktplaatsScraper:
         )
         return self
 
-    async def __aexit__(self, exc_type, exc_val, exc_tb):
+    async def __aexit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> None:
         """Async context manager exit."""
         if self.session:
             await self.session.aclose()
@@ -179,7 +180,7 @@ class MarktplaatsScraper:
 
         return listings
 
-    def _parse_single_listing(self, container) -> ListingItem | None:
+    def _parse_single_listing(self, container: Any) -> ListingItem | None:
         """Parse a single listing from its container element."""
         # Find URL first (most reliable identifier)
         link_elem = None
@@ -312,7 +313,9 @@ class MarktplaatsScraper:
         for pattern in seller_patterns:
             seller_match = re.search(f"{pattern}[:\\s]*([^\\n\\r,]+)", all_text, re.I)
             if seller_match:
-                seller = self._clean_text(seller_match.group(1))[:50]
+                cleaned_seller = self._clean_text(seller_match.group(1))
+                if cleaned_seller:
+                    seller = cleaned_seller[:50]
                 break
 
         # Extract views
@@ -341,23 +344,103 @@ class MarktplaatsScraper:
         # Extract post date - look for date patterns
         date_posted = None
         date_patterns = [
+            # Dutch month names pattern
             r"(\d{1,2})\s*(jan|feb|mrt|apr|mei|jun|jul|aug|sep|okt|nov|dec)\s*(\d{4})",
+            # Numeric date patterns
             r"(\d{1,2})[/-](\d{1,2})[/-](\d{4})",
-            r"gisteren|vandaag|(?:\d+\s*(?:uur|dag|week)(?:en)?\s*geleden)",
+            r"(\d{4})-(\d{1,2})-(\d{1,2})",
+            # Relative time patterns
+            r"gisteren|vandaag|(?:\d+\s*(?:uur|dag|dagen|week|weken|maand|maanden)(?:en)?\s*geleden)",
         ]
+
         for pattern in date_patterns:
             date_match = re.search(pattern, all_text, re.I)
             if date_match:
-                # For now, just store the matched text - proper parsing can be added later
-                date_text = date_match.group(0)
-                # Convert basic patterns to datetime if possible
-                if "vandaag" in date_text.lower():
-                    date_posted = datetime.now().replace(hour=12, minute=0, second=0, microsecond=0)
-                elif "gisteren" in date_text.lower():
-                    date_posted = (datetime.now() - timedelta(days=1)).replace(
-                        hour=12, minute=0, second=0, microsecond=0
-                    )
-                break
+                date_text = date_match.group(0).lower()
+
+                try:
+                    # Handle relative dates
+                    if "vandaag" in date_text:
+                        date_posted = datetime.now().replace(
+                            hour=12, minute=0, second=0, microsecond=0
+                        )
+                    elif "gisteren" in date_text:
+                        date_posted = (datetime.now() - timedelta(days=1)).replace(
+                            hour=12, minute=0, second=0, microsecond=0
+                        )
+                    elif "geleden" in date_text:
+                        # Extract number and time unit
+                        time_match = re.search(
+                            r"(\d+)\s*(uur|dag|dagen|week|weken|maand|maanden)", date_text
+                        )
+                        if time_match:
+                            number = int(time_match.group(1))
+                            unit = time_match.group(2)
+
+                            if "uur" in unit:
+                                date_posted = datetime.now() - timedelta(hours=number)
+                            elif "dag" in unit:
+                                date_posted = datetime.now() - timedelta(days=number)
+                            elif "week" in unit:
+                                date_posted = datetime.now() - timedelta(weeks=number)
+                            elif "maand" in unit:
+                                date_posted = datetime.now() - timedelta(
+                                    days=number * 30
+                                )  # Approximate
+
+                            if date_posted:
+                                date_posted = date_posted.replace(
+                                    hour=12, minute=0, second=0, microsecond=0
+                                )
+
+                    # Handle Dutch month names
+                    elif re.match(
+                        r"(\d{1,2})\s*(jan|feb|mrt|apr|mei|jun|jul|aug|sep|okt|nov|dec)\s*(\d{4})",
+                        date_text,
+                    ):
+                        month_map = {
+                            "jan": 1,
+                            "feb": 2,
+                            "mrt": 3,
+                            "apr": 4,
+                            "mei": 5,
+                            "jun": 6,
+                            "jul": 7,
+                            "aug": 8,
+                            "sep": 9,
+                            "okt": 10,
+                            "nov": 11,
+                            "dec": 12,
+                        }
+                        match = re.match(
+                            r"(\d{1,2})\s*(jan|feb|mrt|apr|mei|jun|jul|aug|sep|okt|nov|dec)\s*(\d{4})",
+                            date_text,
+                        )
+                        if match:
+                            day, month_str, year = match.groups()
+                            month = month_map.get(month_str.lower())
+                            if month:
+                                date_posted = datetime(int(year), month, int(day), 12, 0, 0)
+
+                    # Handle numeric date patterns
+                    elif re.match(r"(\d{1,2})[/-](\d{1,2})[/-](\d{4})", date_text):
+                        match = re.match(r"(\d{1,2})[/-](\d{1,2})[/-](\d{4})", date_text)
+                        if match:
+                            day, month, year = match.groups()
+                            date_posted = datetime(int(year), int(month), int(day), 12, 0, 0)
+
+                    elif re.match(r"(\d{4})-(\d{1,2})-(\d{1,2})", date_text):
+                        match = re.match(r"(\d{4})-(\d{1,2})-(\d{1,2})", date_text)
+                        if match:
+                            year, month, day = match.groups()
+                            date_posted = datetime(int(year), int(month), int(day), 12, 0, 0)
+
+                except (ValueError, OverflowError) as e:
+                    logger.debug(f"Failed to parse date '{date_text}': {e}")
+                    date_posted = None
+
+                if date_posted:
+                    break
 
         try:
             return ListingItem(
@@ -434,6 +517,8 @@ async def fetch_listings(
             await asyncio.sleep(1.0)
 
             # Fetch the search results page with redirect handling
+            if not scraper.session:
+                raise MarktplaatsScrapingError("Session not initialized")
             response = await scraper.session.get(search_url, follow_redirects=True)
             response.raise_for_status()
 
