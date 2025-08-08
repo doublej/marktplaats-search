@@ -31,11 +31,53 @@ class AuthService {
             } else if (!localToken && cookieToken) {
                 localStorage.setItem(CONFIG.STORAGE_KEYS.API_TOKEN, cookieToken);
             }
-            this.validateStoredToken();
+            
+            // Validate token when apiService becomes available
+            if (window.apiService) {
+                this.validateStoredToken();
+            } else {
+                // Wait for apiService to be available
+                this.waitForApiServiceAndValidate();
+            }
         }
+    }
+    
+    waitForApiServiceAndValidate() {
+        // Poll for apiService availability
+        const checkApiService = () => {
+            if (window.apiService) {
+                this.validateStoredToken();
+            } else {
+                setTimeout(checkApiService, 50); // Check every 50ms
+            }
+        };
+        
+        // Start checking, but with a timeout
+        const startTime = Date.now();
+        const timeoutMs = 5000; // 5 second timeout
+        
+        const checkWithTimeout = () => {
+            if (window.apiService) {
+                this.validateStoredToken();
+            } else if (Date.now() - startTime < timeoutMs) {
+                setTimeout(checkWithTimeout, 50);
+            } else {
+                console.warn('apiService not available after timeout, skipping token validation');
+                this.setAuthenticatedState(false);
+            }
+        };
+        
+        checkWithTimeout();
     }
 
     async validateStoredToken() {
+        // Check if apiService is available
+        if (!window.apiService) {
+            console.warn('apiService not available, skipping token validation');
+            this.setAuthenticatedState(false);
+            return;
+        }
+        
         try {
             const user = await window.apiService.validateToken();
             this.setAuthenticatedState(true, user);
