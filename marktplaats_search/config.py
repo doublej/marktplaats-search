@@ -57,6 +57,9 @@ class Settings:
         self.rate_limit_enabled = self._get_bool_env("RATE_LIMIT_ENABLED", True)
         self.rate_limit_requests = self._get_int_env("RATE_LIMIT_REQUESTS", 100)
         self.rate_limit_period = self._get_int_env("RATE_LIMIT_PERIOD", 60)  # seconds
+        
+        # API pagination defaults
+        self.default_frontend_limit = self._get_int_env("DEFAULT_FRONTEND_LIMIT", 20)
 
         # Logging
         self.log_level = os.getenv("LOG_LEVEL", "INFO")

@@ -814,7 +814,7 @@ async def get_search_results_endpoint(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
     skip: int = FastAPIQuery(0, ge=0, description="Number of records to skip for pagination"),
-    limit: int = FastAPIQuery(20, ge=1, le=100, description="Maximum number of records to return"),
+    limit: int = FastAPIQuery(settings.default_frontend_limit, ge=1, le=100, description="Maximum number of records to return"),
     show_new_only: bool = FastAPIQuery(False, description="Filter to show only new listings"),
     category_id: int | None = FastAPIQuery(None, description="Filter by category ID"),
     seller_type: str | None = FastAPIQuery(
