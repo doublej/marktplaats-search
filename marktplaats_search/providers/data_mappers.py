@@ -290,7 +290,7 @@ class MarktplaatsLibraryDataMapper:
 
     @staticmethod
     def convert_search_params(
-        search_context, provider_config: dict[str, Any] | None = None
+        search_context: Any, provider_config: dict[str, Any] | None = None
     ) -> dict[str, Any]:
         """
         Convert SearchContext parameters to marktplaats library format.

@@ -6,6 +6,7 @@ ensuring consistent behavior across different data sources (HTML scraping, API l
 
 import logging
 from abc import ABC, abstractmethod
+from collections.abc import Awaitable, Callable
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
@@ -214,7 +215,9 @@ class MarktplaatsProvider(ABC):
                 f"after {self._consecutive_errors} consecutive errors"
             )
 
-    async def _execute_with_circuit_breaker(self, operation_name: str, operation) -> Any:
+    async def _execute_with_circuit_breaker(
+        self, operation_name: str, operation: Callable[[], Awaitable[Any]]
+    ) -> Any:
         """Execute an operation with circuit breaker protection.
 
         Args:

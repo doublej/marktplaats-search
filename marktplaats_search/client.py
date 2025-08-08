@@ -140,24 +140,28 @@ class MarktplaatsScraper:
         """Parse listings from HTML content."""
         soup = BeautifulSoup(html, "lxml")
         listings = []
+        listing_containers: list[Any] = []
 
         # Try to find listings in different ways
 
         # Method 1: Look for specific listing containers
-        listing_containers = soup.find_all(
+        method1_containers = soup.find_all(
             "div", class_=re.compile(r"hz-Listing-item-wrapper", re.I)
         )
+        if method1_containers:
+            listing_containers = list(method1_containers)
 
         if not listing_containers:
             # Method 2: Look for elements with listing content
-            listing_containers = soup.find_all(
+            method2_containers = soup.find_all(
                 "div", class_=re.compile(r"hz-Listing-listview-content", re.I)
             )
+            if method2_containers:
+                listing_containers = list(method2_containers)
 
         if not listing_containers:
             # Method 3: Find parent containers of listing links
             listing_links = soup.find_all("a", href=re.compile(r"/m\d+"))
-            listing_containers = []
             for link in listing_links:
                 # Find parent container that likely contains all listing info
                 parent = link.find_parent("div", class_=re.compile(r"hz-Listing", re.I))
@@ -417,23 +421,27 @@ class MarktplaatsScraper:
                             date_text,
                         )
                         if match:
-                            day, month_str, year = match.groups()
+                            day_str, month_str, year_str = match.groups()
                             month = month_map.get(month_str.lower())
                             if month:
-                                date_posted = datetime(int(year), month, int(day), 12, 0, 0)
+                                date_posted = datetime(int(year_str), month, int(day_str), 12, 0, 0)
 
                     # Handle numeric date patterns
                     elif re.match(r"(\d{1,2})[/-](\d{1,2})[/-](\d{4})", date_text):
                         match = re.match(r"(\d{1,2})[/-](\d{1,2})[/-](\d{4})", date_text)
                         if match:
-                            day, month, year = match.groups()
-                            date_posted = datetime(int(year), int(month), int(day), 12, 0, 0)
+                            day_str, month_str, year_str = match.groups()
+                            date_posted = datetime(
+                                int(year_str), int(month_str), int(day_str), 12, 0, 0
+                            )
 
                     elif re.match(r"(\d{4})-(\d{1,2})-(\d{1,2})", date_text):
                         match = re.match(r"(\d{4})-(\d{1,2})-(\d{1,2})", date_text)
                         if match:
-                            year, month, day = match.groups()
-                            date_posted = datetime(int(year), int(month), int(day), 12, 0, 0)
+                            year_str, month_str, day_str = match.groups()
+                            date_posted = datetime(
+                                int(year_str), int(month_str), int(day_str), 12, 0, 0
+                            )
 
                 except (ValueError, OverflowError) as e:
                     logger.debug(f"Failed to parse date '{date_text}': {e}")

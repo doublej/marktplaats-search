@@ -20,8 +20,8 @@ try:
 
     _MARKTPLAATS_LIBRARY_AVAILABLE = True
 except ImportError:
-    MarktplaatsLibraryProvider = None
-    MarktplaatsLibraryProviderConfig = None
+    MarktplaatsLibraryProvider = None  # type: ignore
+    MarktplaatsLibraryProviderConfig = None  # type: ignore
     _MARKTPLAATS_LIBRARY_AVAILABLE = False
 
 __all__ = [

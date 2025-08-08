@@ -40,7 +40,9 @@ class ProviderManagerConfig(BaseModel):
     provider_configs: dict[str, ProviderConfig] = Field(default_factory=dict)
 
     @validator("fallback_providers")
-    def validate_fallback_providers(cls, v, values):
+    def validate_fallback_providers(
+        cls, v: list[ProviderType], values: dict[str, Any]
+    ) -> list[ProviderType]:
         """Ensure fallback providers don't include primary provider."""
         primary = values.get("primary_provider")
         if primary and primary in v:
@@ -75,7 +77,7 @@ class ListingProviderManager:
         )
 
         # Health monitoring
-        self._health_check_task: asyncio.Task | None = None
+        self._health_check_task: asyncio.Task[None] | None = None
         self._last_health_check: datetime | None = None
 
     def register_provider(
@@ -103,11 +105,64 @@ class ListingProviderManager:
             del self.providers[provider_type]
             self.logger.info(f"Unregistered provider: {provider_type.value}")
 
-    async def search_listings(self, context: SearchContext) -> ProviderResult:
+    async def initialize(self) -> None:
+        """Initialize the provider manager and register providers."""
+        # Register HTML scraper provider
+        from .html_scraper import HtmlScrapingProvider
+
+        html_config = self.config.provider_configs.get(ProviderType.HTML_SCRAPER.value)
+        if html_config is None:
+            html_config = ProviderConfig(provider_type=ProviderType.HTML_SCRAPER)
+
+        html_provider = HtmlScrapingProvider(html_config)
+        self.register_provider(html_provider)
+
+        # Try to register library provider if available
+        try:
+            from .marktplaats_library_provider import (
+                MarktplaatsLibraryProvider,
+                MarktplaatsLibraryProviderConfig,
+            )
+
+            library_config = self.config.provider_configs.get(
+                ProviderType.MARKTPLAATS_LIBRARY.value
+            )
+            if library_config is None:
+                library_provider_config = MarktplaatsLibraryProviderConfig()
+            else:
+                # Convert generic config to library-specific config
+                library_provider_config = MarktplaatsLibraryProviderConfig(**library_config.dict())
+
+            library_provider = MarktplaatsLibraryProvider(library_provider_config)
+            self.register_provider(library_provider)
+        except ImportError:
+            self.logger.info("Marktplaats library provider not available, skipping registration")
+
+    async def shutdown(self) -> None:
+        """Shutdown the provider manager and cleanup resources."""
+        await self.cleanup()
+
+    async def get_provider_status(self) -> dict[str, Any]:
+        """Get comprehensive status of all providers."""
+        provider_info = {}
+
+        for provider_type, provider in self.providers.items():
+            provider_info[provider_type.value] = await provider.get_provider_info()
+
+        return {
+            "providers": provider_info,
+            "metrics": self.get_manager_metrics(),
+            "health_check_status": await self.health_check_all_providers(),
+        }
+
+    async def search_listings(
+        self, context: SearchContext, preferred_provider: ProviderType | None = None
+    ) -> ProviderResult:
         """Search for listings using the configured provider strategy.
 
         Args:
             context: Search parameters and context
+            preferred_provider: Optional preferred provider to try first
 
         Returns:
             ProviderResult with listings or error information
@@ -115,10 +170,20 @@ class ListingProviderManager:
         self._search_count += 1
         start_time = datetime.now()
 
-        # Determine provider order: primary first, then fallbacks
-        provider_order = [self.config.primary_provider]
+        # Determine provider order: preferred first (if specified), then primary, then fallbacks
+        provider_order = []
+        if preferred_provider:
+            provider_order.append(preferred_provider)
+
+        # Add primary provider if not already in list
+        if self.config.primary_provider not in provider_order:
+            provider_order.append(self.config.primary_provider)
+
+        # Add fallbacks if provider switching is enabled
         if self.config.enable_provider_switching:
-            provider_order.extend(self.config.fallback_providers)
+            for fallback in self.config.fallback_providers:
+                if fallback not in provider_order:
+                    provider_order.append(fallback)
 
         # Filter to only registered and healthy providers
         available_providers = []
