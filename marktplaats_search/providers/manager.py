@@ -159,7 +159,8 @@ class ListingProviderManager:
         provider_info = {}
 
         for provider_type, provider in self.providers.items():
-            provider_info[provider_type.value] = await provider.get_provider_info()
+            provider_key = provider_type.value if hasattr(provider_type, "value") else provider_type
+            provider_info[provider_key] = await provider.get_provider_info()
 
         return {
             "providers": provider_info,
@@ -224,7 +225,10 @@ class ListingProviderManager:
         last_result = None
         for provider_type, provider in available_providers:
             try:
-                self.logger.info(f"Attempting search with provider: {provider_type.value}")
+                provider_name = (
+                    provider_type.value if hasattr(provider_type, "value") else provider_type
+                )
+                self.logger.info(f"Attempting search with provider: {provider_name}")
 
                 # Update provider stats
                 self._provider_stats[provider_type]["attempts"] += 1
@@ -247,8 +251,11 @@ class ListingProviderManager:
                             old_avg * (stats["successes"] - 1) + result.execution_time_ms
                         ) / stats["successes"]
 
+                    provider_name = (
+                        provider_type.value if hasattr(provider_type, "value") else provider_type
+                    )
                     self.logger.info(
-                        f"Search successful with provider {provider_type.value}: "
+                        f"Search successful with provider {provider_name}: "
                         f"{len(result.listings)} listings found"
                     )
 
@@ -256,16 +263,22 @@ class ListingProviderManager:
                 else:
                     # Provider returned unsuccessful result
                     self._provider_stats[provider_type]["errors"] += 1
+                    provider_name = (
+                        provider_type.value if hasattr(provider_type, "value") else provider_type
+                    )
                     self.logger.warning(
-                        f"Provider {provider_type.value} returned unsuccessful result: "
+                        f"Provider {provider_name} returned unsuccessful result: "
                         f"{result.error_message}"
                     )
                     last_result = result
 
             except TimeoutError:
                 self._provider_stats[provider_type]["errors"] += 1
+                provider_name = (
+                    provider_type.value if hasattr(provider_type, "value") else provider_type
+                )
                 self.logger.warning(
-                    f"Provider {provider_type.value} timed out after "
+                    f"Provider {provider_name} timed out after "
                     f"{self.config.global_timeout_seconds}s"
                 )
                 last_result = ProviderResult(
@@ -278,7 +291,10 @@ class ListingProviderManager:
 
             except Exception as e:
                 self._provider_stats[provider_type]["errors"] += 1
-                self.logger.error(f"Provider {provider_type.value} failed: {e}")
+                provider_name = (
+                    provider_type.value if hasattr(provider_type, "value") else provider_type
+                )
+                self.logger.error(f"Provider {provider_name} failed: {e}")
                 last_result = ProviderResult(
                     listings=[],
                     provider_type=provider_type,
@@ -313,10 +329,16 @@ class ListingProviderManager:
                 health_results[provider_type] = is_healthy
 
                 if not is_healthy:
-                    self.logger.warning(f"Provider {provider_type.value} failed health check")
+                    provider_name = (
+                        provider_type.value if hasattr(provider_type, "value") else provider_type
+                    )
+                    self.logger.warning(f"Provider {provider_name} failed health check")
 
             except Exception as e:
-                self.logger.error(f"Health check error for provider {provider_type.value}: {e}")
+                provider_name = (
+                    provider_type.value if hasattr(provider_type, "value") else provider_type
+                )
+                self.logger.error(f"Health check error for provider {provider_name}: {e}")
                 health_results[provider_type] = False
 
         self._last_health_check = datetime.now()
@@ -390,7 +412,10 @@ class ListingProviderManager:
                 if hasattr(provider, "cleanup"):
                     await provider.cleanup()
             except Exception as e:
-                self.logger.error(f"Error cleaning up provider {provider_type.value}: {e}")
+                provider_name = (
+                    provider_type.value if hasattr(provider_type, "value") else provider_type
+                )
+                self.logger.error(f"Error cleaning up provider {provider_name}: {e}")
 
     async def __aenter__(self) -> "ListingProviderManager":
         """Async context manager entry."""
