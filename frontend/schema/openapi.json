@@ -2537,6 +2537,28 @@
         "type": "http",
         "scheme": "bearer"
       }
+    },
+    "examples": {
+      "SearchResponse": {
+        "search_id": "123e4567-e89b-12d3-a456-426614174000",
+        "query": "Samsung SSD",
+        "status": "active",
+        "interval": 3600,
+        "created_at": "2025-08-08T15:30:00Z"
+      },
+      "ListingResponse": {
+        "id": "456",
+        "title": "Samsung 970 EVO Plus 1TB",
+        "price": "€149,99",
+        "url": "https://www.marktplaats.nl/listing/456",
+        "location": "Amsterdam",
+        "is_new": true
+      },
+      "UserInfoResponse": {
+        "user_id": "user123",
+        "active_searches": 5,
+        "total_listings": 150
+      }
     }
   }
 }

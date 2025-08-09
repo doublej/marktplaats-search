@@ -187,10 +187,14 @@ class Settings:
     """Application settings loaded from environment variables."""
 
     def __init__(self) -> None:
-        # Database settings
-        self.database_url = os.getenv(
-            "DATABASE_URL", "sqlite+aiosqlite:///./data/marktplaats_api.db"
-        )
+        # Database settings - ensure data directory exists
+        project_root = os.path.dirname(os.path.dirname(__file__))
+        data_dir = os.path.join(project_root, "data")
+        os.makedirs(data_dir, exist_ok=True)
+        
+        default_db_path = os.path.join(data_dir, "marktplaats_api.db")
+        default_db_url = f"sqlite+aiosqlite:///{default_db_path}"
+        self.database_url = os.getenv("DATABASE_URL", default_db_url)
 
         # Security settings
         self.token_salt = os.getenv(

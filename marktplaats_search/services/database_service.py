@@ -104,7 +104,7 @@ class DatabaseService:
             "CREATE INDEX IF NOT EXISTS idx_listings_search ON listings(search_id)",
             "CREATE INDEX IF NOT EXISTS idx_listings_url ON listings(url)",
             "CREATE INDEX IF NOT EXISTS idx_listings_price ON listings(price_numeric)",
-            "CREATE INDEX IF NOT EXISTS idx_listings_created ON listings(created_at)",
+            "CREATE INDEX IF NOT EXISTS idx_listings_discovered ON listings(discovered_at)",
             "CREATE INDEX IF NOT EXISTS idx_listings_new ON listings(is_new)",
             "CREATE INDEX IF NOT EXISTS idx_listings_composite ON listings(search_id, url)",
         ]
