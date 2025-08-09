@@ -3,9 +3,12 @@ import uuid
 from datetime import UTC, datetime
 from typing import Any
 
+import httpx
 from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.interval import IntervalTrigger
+from pydantic import ValidationError
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload
 
@@ -18,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 
 # Configure persistent job store using SQLAlchemy
-def create_scheduler():
+def create_scheduler() -> AsyncIOScheduler:
     """Create scheduler with persistent job store."""
     from .config import settings
 
@@ -219,7 +222,7 @@ async def run_single_search(search_id: uuid.UUID) -> None:
                             f"SCHEDULER: Listing {listing_data.url} already exists for search {search_instance.id}"
                         )
 
-                except Exception as listing_error:
+                except (ValueError, AttributeError, ValidationError) as listing_error:
                     # Log individual listing errors but continue with others
                     logger.warning(f"Failed to add listing {listing_data.url}: {listing_error}")
 
@@ -235,7 +238,7 @@ async def run_single_search(search_id: uuid.UUID) -> None:
 
             await db.commit()
 
-    except Exception as e:
+    except (SQLAlchemyError, httpx.HTTPError, ValueError, AttributeError) as e:
         logger.error(f"SCHEDULER: Error running search {search_id}: {e}", exc_info=True)
         # Update search with error status and message in a new session
         try:
@@ -267,7 +270,7 @@ async def run_single_search(search_id: uuid.UUID) -> None:
                     # Optionally change status to ERROR, or just log and retry next interval
                     # error_search_instance.status = SearchStatus.ERROR
                     await error_db.commit()
-        except Exception as error_handling_error:
+        except SQLAlchemyError as error_handling_error:
             logger.error(f"SCHEDULER: Error updating search error status: {error_handling_error}")
 
 
@@ -321,7 +324,7 @@ def schedule_search_job(search: Search) -> None:
             else:
                 logger.debug(f"SCHEDULER: No job to remove for search {job_id}")
 
-    except Exception as e:
+    except (ValueError, AttributeError, RuntimeError) as e:
         logger.error(f"SCHEDULER: Error scheduling job for search {job_id}: {e}", exc_info=True)
         # Don't re-raise - this should not break the scheduler initialization
 

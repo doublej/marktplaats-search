@@ -12,6 +12,7 @@ from fastapi.responses import FileResponse
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from pydantic import BaseModel, Field, HttpUrl, validator
 from sqlalchemy import delete, func
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
@@ -427,7 +428,7 @@ async def health_check(db: AsyncSession = Depends(get_db)) -> HealthCheckRespons
         total_listings = result.scalar() or 0
 
         database_status = "healthy"
-    except Exception as e:
+    except (SQLAlchemyError, ValueError, AttributeError) as e:
         database_status = f"error: {str(e)}"
         total_searches = 0
         total_listings = 0
@@ -440,7 +441,7 @@ async def health_check(db: AsyncSession = Depends(get_db)) -> HealthCheckRespons
     # Check marktplaats client (basic import test)
     try:
         marktplaats_client_status = "healthy"
-    except Exception as e:
+    except ImportError as e:
         marktplaats_client_status = f"error: {str(e)}"
 
     return HealthCheckResponse(
@@ -1151,7 +1152,7 @@ async def refresh_all_searches_endpoint(
             if search.status == SearchStatus.ACTIVE:
                 try:
                     scheduler.schedule_search_job(search)
-                except Exception as scheduler_error:
+                except (ValueError, AttributeError, RuntimeError) as scheduler_error:
                     logging.warning(f"Failed to reschedule search {search.id}: {scheduler_error}")
                     search.last_error = f"Scheduler error: {str(scheduler_error)}"
             refreshed_count += 1
@@ -1163,7 +1164,7 @@ async def refresh_all_searches_endpoint(
             "refreshed_count": refreshed_count,
         }
 
-    except Exception as e:
+    except (SQLAlchemyError, ValueError, AttributeError) as e:
         logging.error(f"Error refreshing searches for user {current_user.id}: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -1201,7 +1202,7 @@ async def cleanup_old_listings_endpoint(
             dry_run=dry_run,
             message=f"{action} {deleted_count} listings older than {days_old} days from {len(searches_affected)} searches",
         )
-    except Exception as e:
+    except (SQLAlchemyError, ValueError, AttributeError) as e:
         logging.error(f"Error cleaning up listings: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -1229,7 +1230,7 @@ async def optimize_listing_queries_endpoint(
             "optimizations": optimizations,
             "success_rate": f"{success_count}/{total_count}",
         }
-    except Exception as e:
+    except (SQLAlchemyError, ValueError, AttributeError) as e:
         logging.error(f"Error optimizing queries: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

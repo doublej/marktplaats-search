@@ -74,7 +74,7 @@ class FrontendService:
 
             return results
 
-        except Exception as e:
+        except (OSError, FileNotFoundError, PermissionError) as e:
             return {"success": False, "error": f"Frontend consolidation failed: {e}", "actions": []}
 
     def _ensure_directory_structure(self) -> None:
@@ -192,7 +192,7 @@ if __name__ == "__main__":
                 "js_file": js_result.get("output_file"),
             }
 
-        except Exception as e:
+        except (OSError, FileNotFoundError, PermissionError) as e:
             return {"success": False, "error": f"Build failed: {e}", "actions": []}
 
     def _build_css(self) -> dict[str, Any]:
@@ -241,7 +241,7 @@ if __name__ == "__main__":
                 "files_included": found_files,
             }
 
-        except Exception as e:
+        except (OSError, FileNotFoundError, PermissionError) as e:
             return {"success": False, "error": f"CSS build error: {e}"}
 
     def _build_javascript(self) -> dict[str, Any]:
@@ -301,7 +301,7 @@ if __name__ == "__main__":
                 "files_included": found_files,
             }
 
-        except Exception as e:
+        except (OSError, FileNotFoundError, PermissionError) as e:
             return {"success": False, "error": f"JavaScript build error: {e}"}
 
     def _convert_es6_to_browser(self, content: str) -> str:
@@ -372,7 +372,7 @@ if __name__ == "__main__":
                 "message": f"Cleaned {len(removed_files)} build artifacts",
             }
 
-        except Exception as e:
+        except (OSError, PermissionError) as e:
             return {"success": False, "error": f"Cleanup failed: {e}", "removed_files": []}
 
     def get_build_status(self) -> dict[str, Any]:
@@ -415,5 +415,5 @@ if __name__ == "__main__":
 
             return {"success": True, "status": status}
 
-        except Exception as e:
+        except (OSError, FileNotFoundError) as e:
             return {"success": False, "error": f"Status check failed: {e}", "status": {}}

@@ -129,7 +129,7 @@ class DatabaseService:
                 "original_size": db_path.stat().st_size,
                 "backup_size": backup_path.stat().st_size,
             }
-        except Exception as e:
+        except (OSError, FileNotFoundError, PermissionError, shutil.Error) as e:
             return {
                 "success": False,
                 "error": str(e),
@@ -160,7 +160,7 @@ class DatabaseService:
                 "restored_from": str(backup_path),
                 "database_size": db_path.stat().st_size,
             }
-        except Exception as e:
+        except (OSError, FileNotFoundError, PermissionError, shutil.Error) as e:
             return {
                 "success": False,
                 "error": str(e),

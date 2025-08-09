@@ -166,13 +166,13 @@ class MarktplaatsScraper:
         logger.info(f"Found {len(listing_containers)} potential listing containers")
 
         for container in listing_containers[:50]:  # Limit to prevent excessive parsing
-            try:
-                listing = self._parse_single_listing(container)
-                if listing:
-                    listings.append(listing)
-            except Exception as e:
-                logger.debug(f"Failed to parse listing container: {e}")
+            if not hasattr(container, 'find') or not hasattr(container, 'get'):
+                logger.debug("Invalid container type, skipping")
                 continue
+                
+            listing = self._parse_single_listing(container)
+            if listing:
+                listings.append(listing)
 
         return listings
 
@@ -532,9 +532,9 @@ async def fetch_listings_legacy(
     except httpx.HTTPError as e:
         logger.error(f"HTTP error while fetching listings: {e}")
         raise MarktplaatsScrapingError(f"Network error: {e}") from e
-    except Exception as e:
-        logger.error(f"Unexpected error while fetching listings: {e}")
-        raise MarktplaatsScrapingError(f"Scraping failed: {e}") from e
+    except (ValueError, AttributeError, KeyError) as e:
+        logger.error(f"Data parsing error while fetching listings: {e}")
+        raise MarktplaatsScrapingError(f"Data parsing failed: {e}") from e
 
 
 # Import and use the new provider system
@@ -597,7 +597,7 @@ async def fetch_listings(
             sort_by=sort_by,
             sort_order=sort_order,
         )
-    except Exception as e:
+    except (MarktplaatsScrapingError, httpx.HTTPError, ValueError) as e:
         # If provider system fails, try legacy as fallback
         logger.warning(f"Provider system failed ({e}), attempting legacy fallback")
         try:
@@ -611,6 +611,6 @@ async def fetch_listings(
                 sort_by=sort_by,
                 sort_order=sort_order,
             )
-        except Exception as fallback_error:
+        except (MarktplaatsScrapingError, httpx.HTTPError, ValueError) as fallback_error:
             logger.error(f"Both provider system and legacy fallback failed: {fallback_error}")
-            raise Exception(f"All listing retrieval methods failed: {e}") from fallback_error
+            raise MarktplaatsScrapingError(f"All listing retrieval methods failed: {e}") from fallback_error
