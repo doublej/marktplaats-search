@@ -9,7 +9,13 @@ from .base import (
     SearchContext,
 )
 from .html_scraper import HtmlScrapingProvider
-from .manager import ListingProviderManager, ProviderManagerConfig
+from .manager import (
+    ListingProviderManager,
+    ProviderManager,
+    ProviderManagerConfig,
+    fetch_listings_with_providers,
+    get_provider_status,
+)
 
 # Conditional import of marktplaats library provider
 try:
@@ -52,6 +58,9 @@ __all__.extend(
     [
         # Provider management
         "ListingProviderManager",
+        "ProviderManager",
         "ProviderManagerConfig",
+        "fetch_listings_with_providers",
+        "get_provider_status",
     ]
 )

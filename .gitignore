@@ -90,3 +90,6 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 package-lock.json
+
+# Frontend build artifacts
+frontend/dist/

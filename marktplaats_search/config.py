@@ -188,7 +188,9 @@ class Settings:
 
     def __init__(self) -> None:
         # Database settings
-        self.database_url = os.getenv("DATABASE_URL", "sqlite+aiosqlite:///./marktplaats_api.db")
+        self.database_url = os.getenv(
+            "DATABASE_URL", "sqlite+aiosqlite:///./data/marktplaats_api.db"
+        )
 
         # Security settings
         self.token_salt = os.getenv(
@@ -768,6 +770,12 @@ class Settings:
         else:
             # This should never happen due to validation, but just in case
             raise ValueError("No providers are enabled")
+
+    def get_sync_database_url(self) -> str:
+        """Get synchronous database URL for Alembic migrations."""
+        if "+aiosqlite" in self.database_url:
+            return self.database_url.replace("+aiosqlite", "")
+        return self.database_url
 
 
 # Global settings instance

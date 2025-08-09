@@ -12,7 +12,7 @@ from fake_useragent import UserAgent
 from pydantic import BaseModel, HttpUrl, ValidationError
 
 from .price_utils import clean_and_parse_price
-from .text_utils import clean_description, clean_text
+from .text_utils import clean_description, clean_text, clean_title
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -128,14 +128,6 @@ class MarktplaatsScraper:
         """Clean and normalize price text using shared price utilities."""
         return clean_and_parse_price(price_text)
 
-    def _clean_text(self, text: str | None) -> str | None:
-        """Clean and normalize text content using shared utilities."""
-        return clean_text(text)
-
-    def _clean_description(self, text: str | None) -> str | None:
-        """Clean and normalize description text using shared utilities."""
-        return clean_description(text)
-
     def _parse_listings(self, html: str) -> list[ListingItem]:
         """Parse listings from HTML content."""
         soup = BeautifulSoup(html, "lxml")
@@ -208,7 +200,7 @@ class MarktplaatsScraper:
         title = None
 
         # Try link text first
-        link_text = self._clean_text(link_elem.get_text())
+        link_text = clean_text(link_elem.get_text())
         if link_text and len(link_text) > 5:
             title = link_text
 
@@ -220,25 +212,15 @@ class MarktplaatsScraper:
                 or container.find(class_=re.compile(r"hz-Listing-title", re.I))
             )
             if title_elem:
-                title = self._clean_text(title_elem.get_text())
+                title = clean_text(title_elem.get_text())
 
         if not title:
             return None
 
-        # Clean title - remove price and details text
-        # Remove various price patterns that can appear anywhere in title
-        title = re.sub(r"€\s*[\d.,]+\s*,?\s*", "", title)  # Remove Euro prices with optional comma
-        title = re.sub(r"\$\s*[\d.,]+\s*,?\s*", "", title)  # Remove Dollar prices
-        title = re.sub(r"[\d,]+\s*€\s*,?\s*", "", title)  # Remove reversed Euro format
-        title = re.sub(r"€\s*[\d.,]+[^a-zA-Z]*$", "", title)  # Remove trailing Euro prices
-        title = re.sub(r"\s*details\s*.*$", "", title, flags=re.I)  # Remove details text
-        title = re.sub(
-            r"^\s*[Nn]u ook ideal in \d*", "", title
-        )  # Remove "Nu ook ideal in X" prefix
-        title = re.sub(r"\s*\d+\s*$", "", title)  # Remove trailing numbers
-        title = re.sub(r"\|\s*$", "", title)  # Remove trailing pipe
-        title = re.sub(r",\s*$", "", title)  # Remove trailing comma
-        title = re.sub(r"\s+", " ", title).strip()  # Normalize whitespace
+        # Clean title using comprehensive text utils
+        title = clean_title(title)
+        if not title or len(title) < 3:
+            return None
 
         # Find price
         price = "Price on request"
@@ -274,7 +256,7 @@ class MarktplaatsScraper:
 
         for candidate in desc_candidates:
             if candidate:
-                desc_text = self._clean_description(candidate.get_text())
+                desc_text = clean_description(candidate.get_text())
                 if desc_text and desc_text != title and len(desc_text) > 10:
                     description = desc_text[:200]  # Limit length
                     break
@@ -306,7 +288,7 @@ class MarktplaatsScraper:
             if location_elem and any(
                 word in location_elem.lower() for word in ["op ", "km", "plaats"]
             ):
-                location_text = self._clean_text(location_elem.strip())
+                location_text = clean_text(location_elem.strip())
                 if location_text and len(location_text) < 50:
                     location = location_text
                     break
@@ -317,7 +299,7 @@ class MarktplaatsScraper:
         for pattern in seller_patterns:
             seller_match = re.search(f"{pattern}[:\\s]*([^\\n\\r,]+)", all_text, re.I)
             if seller_match:
-                cleaned_seller = self._clean_text(seller_match.group(1))
+                cleaned_seller = clean_text(seller_match.group(1))
                 if cleaned_seller:
                     seller = cleaned_seller[:50]
                 break
@@ -590,7 +572,7 @@ async def fetch_listings(
     """
     try:
         # Use the provider system
-        from .provider_client import fetch_listings_with_providers
+        from .providers import fetch_listings_with_providers
 
         return await fetch_listings_with_providers(
             query=query,

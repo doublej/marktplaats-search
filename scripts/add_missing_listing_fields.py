@@ -202,7 +202,6 @@ def main():
     # Find database
     project_root = Path(__file__).parent.parent
     possible_paths = [
-        project_root / "marktplaats_api.db",
         project_root / "data" / "marktplaats_api.db",
     ]
 

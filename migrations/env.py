@@ -17,7 +17,7 @@ from marktplaats_search.models import Base
 config = context.config
 
 # Set the database URL from our application configuration (convert to sync)
-sync_url = settings.database_url.replace("+aiosqlite", "")
+sync_url = settings.get_sync_database_url()
 config.set_main_option("sqlalchemy.url", sync_url)
 
 # Interpret the config file for Python logging.

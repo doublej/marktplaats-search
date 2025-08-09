@@ -3,7 +3,9 @@ from collections.abc import AsyncGenerator
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import declarative_base
 
-DATABASE_URL = "sqlite+aiosqlite:///./data/marktplaats_api.db"
+from .config import settings
+
+DATABASE_URL = settings.database_url
 
 engine = create_async_engine(DATABASE_URL, echo=False)  # Set echo=True for detailed SQL logging
 AsyncSessionLocal = async_sessionmaker(

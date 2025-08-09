@@ -3,6 +3,7 @@ import uuid
 from datetime import UTC, datetime
 from typing import Any
 
+from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 from sqlalchemy.future import select
@@ -10,15 +11,32 @@ from sqlalchemy.orm import selectinload
 
 from .database import AsyncSessionLocal  # Use the session factory directly for background tasks
 from .models import Listing, Search, SearchStatus
+from .providers import ListingProviderManager, ProviderManagerConfig
 from .providers.base import ProviderConfig, ProviderType, SearchContext
-from .providers.manager import ListingProviderManager, ProviderManagerConfig
 
 logger = logging.getLogger(__name__)
-scheduler = AsyncIOScheduler(
-    timezone="UTC",
-    executors={"default": {"type": "asyncio"}},
-    job_defaults={"coalesce": True, "max_instances": 1, "misfire_grace_time": 30},
-)
+
+
+# Configure persistent job store using SQLAlchemy
+def create_scheduler():
+    """Create scheduler with persistent job store."""
+    from .config import settings
+
+    # Use sync database URL for job store
+    sync_db_url = settings.get_sync_database_url()
+
+    jobstores = {"default": SQLAlchemyJobStore(url=sync_db_url)}
+
+    return AsyncIOScheduler(
+        jobstores=jobstores,
+        timezone="UTC",
+        executors={"default": {"type": "asyncio"}},
+        job_defaults={"coalesce": True, "max_instances": 1, "misfire_grace_time": 30},
+    )
+
+
+# Initialize scheduler with persistent storage
+scheduler = create_scheduler()
 
 # Global provider manager instance
 
@@ -254,10 +272,16 @@ async def run_single_search(search_id: uuid.UUID) -> None:
 
 
 def schedule_search_job(search: Search) -> None:
-    """Schedule, modify, or remove a search job based on search status and interval."""
-    job_id = str(search.id)
+    """Schedule, modify, or remove a search job based on search status and interval.
+
+    This function is idempotent - calling it multiple times with the same search
+    will not create duplicate jobs.
+    """
+    job_id = f"search_{search.id}"  # Use deterministic job ID with prefix
 
     try:
+        existing_job = scheduler.get_job(job_id)
+
         if search.status == SearchStatus.ACTIVE and search.interval > 0:
             # Create proper trigger instance
             trigger = IntervalTrigger(seconds=search.interval)
@@ -266,40 +290,51 @@ def schedule_search_job(search: Search) -> None:
                 "func": run_single_search,
                 "trigger": trigger,
                 "args": [search.id],
-                "next_run_time": datetime.now(UTC),  # Run immediately then interval
+                "kwargs": {},
+                "id": job_id,
+                "replace_existing": True,  # This ensures idempotency
+                "coalesce": True,
+                "max_instances": 1,
             }
 
-            existing_job = scheduler.get_job(job_id)
+            # Check if job needs to be updated
+            should_update = True
             if existing_job:
-                # When modifying, job_id is the first arg, other changes in **job_details
-                scheduler.modify_job(job_id, **job_details)
-                logger.info(
-                    f"SCHEDULER: Modified/Rescheduled search {job_id} to run every {search.interval}s"
-                )
-            else:
-                # When adding, id is part of job_details
-                scheduler.add_job(id=job_id, **job_details)
-                logger.info(f"SCHEDULER: Scheduled search {job_id} to run every {search.interval}s")
+                # Check if existing job has the same configuration
+                existing_interval = getattr(existing_job.trigger, "interval", None)
+                if existing_interval and existing_interval.total_seconds() == search.interval:
+                    should_update = False
+                    logger.debug(f"SCHEDULER: Job {job_id} already configured correctly")
+
+            if should_update:
+                # Add the job (replace_existing=True makes this idempotent)
+                scheduler.add_job(**job_details)
+                action = "Updated" if existing_job else "Scheduled"
+                logger.info(f"SCHEDULER: {action} search {job_id} to run every {search.interval}s")
         else:
             # Remove job if search is inactive or has invalid interval
-            existing_job = scheduler.get_job(job_id)
             if existing_job:
                 scheduler.remove_job(job_id)
                 logger.info(
-                    f"SCHEDULER: Removed job for search {job_id} (status: {search.status}, interval: {search.interval})."
+                    f"SCHEDULER: Removed job {job_id} (status: {search.status}, interval: {search.interval})"
                 )
+            else:
+                logger.debug(f"SCHEDULER: No job to remove for search {job_id}")
 
     except Exception as e:
         logger.error(f"SCHEDULER: Error scheduling job for search {job_id}: {e}", exc_info=True)
-        raise
+        # Don't re-raise - this should not break the scheduler initialization
 
 
 def remove_search_job(search: Search) -> None:
     """Remove a search job from the scheduler."""
-    job_id = str(search.id)
-    if scheduler.get_job(job_id):
+    job_id = f"search_{search.id}"  # Use same deterministic job ID format
+    existing_job = scheduler.get_job(job_id)
+    if existing_job:
         scheduler.remove_job(job_id)
         logger.info(f"SCHEDULER: Removed job for search {job_id}")
+    else:
+        logger.debug(f"SCHEDULER: No job found to remove for search {job_id}")
 
 
 async def initialize_scheduler() -> None:

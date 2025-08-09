@@ -7,12 +7,14 @@ and intelligent provider selection for enterprise-grade reliability.
 import asyncio
 import contextlib
 import logging
+import uuid
 from collections import defaultdict
 from datetime import datetime
 from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, Field, validator
 
+from ..client import ListingItem
 from .base import (
     MarktplaatsProvider,
     ProviderConfig,
@@ -434,3 +436,153 @@ class ListingProviderManager:
             f"primary={self.config.primary_provider.value}, "
             f"searches={self._search_count})"
         )
+
+
+# Singleton Provider Manager for Application-Level Access
+class ProviderManager:
+    """Singleton provider manager for the application."""
+
+    _instance: ListingProviderManager | None = None
+    _initialized: bool = False
+
+    @classmethod
+    async def get_instance(
+        cls, config: ProviderManagerConfig | None = None
+    ) -> ListingProviderManager:
+        """Get or create the provider manager instance.
+
+        Args:
+            config: Optional configuration for initialization
+
+        Returns:
+            ListingProviderManager instance
+        """
+        if cls._instance is None:
+            if config is None:
+                config = cls._get_default_config()
+
+            cls._instance = ListingProviderManager(config)
+
+        if not cls._initialized:
+            await cls._instance.initialize()
+            cls._initialized = True
+
+        return cls._instance
+
+    @classmethod
+    def _get_default_config(cls) -> ProviderManagerConfig:
+        """Get default provider manager configuration."""
+        html_scraper_config = ProviderConfig(
+            provider_type=ProviderType.HTML_SCRAPER,
+            enabled=True,
+            priority=50,
+            timeout_seconds=30,
+            max_retries=2,
+            retry_delay_seconds=1.0,
+            rate_limit_requests_per_minute=30,
+            rate_limit_burst_size=5,
+            health_check_interval_seconds=300,
+            circuit_breaker_threshold=5,
+            circuit_breaker_timeout_seconds=60,
+        )
+
+        library_provider_config = ProviderConfig(
+            provider_type=ProviderType.MARKTPLAATS_LIBRARY,
+            enabled=True,
+            priority=100,
+            timeout_seconds=45,
+            max_retries=1,
+            retry_delay_seconds=2.0,
+            rate_limit_requests_per_minute=15,
+            rate_limit_burst_size=3,
+            health_check_interval_seconds=300,
+            circuit_breaker_threshold=3,
+            circuit_breaker_timeout_seconds=120,
+        )
+
+        return ProviderManagerConfig(
+            primary_provider=ProviderType.HTML_SCRAPER,
+            fallback_providers=[ProviderType.MARKTPLAATS_LIBRARY],
+            max_concurrent_requests=3,
+            global_timeout_seconds=60,
+            enable_provider_switching=True,
+            health_check_interval_seconds=300,
+            metrics_collection_enabled=True,
+            retry_failed_providers=True,
+            provider_configs={
+                ProviderType.HTML_SCRAPER.value: html_scraper_config,
+                ProviderType.MARKTPLAATS_LIBRARY.value: library_provider_config,
+            },
+        )
+
+    @classmethod
+    async def shutdown(cls) -> None:
+        """Shutdown provider manager and cleanup resources."""
+        if cls._instance and cls._initialized:
+            await cls._instance.shutdown()
+            cls._instance = None
+            cls._initialized = False
+
+
+# High-Level API Functions
+async def fetch_listings_with_providers(
+    query: str,
+    zip_code: str | None = None,
+    distance: int | None = None,
+    price_from: int | None = None,
+    price_to: int | None = None,
+    limit: int = 10,
+    sort_by: str | None = None,
+    sort_order: str | None = None,
+    preferred_provider: ProviderType | None = None,
+    provider_config: ProviderManagerConfig | None = None,
+) -> list[ListingItem]:
+    """Fetch listings using the provider system with fallback support."""
+    logger = logging.getLogger(__name__)
+    logger.info(
+        f"Fetching listings: query='{query}', zip='{zip_code}', "
+        f"distance={distance}km, price={price_from}-{price_to}, limit={limit}"
+    )
+
+    provider_manager = await ProviderManager.get_instance(provider_config)
+
+    search_context = SearchContext(
+        search_id=str(uuid.uuid4()),
+        query=query,
+        zip_code=zip_code,
+        distance=distance,
+        price_from=price_from,
+        price_to=price_to,
+        limit=limit,
+        sort_by=sort_by,
+        sort_order=sort_order,
+        timeout_seconds=30,
+    )
+
+    result = await provider_manager.search_listings(
+        context=search_context,
+        preferred_provider=preferred_provider,
+    )
+
+    if not result.success:
+        logger.error(f"Provider search failed: {result.error_message}")
+        raise Exception(f"Failed to fetch listings: {result.error_message}")
+
+    logger.info(f"Retrieved {len(result.listings)} listings using {result.provider_type.value}")
+
+    return result.listings
+
+
+async def get_provider_status() -> dict[str, Any]:
+    """Get comprehensive status of all providers."""
+    try:
+        provider_manager = await ProviderManager.get_instance()
+        return await provider_manager.get_provider_status()
+    except Exception as e:
+        logger = logging.getLogger(__name__)
+        logger.error(f"Failed to get provider status: {e}")
+        return {
+            "error": f"Failed to get provider status: {e}",
+            "providers": {},
+            "metrics": None,
+        }
