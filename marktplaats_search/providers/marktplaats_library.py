@@ -74,7 +74,7 @@ class MarktplaatsLibraryProvider(MarktplaatsProvider):
             return await self._execute_with_circuit_breaker(
                 "library_search", lambda: self._perform_search(context, start_time)
             )
-        except Exception as e:
+        except (ValueError, AttributeError, ImportError, httpx.HTTPError) as e:
             self.logger.error(f"Marktplaats library search failed for query '{context.query}': {e}")
             return ProviderResult(
                 listings=[],

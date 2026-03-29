@@ -166,10 +166,10 @@ class MarktplaatsScraper:
         logger.info(f"Found {len(listing_containers)} potential listing containers")
 
         for container in listing_containers[:50]:  # Limit to prevent excessive parsing
-            if not hasattr(container, 'find') or not hasattr(container, 'get'):
+            if not hasattr(container, "find") or not hasattr(container, "get"):
                 logger.debug("Invalid container type, skipping")
                 continue
-                
+
             listing = self._parse_single_listing(container)
             if listing:
                 listings.append(listing)
@@ -613,4 +613,6 @@ async def fetch_listings(
             )
         except (MarktplaatsScrapingError, httpx.HTTPError, ValueError) as fallback_error:
             logger.error(f"Both provider system and legacy fallback failed: {fallback_error}")
-            raise MarktplaatsScrapingError(f"All listing retrieval methods failed: {e}") from fallback_error
+            raise MarktplaatsScrapingError(
+                f"All listing retrieval methods failed: {e}"
+            ) from fallback_error
