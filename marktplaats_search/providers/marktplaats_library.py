@@ -9,6 +9,7 @@ import logging
 from datetime import datetime
 from typing import TYPE_CHECKING, Any
 
+import httpx
 from pydantic import HttpUrl, ValidationError
 
 from ..client import ListingItem
