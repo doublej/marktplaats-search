@@ -54,9 +54,12 @@ class TestSettings:
 
     def test_invalid_provider_configuration(self):
         """Test validation of invalid provider configuration."""
-        with patch.dict(
-            os.environ, {"HTML_PROVIDER_ENABLED": "false", "LIBRARY_PROVIDER_ENABLED": "false"}
-        ), pytest.raises(ValueError, match="At least one provider must be enabled"):
+        with (
+            patch.dict(
+                os.environ, {"HTML_PROVIDER_ENABLED": "false", "LIBRARY_PROVIDER_ENABLED": "false"}
+            ),
+            pytest.raises(ValueError, match="At least one provider must be enabled"),
+        ):
             Settings()
 
     def test_get_sync_database_url(self):

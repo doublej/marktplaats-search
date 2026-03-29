@@ -5,9 +5,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "lint": "eslint frontend/src/js/**/*.js static/**/*.js",
-    "lint:fix": "eslint frontend/src/js/**/*.js static/**/*.js --fix",
-    "lint:check": "eslint frontend/src/js/**/*.js static/**/*.js --max-warnings 0",
+    "lint": "eslint frontend/src/js/**/*.js",
+    "lint:fix": "eslint frontend/src/js/**/*.js --fix",
+    "lint:check": "eslint frontend/src/js/**/*.js --max-warnings 0",
     "build": "python frontend/build.py"
   },
   "devDependencies": {

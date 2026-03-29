@@ -4,7 +4,7 @@ import prettier from 'eslint-config-prettier';
 export default [
   // Base configuration for all JavaScript files
   {
-    files: ['frontend/src/js/**/*.js', 'static/**/*.js'],
+    files: ['frontend/src/js/**/*.js'],
     languageOptions: {
       ecmaVersion: 2022,
       sourceType: 'script', // Legacy script architecture, not ES modules

@@ -126,7 +126,10 @@ class TestFetchListingsWithProviders:
         mock_manager = AsyncMock()
         mock_manager.search_listings = AsyncMock(return_value=mock_result)
 
-        with patch.object(ProviderManager, "get_instance", return_value=mock_manager), pytest.raises(Exception, match="Failed to fetch listings"):
+        with (
+            patch.object(ProviderManager, "get_instance", return_value=mock_manager),
+            pytest.raises(Exception, match="Failed to fetch listings"),
+        ):
             await fetch_listings_with_providers(query="test")
 
     async def test_search_context_creation(self):

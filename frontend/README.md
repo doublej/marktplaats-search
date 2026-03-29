@@ -23,7 +23,8 @@ frontend/
 │   │   │   ├── search-manager.js # Search management component
 │   │   │   └── results-viewer.js # Results display component
 │   │   ├── utils/
-│   │   │   └── helpers.js       # Utility functions ($, $$, escapeHtml, etc.)
+│   │   │   ├── helpers.js       # Utility functions ($, $$, escapeHtml, etc.)
+│   │   │   └── enhanced_features.js # Enhanced UI features
 │   │   └── app.js               # Main application class
 │   ├── css/                     # Stylesheets
 │   └── templates/               # HTML templates
@@ -85,15 +86,4 @@ The ESLint configuration recognizes these global variables:
 1. **Make changes** to JavaScript files in `frontend/src/js/`
 2. **Run linting**: `npm run lint:fix`
 3. **Test in browser**: The files are served directly by the Python backend
-4. **Build if needed**: `python frontend/build.py` (if build process exists)
-
-## Future Modernization
-
-This frontend could be modernized by:
-- Converting to ES modules with proper import/export
-- Adding a build step with bundling (webpack, vite, etc.)
-- Implementing a modern framework (React, Vue, etc.)
-- Adding TypeScript for better type safety
-- Implementing component-based architecture
-
-However, the current architecture is functional and serves the application's needs effectively.
+4. **Build**: `npm run build` (from `frontend/`) or `python frontend/build.py`

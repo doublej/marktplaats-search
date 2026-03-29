@@ -9,7 +9,6 @@ description = "A Python application for monitoring Marktplaats.nl listings with 
 authors = [
     {name = "Jurre Jan Dijkhuis", email = "jurre@example.com"},
 ]
-readme = "README.md"
 requires-python = ">=3.11"
 license = {text = "MIT"}
 dependencies = [
@@ -26,7 +25,6 @@ dependencies = [
     "passlib[bcrypt]>=1.7.0",
     "python-jose[cryptography]>=3.3.0",
     "marktplaats>=0.3.1",
-    "alembic>=1.16.4",
 ]
 
 [project.optional-dependencies]

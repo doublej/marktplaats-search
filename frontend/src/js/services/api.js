@@ -31,7 +31,7 @@ class ApiService {
         if (days) {
             const date = new Date();
             date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
-            expires = "; expires=" + date.toUTCString();
+            expires = `; expires=${  date.toUTCString()}`;
         }
         const secure = CONFIG.COOKIE_CONFIG.SECURE ? "; secure" : "";
         const sameSite = `; samesite=${CONFIG.COOKIE_CONFIG.SAME_SITE}`;
