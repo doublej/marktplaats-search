@@ -2,7 +2,7 @@
 
 This project is dead. It has been replaced by `web/marktplaats`.
 
-- **Successor:** `/Users/jurrejan/Documents/development/web/marktplaats`
+- **Successor:** `/Users/jurrejan/dev/web/marktplaats`
   (`backend/` = `marktplaats-js`, a TypeScript/Bun port of this scraper; `frontend/` = SvelteKit 5 UI)
 - **Superseded on:** 2026-07-27 (last commit here: 2026-03-29)
 - **Where the code went:** the core Python source was carried over verbatim into
